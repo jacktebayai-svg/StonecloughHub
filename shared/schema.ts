@@ -4,7 +4,15 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Enums
-export const dataTypeEnum = pgEnum('data_type', ['planning_application', 'council_spending', 'council_meeting', 'consultation']);
+export const dataTypeEnum = pgEnum('data_type', [
+  'planning_application', 
+  'council_spending', 
+  'council_meeting', 
+  'consultation',
+  'council_page',
+  'council_document',
+  'transparency_data'
+]);
 export const businessCategoryEnum = pgEnum('business_category', ['restaurant_cafe', 'retail_shopping', 'health_beauty', 'professional_services', 'home_garden', 'other']);
 export const forumCategoryEnum = pgEnum('forum_category', ['general', 'local_events', 'business_recommendations', 'council_planning', 'buy_sell']);
 export const surveyStatusEnum = pgEnum('survey_status', ['draft', 'active', 'closed']);

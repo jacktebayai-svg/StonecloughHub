@@ -40,9 +40,11 @@ Preferred communication style: Simple, everyday language.
 - **Validation**: Zod integration for runtime type validation
 
 ### Data Processing
-- **Web Scraping**: Custom scraper service for Bolton Council data using Cheerio
-- **Data Pipeline**: Automated data collection and processing from data.bolton.gov.uk
-- **Content Management**: Structured approach to council data categorization and metadata handling
+- **Advanced Web Scraper**: Multi-layer deep crawling system capable of 7+ layers deep with 20+ files per layer
+- **Intelligent URL Discovery**: Automatic link extraction and relevance filtering for comprehensive data collection
+- **Retry Logic**: Exponential backoff and error handling for reliable data extraction
+- **Data Pipeline**: Automated collection from Bolton Council planning portal and council websites
+- **Content Management**: Structured metadata extraction and categorization with depth tracking
 
 ### Authentication & Authorization
 - Session-based architecture prepared for user management

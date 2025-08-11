@@ -30,22 +30,37 @@ interface CouncilSpending {
 
 export class BoltonCouncilScraper {
   private planningBaseUrl = 'https://paplanning.bolton.gov.uk/online-applications';
-  private councilBaseUrl = 'https://www.bolton.gov.uk/council';
+  private councilBaseUrl = 'https://www.bolton.gov.uk';
+  private meetingsUrl = 'https://bolton.moderngov.co.uk';
+  private openDataUrl = 'https://opendata.bolton.gov.uk';
+  private webcastUrl = 'https://bolton.public-i.tv';
   private maxRetries = 3;
-  private delayBetweenRequests = 2000; // 2 seconds
+  private delayBetweenRequests = 1000; // 1 second for faster processing
+  private maxDepth = 7; // Maximum depth layers
+  private minFilesPerLayer = 20; // Minimum files per layer
+  private visitedUrls = new Set<string>();
+  private currentDepth = 0;
 
   async scrapeAndStoreData(): Promise<void> {
     try {
-      console.log('🚀 Starting comprehensive data scrape from Bolton Council...');
+      console.log('🚀 Starting comprehensive multi-layer data scrape from Bolton Council...');
+      console.log(`📊 Configuration: Max Depth: ${this.maxDepth}, Min Files/Layer: ${this.minFilesPerLayer}`);
       
-      // Run scrapers in parallel for efficiency
+      // Reset state for new scrape
+      this.visitedUrls.clear();
+      this.currentDepth = 0;
+      
+      // Run comprehensive scrapers with deep crawling
       await Promise.allSettled([
-        this.scrapePlanningApplications(),
-        this.scrapeCouncilMeetings(),
-        this.scrapeCouncilSpending()
+        this.scrapeDeepPlanningApplications(),
+        this.scrapeDeepCouncilMeetings(),
+        this.scrapeDeepCouncilSpending(),
+        this.scrapeCouncilDocuments(),
+        this.scrapeCommitteePages(),
+        this.scrapeTransparencyData()
       ]);
       
-      console.log('✅ Data scrape completed successfully');
+      console.log(`✅ Data scrape completed successfully. Visited ${this.visitedUrls.size} unique URLs`);
     } catch (error) {
       console.error('❌ Error during data scraping:', error);
       throw error;
@@ -84,51 +99,206 @@ export class BoltonCouncilScraper {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  private async scrapePlanningApplications(): Promise<void> {
-    console.log('📋 Scraping planning applications from Bolton Council...');
+  private async scrapeDeepPlanningApplications(): Promise<void> {
+    console.log('🏗️ Starting deep planning applications scrape...');
     
     try {
-      // Initial search page to get application links
-      const searchUrl = `${this.planningBaseUrl}/search.do?action=simple&searchType=Application`;
-      const searchHtml = await this.makeRequest(searchUrl);
-      const $ = cheerio.load(searchHtml);
-
-      // Extract application links from search results
-      const applicationLinks: string[] = [];
-      $('a[href*="applicationDetails.do"]').each((_, element) => {
-        const link = $(element).attr('href');
-        if (link) {
-          applicationLinks.push(`${this.planningBaseUrl}${link}`);
-        }
-      });
-
-      console.log(`📊 Found ${applicationLinks.length} planning application links`);
-
-      // Process each application (limit to prevent overwhelming)
-      const limitedLinks = applicationLinks.slice(0, 20);
+      const planningUrls = [
+        `${this.planningBaseUrl}/search.do?action=simple&searchType=Application`,
+        `${this.planningBaseUrl}/search.do?action=weeklyList`,
+        `${this.planningBaseUrl}/search.do?action=advanced&searchType=Application`,
+        `${this.planningBaseUrl}/appealSearch.do?action=simple&searchType=Appeal`,
+        `${this.planningBaseUrl}/search.do?action=simple&searchType=Enforcement`
+      ];
       
-      for (const [index, link] of limitedLinks.entries()) {
+      await this.crawlDeep(planningUrls, 'planning', this.extractAndStorePlanningData.bind(this));
+    } catch (error) {
+      console.error('❌ Error in deep planning applications scrape:', error);
+    }
+  }
+
+  private async crawlDeep(startUrls: string[], dataType: string, processor: (url: string, html: string, depth: number) => Promise<void>): Promise<void> {
+    let currentLayer = [...startUrls];
+    
+    for (let depth = 0; depth < this.maxDepth && currentLayer.length > 0; depth++) {
+      console.log(`🔍 Layer ${depth + 1}: Processing ${currentLayer.length} URLs for ${dataType}`);
+      
+      const nextLayer: string[] = [];
+      let processedCount = 0;
+      
+      // Process at least minFilesPerLayer URLs from current layer
+      const urlsToProcess = currentLayer.slice(0, Math.max(this.minFilesPerLayer, currentLayer.length));
+      
+      for (const url of urlsToProcess) {
+        if (this.visitedUrls.has(url)) continue;
+        
         try {
           await this.delay(this.delayBetweenRequests);
-          console.log(`🔍 Processing application ${index + 1}/${limitedLinks.length}`);
+          const html = await this.makeRequest(url);
+          this.visitedUrls.add(url);
           
-          const appHtml = await this.makeRequest(link);
-          const app$ = cheerio.load(appHtml);
+          // Process current page
+          await processor(url, html, depth);
           
-          const application = this.extractPlanningApplicationData(app$);
+          // Extract links for next layer
+          const newLinks = this.extractLinksFromPage(html, url, dataType);
+          nextLayer.push(...newLinks);
           
-          if (application) {
-            await this.storePlanningApplication(application);
+          processedCount++;
+          
+          if (processedCount % 5 === 0) {
+            console.log(`📊 Layer ${depth + 1}: Processed ${processedCount}/${urlsToProcess.length} URLs`);
           }
+          
         } catch (error) {
-          console.error(`❌ Error processing planning application ${link}:`, error);
+          console.error(`❌ Error processing ${url} at depth ${depth}:`, error);
           continue;
         }
       }
       
+      // Prepare next layer (remove duplicates and already visited)
+      currentLayer = [...new Set(nextLayer)].filter(url => !this.visitedUrls.has(url));
+      console.log(`✅ Layer ${depth + 1} complete. Found ${currentLayer.length} new URLs for next layer`);
+    }
+  }
+
+  private extractLinksFromPage(html: string, baseUrl: string, dataType: string): string[] {
+    const $ = cheerio.load(html);
+    const links: string[] = [];
+    
+    // Extract relevant links based on data type
+    const selectors = this.getLinkSelectors(dataType);
+    
+    selectors.forEach(selector => {
+      $(selector).each((_, element) => {
+        const href = $(element).attr('href');
+        if (href && !href.startsWith('javascript:') && !href.startsWith('#')) {
+          const fullUrl = this.resolveUrl(href, baseUrl);
+          if (fullUrl && this.isRelevantUrl(fullUrl, dataType)) {
+            links.push(fullUrl);
+          }
+        }
+      });
+    });
+    
+    return links;
+  }
+
+  private getLinkSelectors(dataType: string): string[] {
+    switch (dataType) {
+      case 'planning':
+        return [
+          'a[href*="applicationDetails.do"]',
+          'a[href*="search.do"]',
+          'a[href*="weeklyList"]',
+          'a[href*="appeal"]',
+          'a[href*="enforcement"]',
+          'a[href*="planning"]',
+          'a[href*=".pdf"]',
+          'a[href*="document"]'
+        ];
+      case 'council':
+        return [
+          'a[href*="meeting"]',
+          'a[href*="committee"]',
+          'a[href*="agenda"]',
+          'a[href*="minutes"]',
+          'a[href*="council"]',
+          'a[href*="decision"]',
+          'a[href*=".pdf"]',
+          'a[href*="transparency"]'
+        ];
+      case 'spending':
+        return [
+          'a[href*="spending"]',
+          'a[href*="transparency"]',
+          'a[href*="finance"]',
+          'a[href*="budget"]',
+          'a[href*=".csv"]',
+          'a[href*=".xlsx"]',
+          'a[href*="payment"]',
+          'a[href*="procurement"]'
+        ];
+      default:
+        return ['a[href]'];
+    }
+  }
+
+  private resolveUrl(href: string, baseUrl: string): string | null {
+    try {
+      if (href.startsWith('http')) return href;
+      
+      const base = new URL(baseUrl);
+      if (href.startsWith('/')) {
+        return `${base.protocol}//${base.host}${href}`;
+      }
+      
+      const basePath = base.pathname.replace(/\/[^\/]*$/, '/');
+      return `${base.protocol}//${base.host}${basePath}${href}`;
     } catch (error) {
-      console.error('❌ Error scraping planning applications:', error);
-      throw error;
+      return null;
+    }
+  }
+
+  private isRelevantUrl(url: string, dataType: string): boolean {
+    const lowerUrl = url.toLowerCase();
+    
+    // Must be from Bolton Council domains
+    if (!lowerUrl.includes('bolton.gov.uk') && !lowerUrl.includes('paplanning.bolton.gov.uk')) {
+      return false;
+    }
+    
+    // Filter based on data type
+    switch (dataType) {
+      case 'planning':
+        return lowerUrl.includes('planning') || 
+               lowerUrl.includes('application') || 
+               lowerUrl.includes('appeal') ||
+               lowerUrl.includes('enforcement');
+      case 'council':
+        return lowerUrl.includes('council') || 
+               lowerUrl.includes('meeting') || 
+               lowerUrl.includes('committee') ||
+               lowerUrl.includes('agenda') ||
+               lowerUrl.includes('minutes');
+      case 'spending':
+        return lowerUrl.includes('spending') || 
+               lowerUrl.includes('transparency') || 
+               lowerUrl.includes('finance') ||
+               lowerUrl.includes('budget');
+      default:
+        return true;
+    }
+  }
+
+  private async extractAndStorePlanningData(url: string, html: string, depth: number): Promise<void> {
+    const $ = cheerio.load(html);
+    
+    // Extract planning applications from the page
+    $('a[href*="applicationDetails.do"]').each(async (_, element) => {
+      const link = $(element).attr('href');
+      if (link) {
+        const fullLink = this.resolveUrl(link, url);
+        if (fullLink && !this.visitedUrls.has(fullLink)) {
+          try {
+            const appHtml = await this.makeRequest(fullLink);
+            const app$ = cheerio.load(appHtml);
+            const application = this.extractPlanningApplicationData(app$);
+            
+            if (application) {
+              await this.storePlanningApplication(application);
+            }
+          } catch (error) {
+            console.error(`❌ Error extracting planning data from ${fullLink}:`, error);
+          }
+        }
+      }
+    });
+    
+    // Also store page metadata if it contains relevant information
+    const title = $('title').text().trim();
+    if (title.includes('Planning') || title.includes('Application')) {
+      await this.storePageMetadata(url, title, 'planning_page', depth);
     }
   }
 
@@ -180,51 +350,256 @@ export class BoltonCouncilScraper {
     }
   }
 
-  private async scrapeCouncilMeetings(): Promise<void> {
-    console.log('🏛️ Scraping council meetings from Bolton Council...');
+  private async scrapeDeepCouncilMeetings(): Promise<void> {
+    console.log('🏛️ Starting deep council meetings scrape...');
     
     try {
-      const meetingsUrl = `${this.councilBaseUrl}/meetings-agendas-and-minutes`;
-      const html = await this.makeRequest(meetingsUrl);
-      const $ = cheerio.load(html);
-
-      // Look for meeting links and committee pages
-      const meetingLinks: string[] = [];
-      $('a[href*="meeting"], a[href*="committee"], a[href*="agenda"]').each((_, element) => {
-        const link = $(element).attr('href');
-        if (link) {
-          const fullLink = link.startsWith('http') ? link : `${this.councilBaseUrl}${link}`;
-          meetingLinks.push(fullLink);
-        }
-      });
-
-      console.log(`📊 Found ${meetingLinks.length} potential meeting links`);
-
-      // Process a limited number of meeting links
-      const limitedLinks = [...new Set(meetingLinks)].slice(0, 15);
+      const councilUrls = [
+        `${this.meetingsUrl}`, // Main meetings portal
+        `${this.meetingsUrl}/mgWhatsNew.aspx?bcr=1`, // What's new feed
+        `${this.meetingsUrl}/ieDocHome.aspx?bcr=1`, // Browse meetings
+        `${this.meetingsUrl}/mgMemberIndex.aspx?bcr=1`, // Councillors
+        `${this.councilBaseUrl}/cabinet-committees/cabinet-committee-meetings`,
+        `${this.councilBaseUrl}/opendata` // Open data portal
+      ];
       
-      for (const [index, link] of limitedLinks.entries()) {
-        try {
-          await this.delay(this.delayBetweenRequests);
-          console.log(`🔍 Processing meeting ${index + 1}/${limitedLinks.length}`);
-          
-          const meetingHtml = await this.makeRequest(link);
-          const meeting$ = cheerio.load(meetingHtml);
-          
-          const meeting = this.extractCouncilMeetingData(meeting$, link);
-          
-          if (meeting) {
-            await this.storeCouncilMeeting(meeting);
-          }
-        } catch (error) {
-          console.error(`❌ Error processing meeting ${link}:`, error);
-          continue;
+      await this.crawlDeep(councilUrls, 'council', this.extractAndStoreCouncilData.bind(this));
+    } catch (error) {
+      console.error('❌ Error in deep council meetings scrape:', error);
+    }
+  }
+
+  private async scrapeDeepCouncilSpending(): Promise<void> {
+    console.log('💷 Starting deep council spending scrape...');
+    
+    try {
+      const spendingUrls = [
+        `${this.openDataUrl}`, // Open data portal
+        `${this.councilBaseUrl}/opendata`, // Alternative open data
+        `${this.councilBaseUrl}/transparency-and-performance`, // Transparency hub
+        `${this.councilBaseUrl}/finance-and-legal`, // Finance section
+        `${this.councilBaseUrl}/budget`, // Budget information
+        `${this.meetingsUrl}/ieDocHome.aspx?bcr=1` // Meeting documents that may contain financial data
+      ];
+      
+      await this.crawlDeep(spendingUrls, 'spending', this.extractAndStoreSpendingData.bind(this));
+    } catch (error) {
+      console.error('❌ Error in deep spending scrape:', error);
+    }
+  }
+
+  private async scrapeCouncilDocuments(): Promise<void> {
+    console.log('📄 Starting council documents scrape...');
+    
+    try {
+      const documentUrls = [
+        `${this.councilBaseUrl}/publications`,
+        `${this.councilBaseUrl}/documents`,
+        `${this.councilBaseUrl}/reports`,
+        `${this.councilBaseUrl}/policies`,
+        `${this.councilBaseUrl}/strategies`
+      ];
+      
+      await this.crawlDeep(documentUrls, 'documents', this.extractAndStoreDocumentData.bind(this));
+    } catch (error) {
+      console.error('❌ Error in documents scrape:', error);
+    }
+  }
+
+  private async scrapeCommitteePages(): Promise<void> {
+    console.log('🏢 Starting committee pages scrape...');
+    
+    try {
+      const committeeUrls = [
+        `${this.councilBaseUrl}/planning-committee`,
+        `${this.councilBaseUrl}/licensing-committee`,
+        `${this.councilBaseUrl}/audit-committee`,
+        `${this.councilBaseUrl}/standards-committee`,
+        `${this.councilBaseUrl}/overview-scrutiny`
+      ];
+      
+      await this.crawlDeep(committeeUrls, 'committees', this.extractAndStoreCommitteeData.bind(this));
+    } catch (error) {
+      console.error('❌ Error in committee pages scrape:', error);
+    }
+  }
+
+  private async scrapeTransparencyData(): Promise<void> {
+    console.log('🔍 Starting transparency data scrape...');
+    
+    try {
+      const transparencyUrls = [
+        `${this.councilBaseUrl}/transparency`,
+        `${this.councilBaseUrl}/foi-requests`,
+        `${this.councilBaseUrl}/open-data`,
+        `${this.councilBaseUrl}/data-protection`,
+        `${this.councilBaseUrl}/information-governance`
+      ];
+      
+      await this.crawlDeep(transparencyUrls, 'transparency', this.extractAndStoreTransparencyData.bind(this));
+    } catch (error) {
+      console.error('❌ Error in transparency data scrape:', error);
+    }
+  }
+
+  private async extractAndStoreCouncilData(url: string, html: string, depth: number): Promise<void> {
+    const $ = cheerio.load(html);
+    
+    // Extract meeting information
+    const meeting = this.extractCouncilMeetingData($, url);
+    if (meeting) {
+      await this.storeCouncilMeeting(meeting);
+    }
+    
+    await this.storePageMetadata(url, $('title').text().trim(), 'council_page', depth);
+  }
+
+  private async extractAndStoreSpendingData(url: string, html: string, depth: number): Promise<void> {
+    const $ = cheerio.load(html);
+    
+    // Look for CSV/Excel files and spending data
+    $('a[href*=".csv"], a[href*=".xlsx"], a[href*="spend"]').each(async (_, element) => {
+      const link = $(element).attr('href');
+      const text = $(element).text().trim();
+      
+      if (link && text.toLowerCase().includes('spend')) {
+        await this.storeSpendingReference(text, link, url);
+      }
+    });
+    
+    await this.storePageMetadata(url, $('title').text().trim(), 'spending_page', depth);
+  }
+
+  private async extractAndStoreDocumentData(url: string, html: string, depth: number): Promise<void> {
+    const $ = cheerio.load(html);
+    
+    // Extract document links
+    $('a[href*=".pdf"], a[href*="document"], a[href*="report"]').each(async (_, element) => {
+      const link = $(element).attr('href');
+      const text = $(element).text().trim();
+      
+      if (link && text) {
+        const fullLink = this.resolveUrl(link, url);
+        if (fullLink) {
+          await this.storeDocumentReference(text, fullLink, url, depth);
         }
       }
+    });
+    
+    await this.storePageMetadata(url, $('title').text().trim(), 'document_page', depth);
+  }
+
+  private async extractAndStoreCommitteeData(url: string, html: string, depth: number): Promise<void> {
+    const $ = cheerio.load(html);
+    
+    const title = $('h1').first().text().trim() || $('title').text().trim();
+    if (title.includes('Committee') || title.includes('Meeting')) {
+      const meeting: CouncilMeeting = {
+        title,
+        date: new Date(),
+        committee: this.extractCommitteeName(title),
+        agenda: $('a:contains("Agenda")').attr('href'),
+        minutes: $('a:contains("Minutes")').attr('href')
+      };
       
+      await this.storeCouncilMeeting(meeting);
+    }
+    
+    await this.storePageMetadata(url, title, 'committee_page', depth);
+  }
+
+  private async extractAndStoreTransparencyData(url: string, html: string, depth: number): Promise<void> {
+    const $ = cheerio.load(html);
+    
+    // Extract transparency information
+    $('a[href*="foi"], a[href*="freedom"], a[href*="information"]').each(async (_, element) => {
+      const link = $(element).attr('href');
+      const text = $(element).text().trim();
+      
+      if (link && text) {
+        const fullLink = this.resolveUrl(link, url);
+        if (fullLink) {
+          await this.storeTransparencyReference(text, fullLink, url);
+        }
+      }
+    });
+    
+    await this.storePageMetadata(url, $('title').text().trim(), 'transparency_page', depth);
+  }
+
+  private extractCommitteeName(title: string): string {
+    if (title.includes('Planning')) return 'Planning Committee';
+    if (title.includes('Licensing')) return 'Licensing Committee';
+    if (title.includes('Audit')) return 'Audit Committee';
+    if (title.includes('Standards')) return 'Standards Committee';
+    if (title.includes('Cabinet')) return 'Cabinet';
+    if (title.includes('Overview')) return 'Overview and Scrutiny';
+    return 'General Committee';
+  }
+
+  private async storePageMetadata(url: string, title: string, pageType: string, depth: number): Promise<void> {
+    if (!title || title.length < 5) return;
+    
+    try {
+      const councilData: InsertCouncilData = {
+        title: `${pageType}: ${title}`,
+        description: `Page discovered at depth ${depth + 1} during deep crawling`,
+        dataType: 'council_page',
+        sourceUrl: url,
+        date: new Date(),
+        metadata: {
+          pageType,
+          depth: depth + 1,
+          type: 'page_metadata'
+        }
+      };
+
+      await storage.createCouncilData(councilData);
     } catch (error) {
-      console.error('❌ Error scraping council meetings:', error);
-      throw error;
+      console.error('❌ Error storing page metadata:', error);
+    }
+  }
+
+  private async storeDocumentReference(title: string, link: string, sourceUrl: string, depth: number): Promise<void> {
+    try {
+      const councilData: InsertCouncilData = {
+        title: `Document: ${title}`,
+        description: `Council document found at depth ${depth + 1}`,
+        dataType: 'council_document',
+        sourceUrl: link,
+        date: new Date(),
+        metadata: {
+          documentLink: link,
+          parentPage: sourceUrl,
+          depth: depth + 1,
+          type: 'document_reference'
+        }
+      };
+
+      await storage.createCouncilData(councilData);
+    } catch (error) {
+      console.error('❌ Error storing document reference:', error);
+    }
+  }
+
+  private async storeTransparencyReference(title: string, link: string, sourceUrl: string): Promise<void> {
+    try {
+      const councilData: InsertCouncilData = {
+        title: `Transparency: ${title}`,
+        description: 'Transparency and freedom of information data',
+        dataType: 'transparency_data',
+        sourceUrl: link,
+        date: new Date(),
+        metadata: {
+          transparencyLink: link,
+          parentPage: sourceUrl,
+          type: 'transparency_reference'
+        }
+      };
+
+      await storage.createCouncilData(councilData);
+    } catch (error) {
+      console.error('❌ Error storing transparency reference:', error);
     }
   }
 
@@ -281,41 +656,7 @@ export class BoltonCouncilScraper {
     }
   }
 
-  private async scrapeCouncilSpending(): Promise<void> {
-    console.log('💷 Scraping council spending data...');
-    
-    try {
-      // Look for spending/transparency data on the council website
-      const transparencyUrl = `${this.councilBaseUrl}/transparency`;
-      const spendingUrl = `${this.councilBaseUrl}/spending`;
-      
-      const urls = [transparencyUrl, spendingUrl];
-      
-      for (const url of urls) {
-        try {
-          const html = await this.makeRequest(url);
-          const $ = cheerio.load(html);
-          
-          // Look for spending reports, CSV files, or financial data
-          $('a[href*=".csv"], a[href*="spend"], a[href*="payment"]').each(async (_, element) => {
-            const link = $(element).attr('href');
-            const text = $(element).text().trim();
-            
-            if (link && text.toLowerCase().includes('spend')) {
-              // Store reference to spending data
-              await this.storeSpendingReference(text, link, url);
-            }
-          });
-          
-        } catch (error) {
-          console.log(`⚠️ Could not access ${url}, continuing...`);
-        }
-      }
-      
-    } catch (error) {
-      console.error('❌ Error scraping council spending:', error);
-    }
-  }
+
 
   private async storeSpendingReference(title: string, link: string, sourceUrl: string): Promise<void> {
     try {
