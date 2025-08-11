@@ -35,22 +35,37 @@ export class BoltonCouncilScraper {
   private openDataUrl = 'https://opendata.bolton.gov.uk';
   private webcastUrl = 'https://bolton.public-i.tv';
   private maxRetries = 3;
-  private delayBetweenRequests = 1000; // 1 second for faster processing
+  private baseDelay = 2000; // Base delay: 2 seconds
+  private maxDelay = 8000; // Max delay: 8 seconds
   private maxDepth = 7; // Maximum depth layers
   private minFilesPerLayer = 20; // Minimum files per layer
   private visitedUrls = new Set<string>();
   private currentDepth = 0;
+  private requestCount = 0;
+  private sessionStartTime = Date.now();
+  
+  // Stealth configurations
+  private userAgents = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0'
+  ];
 
   async scrapeAndStoreData(): Promise<void> {
     try {
-      console.log('🚀 Starting comprehensive multi-layer data scrape from Bolton Council...');
+      console.log('🚀 Starting comprehensive STEALTH multi-layer data scrape from Bolton Council...');
       console.log(`📊 Configuration: Max Depth: ${this.maxDepth}, Min Files/Layer: ${this.minFilesPerLayer}`);
+      console.log('🔒 Stealth Mode: Random delays (2-8s), User agent rotation, Break intervals (30-90s)');
       
       // Reset state for new scrape
       this.visitedUrls.clear();
       this.currentDepth = 0;
+      this.requestCount = 0;
+      this.sessionStartTime = Date.now();
       
-      // Run comprehensive scrapers with deep crawling
+      // Run comprehensive scrapers with deep crawling and stealth measures
       await Promise.allSettled([
         this.scrapeDeepPlanningApplications(),
         this.scrapeDeepCouncilMeetings(),
@@ -60,35 +75,56 @@ export class BoltonCouncilScraper {
         this.scrapeTransparencyData()
       ]);
       
-      console.log(`✅ Data scrape completed successfully. Visited ${this.visitedUrls.size} unique URLs`);
+      const sessionDuration = Math.round((Date.now() - this.sessionStartTime) / 1000 / 60);
+      console.log(`✅ STEALTH scrape completed successfully!`);
+      console.log(`📈 Stats: ${this.visitedUrls.size} URLs visited, ${this.requestCount} requests, ${sessionDuration} minutes`);
     } catch (error) {
-      console.error('❌ Error during data scraping:', error);
+      console.error('❌ Error during stealth data scraping:', error);
       throw error;
     }
   }
 
   private async makeRequest(url: string, retries = 0): Promise<string> {
     try {
+      // Implement stealth measures before each request
+      await this.implementStealthMeasures();
+      
+      const randomUserAgent = this.userAgents[Math.floor(Math.random() * this.userAgents.length)];
+      
+      console.log(`🔄 Fetching: ${url} (Request #${this.requestCount + 1})`);
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'User-Agent': randomUserAgent,
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.5',
-          'Accept-Encoding': 'gzip, deflate',
+          'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'DNT': '1',
           'Connection': 'keep-alive',
-          'Cache-Control': 'no-cache'
-        }
+          'Upgrade-Insecure-Requests': '1',
+          'Sec-Fetch-Dest': 'document',
+          'Sec-Fetch-Mode': 'navigate',
+          'Sec-Fetch-Site': 'none',
+          'Cache-Control': 'max-age=0'
+        },
+        timeout: 20000,
       });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      return await response.text();
+      this.requestCount++;
+      const content = await response.text();
+      
+      // Add intelligent delay after successful request
+      await this.addIntelligentDelay();
+      
+      return content;
     } catch (error) {
       if (retries < this.maxRetries) {
+        const delay = Math.pow(2, retries + 1) * 1000 + Math.random() * 2000; // Exponential backoff with jitter
         console.log(`⚠️ Request failed, retrying (${retries + 1}/${this.maxRetries}): ${url}`);
-        await this.delay(this.delayBetweenRequests * (retries + 1));
+        await this.delay(delay);
         return this.makeRequest(url, retries + 1);
       }
       throw error;
@@ -97,6 +133,49 @@ export class BoltonCouncilScraper {
 
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Stealth measures to avoid detection
+  private async implementStealthMeasures(): Promise<void> {
+    // Check if we need a long break (every 50-100 requests)
+    const breakInterval = 50 + Math.floor(Math.random() * 50); // Random between 50-100
+    if (this.requestCount > 0 && this.requestCount % breakInterval === 0) {
+      const breakDuration = 30000 + Math.random() * 60000; // 30-90 second break
+      console.log(`😴 Taking a stealth break for ${Math.round(breakDuration / 1000)} seconds to avoid detection...`);
+      await this.delay(breakDuration);
+      console.log('🔄 Resuming scraping operations...');
+    }
+    
+    // Check session duration - take extended break after 20-30 minutes
+    const sessionDuration = Date.now() - this.sessionStartTime;
+    const maxSessionTime = 20 * 60 * 1000 + Math.random() * 10 * 60 * 1000; // 20-30 minutes
+    
+    if (sessionDuration > maxSessionTime) {
+      const extendedBreak = 300000 + Math.random() * 300000; // 5-10 minute break
+      console.log(`🌙 Taking extended stealth break for ${Math.round(extendedBreak / 1000)} seconds - session reset...`);
+      await this.delay(extendedBreak);
+      this.sessionStartTime = Date.now(); // Reset session timer
+      console.log('🌅 Session reset complete, continuing with fresh stealth profile...');
+    }
+  }
+
+  private async addIntelligentDelay(): Promise<void> {
+    // Base delay with random variation
+    const randomDelay = this.baseDelay + Math.random() * (this.maxDelay - this.baseDelay);
+    
+    // Add extra delay for certain patterns (consecutive requests to same domain)
+    let extraDelay = 0;
+    if (this.requestCount % 10 === 0) {
+      extraDelay = 2000 + Math.random() * 3000; // Extra 2-5 seconds every 10 requests
+    }
+    
+    const totalDelay = randomDelay + extraDelay;
+    
+    if (totalDelay > this.baseDelay * 1.5) {
+      console.log(`⏳ Intelligent delay: ${Math.round(totalDelay / 1000)}s (stealth mode)`);
+    }
+    
+    await this.delay(totalDelay);
   }
 
   private async scrapeDeepPlanningApplications(): Promise<void> {

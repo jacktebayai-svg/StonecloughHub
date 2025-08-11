@@ -40,9 +40,15 @@ Preferred communication style: Simple, everyday language.
 - **Validation**: Zod integration for runtime type validation
 
 ### Data Processing
-- **Advanced Web Scraper**: Multi-layer deep crawling system capable of 7+ layers deep with 20+ files per layer
+- **Advanced Stealth Web Scraper**: Multi-layer deep crawling system capable of 7+ layers deep with 20+ files per layer
+- **Stealth Detection Avoidance**: 
+  - Random user agent rotation from 5 realistic browser profiles
+  - Intelligent delay system (2-8 second random intervals)
+  - Periodic breaks every 50-100 requests (30-90 seconds)
+  - Extended session breaks every 20-30 minutes (5-10 minutes)
+  - Exponential backoff with jitter for failed requests
 - **Intelligent URL Discovery**: Automatic link extraction and relevance filtering for comprehensive data collection
-- **Retry Logic**: Exponential backoff and error handling for reliable data extraction
+- **Retry Logic**: Advanced retry system with exponential backoff and error handling
 - **Data Pipeline**: Automated collection from Bolton Council planning portal and council websites
 - **Content Management**: Structured metadata extraction and categorization with depth tracking
 
