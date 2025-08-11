@@ -10,7 +10,7 @@ interface ArticleCardProps {
   featured?: boolean;
 }
 
-const categoryColors = {
+const categoryColors: Record<string, string> = {
   "Featured Analysis": "bg-hub-blue text-white",
   "Community": "bg-green-100 text-hub-green",
   "Business": "bg-purple-100 text-purple-600",

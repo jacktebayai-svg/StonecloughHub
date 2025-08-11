@@ -10,6 +10,7 @@ import Directory from "@/pages/directory";
 import Forum from "@/pages/forum";
 import Blog from "@/pages/blog";
 import Surveys from "@/pages/surveys";
+import Admin from "@/pages/admin";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/forum" component={Forum} />
       <Route path="/blog" component={Blog} />
       <Route path="/surveys" component={Surveys} />
+      <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
   );

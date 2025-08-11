@@ -65,7 +65,20 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
     reusePort: true,
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
+    
+    // Seed database on startup if no data exists
+    try {
+      const { storage } = await import("./storage");
+      const stats = await storage.getCouncilDataStats();
+      if (stats.planningApplications === 0) {
+        log('No data found, seeding database...');
+        const { seedDatabase } = await import("./services/seed-data");
+        await seedDatabase();
+      }
+    } catch (error) {
+      log('Note: Could not check database or seed data:', error);
+    }
   });
 })();

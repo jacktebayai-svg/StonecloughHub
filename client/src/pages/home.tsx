@@ -15,7 +15,7 @@ export default function Home() {
   });
 
   const { data: featuredBusinesses } = useQuery({
-    queryKey: ["/api/businesses", { limit: 3 }],
+    queryKey: ["/api/businesses"],
   });
 
   const { data: featuredArticle } = useQuery({
@@ -23,7 +23,7 @@ export default function Home() {
   });
 
   const { data: recentArticles } = useQuery({
-    queryKey: ["/api/blog/articles", { limit: 3 }],
+    queryKey: ["/api/blog/articles"],
   });
 
   // Sample data for the preview chart
