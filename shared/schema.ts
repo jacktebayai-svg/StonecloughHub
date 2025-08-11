@@ -1,5 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp, boolean, json, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, timestamp, boolean, json, pgEnum, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -16,6 +16,30 @@ export const dataTypeEnum = pgEnum('data_type', [
 export const businessCategoryEnum = pgEnum('business_category', ['restaurant_cafe', 'retail_shopping', 'health_beauty', 'professional_services', 'home_garden', 'other']);
 export const forumCategoryEnum = pgEnum('forum_category', ['general', 'local_events', 'business_recommendations', 'council_planning', 'buy_sell']);
 export const surveyStatusEnum = pgEnum('survey_status', ['draft', 'active', 'closed']);
+export const userRoleEnum = pgEnum('user_role', ['user', 'moderator', 'admin']);
+
+// Session storage table for authentication
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: json("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// User management table
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  role: userRoleEnum("role").default('user').notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
 
 // Data from Bolton Council
 export const councilData = pgTable("council_data", {
@@ -45,6 +69,7 @@ export const businesses = pgTable("businesses", {
   imageUrl: text("image_url"),
   isVerified: boolean("is_verified").default(false),
   isPremium: boolean("is_premium").default(false),
+  createdBy: varchar("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -55,6 +80,7 @@ export const forumDiscussions = pgTable("forum_discussions", {
   title: text("title").notNull(),
   content: text("content").notNull(),
   category: forumCategoryEnum("category").notNull(),
+  authorId: varchar("author_id").references(() => users.id),
   authorName: text("author_name").notNull(),
   authorInitials: text("author_initials").notNull(),
   likes: integer("likes").default(0),
@@ -68,6 +94,7 @@ export const forumReplies = pgTable("forum_replies", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   discussionId: varchar("discussion_id").references(() => forumDiscussions.id).notNull(),
   content: text("content").notNull(),
+  authorId: varchar("author_id").references(() => users.id),
   authorName: text("author_name").notNull(),
   authorInitials: text("author_initials").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -83,6 +110,7 @@ export const blogArticles = pgTable("blog_articles", {
   imageUrl: text("image_url"),
   readTime: integer("read_time").notNull(),
   isFeatured: boolean("is_featured").default(false),
+  authorId: varchar("author_id").references(() => users.id),
   authorName: text("author_name").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -96,6 +124,7 @@ export const surveys = pgTable("surveys", {
   status: surveyStatusEnum("status").default('draft'),
   questions: json("questions").notNull(), // Array of questions
   responseCount: integer("response_count").default(0),
+  createdBy: varchar("created_by").references(() => users.id),
   endsAt: timestamp("ends_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -196,3 +225,14 @@ export type Survey = typeof surveys.$inferSelect;
 
 export type InsertSurveyResponse = z.infer<typeof insertSurveyResponseSchema>;
 export type SurveyResponse = typeof surveyResponses.$inferSelect;
+
+// User types for authentication
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type UpsertUser = typeof users.$inferInsert;
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;

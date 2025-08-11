@@ -1,17 +1,22 @@
 import { 
-  councilData, businesses, forumDiscussions, forumReplies, blogArticles, surveys, surveyResponses,
+  councilData, businesses, forumDiscussions, forumReplies, blogArticles, surveys, surveyResponses, users,
   type CouncilData, type InsertCouncilData,
   type Business, type InsertBusiness,
   type ForumDiscussion, type InsertForumDiscussion,
   type ForumReply, type InsertForumReply,
   type BlogArticle, type InsertBlogArticle,
   type Survey, type InsertSurvey,
-  type SurveyResponse, type InsertSurveyResponse
+  type SurveyResponse, type InsertSurveyResponse,
+  type UpsertUser, type User
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql, count } from "drizzle-orm";
 
 export interface IStorage {
+  // Authentication - Required for Replit Auth
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+
   // Council Data
   getCouncilData(type?: string, limit?: number): Promise<CouncilData[]>;
   createCouncilData(data: InsertCouncilData): Promise<CouncilData>;
@@ -21,33 +26,62 @@ export interface IStorage {
   getBusinesses(category?: string, limit?: number): Promise<Business[]>;
   getBusiness(id: string): Promise<Business | undefined>;
   createBusiness(business: InsertBusiness): Promise<Business>;
+  updateBusiness(id: string, business: Partial<InsertBusiness>): Promise<Business>;
+  deleteBusiness(id: string): Promise<void>;
   searchBusinesses(query: string): Promise<Business[]>;
 
   // Forum
   getForumDiscussions(category?: string, limit?: number): Promise<ForumDiscussion[]>;
   getForumDiscussion(id: string): Promise<ForumDiscussion | undefined>;
   createForumDiscussion(discussion: InsertForumDiscussion): Promise<ForumDiscussion>;
+  updateForumDiscussion(id: string, discussion: Partial<InsertForumDiscussion>): Promise<ForumDiscussion>;
+  deleteForumDiscussion(id: string): Promise<void>;
   incrementViews(id: string): Promise<void>;
   
   // Forum Replies
   getForumReplies(discussionId: string): Promise<ForumReply[]>;
   createForumReply(reply: InsertForumReply): Promise<ForumReply>;
+  deleteForumReply(id: string): Promise<void>;
 
   // Blog
   getBlogArticles(limit?: number): Promise<BlogArticle[]>;
   getBlogArticle(id: string): Promise<BlogArticle | undefined>;
   getFeaturedBlogArticle(): Promise<BlogArticle | undefined>;
   createBlogArticle(article: InsertBlogArticle): Promise<BlogArticle>;
+  updateBlogArticle(id: string, article: Partial<InsertBlogArticle>): Promise<BlogArticle>;
+  deleteBlogArticle(id: string): Promise<void>;
 
   // Surveys
   getSurveys(status?: string): Promise<Survey[]>;
   getSurvey(id: string): Promise<Survey | undefined>;
   createSurvey(survey: InsertSurvey): Promise<Survey>;
+  updateSurvey(id: string, survey: Partial<InsertSurvey>): Promise<Survey>;
+  deleteSurvey(id: string): Promise<void>;
   createSurveyResponse(response: InsertSurveyResponse): Promise<SurveyResponse>;
   getSurveyResults(surveyId: string): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
+  // Authentication methods - Required for Replit Auth
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
   async getCouncilData(type?: string, limit: number = 50): Promise<CouncilData[]> {
     const query = db.select().from(councilData).orderBy(desc(councilData.date));
     
@@ -105,6 +139,18 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async updateBusiness(id: string, business: Partial<InsertBusiness>): Promise<Business> {
+    const [result] = await db.update(businesses)
+      .set({ ...business, updatedAt: new Date() })
+      .where(eq(businesses.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteBusiness(id: string): Promise<void> {
+    await db.delete(businesses).where(eq(businesses.id, id));
+  }
+
   async searchBusinesses(query: string): Promise<Business[]> {
     return await db.select().from(businesses)
       .where(sql`${businesses.name} ILIKE ${`%${query}%`} OR ${businesses.description} ILIKE ${`%${query}%`}`)
@@ -131,6 +177,21 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async updateForumDiscussion(id: string, discussion: Partial<InsertForumDiscussion>): Promise<ForumDiscussion> {
+    const [result] = await db.update(forumDiscussions)
+      .set({ ...discussion, updatedAt: new Date() })
+      .where(eq(forumDiscussions.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteForumDiscussion(id: string): Promise<void> {
+    // First delete all replies
+    await db.delete(forumReplies).where(eq(forumReplies.discussionId, id));
+    // Then delete the discussion
+    await db.delete(forumDiscussions).where(eq(forumDiscussions.id, id));
+  }
+
   async incrementViews(id: string): Promise<void> {
     await db.update(forumDiscussions)
       .set({ views: sql`${forumDiscussions.views} + 1` })
@@ -152,6 +213,18 @@ export class DatabaseStorage implements IStorage {
       .where(eq(forumDiscussions.id, reply.discussionId));
     
     return result;
+  }
+
+  async deleteForumReply(id: string): Promise<void> {
+    // Get the reply to find the discussion ID
+    const [reply] = await db.select().from(forumReplies).where(eq(forumReplies.id, id));
+    if (reply) {
+      await db.delete(forumReplies).where(eq(forumReplies.id, id));
+      // Decrement reply count
+      await db.update(forumDiscussions)
+        .set({ replyCount: sql`${forumDiscussions.replyCount} - 1` })
+        .where(eq(forumDiscussions.id, reply.discussionId));
+    }
   }
 
   async getBlogArticles(limit: number = 10): Promise<BlogArticle[]> {
@@ -177,6 +250,18 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async updateBlogArticle(id: string, article: Partial<InsertBlogArticle>): Promise<BlogArticle> {
+    const [result] = await db.update(blogArticles)
+      .set({ ...article, updatedAt: new Date() })
+      .where(eq(blogArticles.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteBlogArticle(id: string): Promise<void> {
+    await db.delete(blogArticles).where(eq(blogArticles.id, id));
+  }
+
   async getSurveys(status?: string): Promise<Survey[]> {
     const query = db.select().from(surveys).orderBy(desc(surveys.createdAt));
     
@@ -195,6 +280,21 @@ export class DatabaseStorage implements IStorage {
   async createSurvey(survey: InsertSurvey): Promise<Survey> {
     const [result] = await db.insert(surveys).values(survey).returning();
     return result;
+  }
+
+  async updateSurvey(id: string, survey: Partial<InsertSurvey>): Promise<Survey> {
+    const [result] = await db.update(surveys)
+      .set({ ...survey, updatedAt: new Date() })
+      .where(eq(surveys.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteSurvey(id: string): Promise<void> {
+    // First delete all responses
+    await db.delete(surveyResponses).where(eq(surveyResponses.surveyId, id));
+    // Then delete the survey
+    await db.delete(surveys).where(eq(surveys.id, id));
   }
 
   async createSurveyResponse(response: InsertSurveyResponse): Promise<SurveyResponse> {

@@ -1,85 +1,47 @@
-import { Link } from "wouter";
+import { MapPin } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="bg-hub-dark text-white py-16">
+    <footer className="bg-gray-900 text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          <div>
-            <h3 className="text-xl font-bold mb-4">The Stoneclough Hub</h3>
-            <p className="text-slate-300 mb-6 leading-relaxed">
-              Your community's source for transparent local data, business directory, and community engagement.
-            </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-slate-300 hover:text-white transition-colors">
-                <i className="fab fa-facebook text-xl"></i>
-              </a>
-              <a href="#" className="text-slate-300 hover:text-white transition-colors">
-                <i className="fab fa-twitter text-xl"></i>
-              </a>
-              <a href="#" className="text-slate-300 hover:text-white transition-colors">
-                <i className="fab fa-linkedin text-xl"></i>
-              </a>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="col-span-2">
+            <div className="flex items-center space-x-2 mb-4">
+              <MapPin className="h-6 w-6" />
+              <span className="text-lg font-bold">The Stoneclough Hub</span>
             </div>
+            <p className="text-gray-300 text-sm leading-relaxed">
+              The definitive community platform for Stoneclough, providing transparent access to local government data, 
+              business directory services, and community engagement tools.
+            </p>
           </div>
+          
           <div>
-            <h4 className="font-semibold mb-4">Community</h4>
-            <nav className="space-y-2">
-              <Link href="/dashboard" className="block text-slate-300 hover:text-white transition-colors">
-                Data Dashboard
-              </Link>
-              <Link href="/forum" className="block text-slate-300 hover:text-white transition-colors">
-                Community Forum
-              </Link>
-              <Link href="/surveys" className="block text-slate-300 hover:text-white transition-colors">
-                Surveys
-              </Link>
-              <Link href="/blog" className="block text-slate-300 hover:text-white transition-colors">
-                Blog
-              </Link>
-            </nav>
+            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+              Community
+            </h3>
+            <ul className="space-y-2">
+              <li><span className="text-sm text-gray-300 hover:text-white cursor-pointer">Forum</span></li>
+              <li><span className="text-sm text-gray-300 hover:text-white cursor-pointer">Blog</span></li>
+              <li><span className="text-sm text-gray-300 hover:text-white cursor-pointer">Surveys</span></li>
+            </ul>
           </div>
+          
           <div>
-            <h4 className="font-semibold mb-4">Business</h4>
-            <nav className="space-y-2">
-              <Link href="/directory" className="block text-slate-300 hover:text-white transition-colors">
-                Business Directory
-              </Link>
-              <a href="#" className="block text-slate-300 hover:text-white transition-colors">
-                Add Your Business
-              </a>
-              <a href="#" className="block text-slate-300 hover:text-white transition-colors">
-                Pricing Plans
-              </a>
-              <a href="#" className="block text-slate-300 hover:text-white transition-colors">
-                Success Stories
-              </a>
-            </nav>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-4">About</h4>
-            <nav className="space-y-2">
-              <a href="#" className="block text-slate-300 hover:text-white transition-colors">
-                Our Mission
-              </a>
-              <a href="#" className="block text-slate-300 hover:text-white transition-colors">
-                Contact Us
-              </a>
-              <a href="#" className="block text-slate-300 hover:text-white transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="block text-slate-300 hover:text-white transition-colors">
-                Terms of Service
-              </a>
-            </nav>
+            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+              Resources
+            </h3>
+            <ul className="space-y-2">
+              <li><span className="text-sm text-gray-300 hover:text-white cursor-pointer">Data Dashboard</span></li>
+              <li><span className="text-sm text-gray-300 hover:text-white cursor-pointer">Business Directory</span></li>
+              <li><span className="text-sm text-gray-300 hover:text-white cursor-pointer">Council Data</span></li>
+            </ul>
           </div>
         </div>
-        <div className="border-t border-slate-700 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-slate-300 text-sm">
-            © 2024 The Stoneclough Hub. All rights reserved.
-          </p>
-          <p className="text-slate-300 text-sm mt-4 md:mt-0">
-            Data sourced from <span className="font-medium">data.bolton.gov.uk</span> under Open Government Licence
+        
+        <div className="border-t border-gray-700 mt-8 pt-8">
+          <p className="text-center text-sm text-gray-400">
+            &copy; 2025 The Stoneclough Hub. Data sourced from Bolton Council under Open Government License.
           </p>
         </div>
       </div>

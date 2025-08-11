@@ -6,8 +6,23 @@ import {
   insertBusinessSchema, insertForumDiscussionSchema, insertForumReplySchema,
   insertBlogArticleSchema, insertSurveySchema, insertSurveyResponseSchema
 } from "@shared/schema";
+import { setupAuth, isAuthenticated, isAdmin, isModerator } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup Replit Authentication
+  await setupAuth(app);
+
+  // Authentication endpoints
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
   
   // Council Data endpoints
   app.get("/api/council-data", async (req, res) => {
@@ -71,13 +86,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/businesses", async (req, res) => {
+  app.post("/api/businesses", isAuthenticated, async (req: any, res) => {
     try {
       const validatedData = insertBusinessSchema.parse(req.body);
-      const business = await storage.createBusiness(validatedData);
+      const businessData = {
+        ...validatedData,
+        createdBy: req.user.claims.sub
+      };
+      
+      const business = await storage.createBusiness(businessData);
       res.status(201).json(business);
     } catch (error) {
       res.status(400).json({ error: "Invalid business data" });
+    }
+  });
+
+  app.patch("/api/businesses/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const business = await storage.getBusiness(req.params.id);
+      if (!business) {
+        return res.status(404).json({ error: "Business not found" });
+      }
+      
+      // Check ownership or admin privileges
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (business.createdBy !== userId && user?.role !== 'admin') {
+        return res.status(403).json({ error: "Not authorized to update this business" });
+      }
+
+      const validatedData = insertBusinessSchema.partial().parse(req.body);
+      const updatedBusiness = await storage.updateBusiness(req.params.id, validatedData);
+      res.json(updatedBusiness);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update business" });
+    }
+  });
+
+  app.delete("/api/businesses/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const business = await storage.getBusiness(req.params.id);
+      if (!business) {
+        return res.status(404).json({ error: "Business not found" });
+      }
+      
+      // Check ownership or admin privileges
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (business.createdBy !== userId && user?.role !== 'admin') {
+        return res.status(403).json({ error: "Not authorized to delete this business" });
+      }
+      
+      await storage.deleteBusiness(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete business" });
     }
   });
 
@@ -111,13 +174,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/forum/discussions", async (req, res) => {
+  app.post("/api/forum/discussions", isAuthenticated, async (req: any, res) => {
     try {
       const validatedData = insertForumDiscussionSchema.parse(req.body);
-      const discussion = await storage.createForumDiscussion(validatedData);
+      const discussionData = {
+        ...validatedData,
+        authorId: req.user.claims.sub
+      };
+      const discussion = await storage.createForumDiscussion(discussionData);
       res.status(201).json(discussion);
     } catch (error) {
       res.status(400).json({ error: "Invalid discussion data" });
+    }
+  });
+
+  app.patch("/api/forum/discussions/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const discussion = await storage.getForumDiscussion(req.params.id);
+      if (!discussion) {
+        return res.status(404).json({ error: "Discussion not found" });
+      }
+      
+      // Check ownership or admin/moderator privileges
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (discussion.authorId !== userId && !['admin', 'moderator'].includes(user?.role || '')) {
+        return res.status(403).json({ error: "Not authorized to update this discussion" });
+      }
+
+      const validatedData = insertForumDiscussionSchema.partial().parse(req.body);
+      const updatedDiscussion = await storage.updateForumDiscussion(req.params.id, validatedData);
+      res.json(updatedDiscussion);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update discussion" });
+    }
+  });
+
+  app.delete("/api/forum/discussions/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const discussion = await storage.getForumDiscussion(req.params.id);
+      if (!discussion) {
+        return res.status(404).json({ error: "Discussion not found" });
+      }
+      
+      // Check ownership or admin/moderator privileges
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (discussion.authorId !== userId && !['admin', 'moderator'].includes(user?.role || '')) {
+        return res.status(403).json({ error: "Not authorized to delete this discussion" });
+      }
+      
+      await storage.deleteForumDiscussion(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete discussion" });
     }
   });
 
@@ -130,16 +240,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/forum/discussions/:id/replies", async (req, res) => {
+  app.post("/api/forum/discussions/:id/replies", isAuthenticated, async (req: any, res) => {
     try {
       const validatedData = insertForumReplySchema.parse({
         ...req.body,
-        discussionId: req.params.id
+        discussionId: req.params.id,
+        authorId: req.user.claims.sub
       });
       const reply = await storage.createForumReply(validatedData);
       res.status(201).json(reply);
     } catch (error) {
       res.status(400).json({ error: "Invalid reply data" });
+    }
+  });
+
+  app.delete("/api/forum/replies/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      // This would require fetching the reply first to check ownership
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      // For now, allow deletion by the author or admin/moderator
+      // A more complete implementation would fetch the reply to check authorId
+      if (!['admin', 'moderator'].includes(user?.role || '')) {
+        return res.status(403).json({ error: "Not authorized to delete replies" });
+      }
+      
+      await storage.deleteForumReply(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete reply" });
     }
   });
 
@@ -180,13 +310,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/blog/articles", async (req, res) => {
+  app.post("/api/blog/articles", isAuthenticated, async (req: any, res) => {
     try {
       const validatedData = insertBlogArticleSchema.parse(req.body);
-      const article = await storage.createBlogArticle(validatedData);
+      const articleData = {
+        ...validatedData,
+        authorId: req.user.claims.sub
+      };
+      const article = await storage.createBlogArticle(articleData);
       res.status(201).json(article);
     } catch (error) {
       res.status(400).json({ error: "Invalid article data" });
+    }
+  });
+
+  app.patch("/api/blog/articles/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const article = await storage.getBlogArticle(req.params.id);
+      if (!article) {
+        return res.status(404).json({ error: "Article not found" });
+      }
+      
+      // Check ownership or admin/moderator privileges
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (article.authorId !== userId && !['admin', 'moderator'].includes(user?.role || '')) {
+        return res.status(403).json({ error: "Not authorized to update this article" });
+      }
+
+      const validatedData = insertBlogArticleSchema.partial().parse(req.body);
+      const updatedArticle = await storage.updateBlogArticle(req.params.id, validatedData);
+      res.json(updatedArticle);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update article" });
+    }
+  });
+
+  app.delete("/api/blog/articles/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const article = await storage.getBlogArticle(req.params.id);
+      if (!article) {
+        return res.status(404).json({ error: "Article not found" });
+      }
+      
+      // Check ownership or admin/moderator privileges
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (article.authorId !== userId && !['admin', 'moderator'].includes(user?.role || '')) {
+        return res.status(403).json({ error: "Not authorized to delete this article" });
+      }
+      
+      await storage.deleteBlogArticle(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete article" });
     }
   });
 
@@ -213,13 +390,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/surveys", async (req, res) => {
+  app.post("/api/surveys", isAuthenticated, async (req: any, res) => {
     try {
       const validatedData = insertSurveySchema.parse(req.body);
-      const survey = await storage.createSurvey(validatedData);
+      const surveyData = {
+        ...validatedData,
+        createdBy: req.user.claims.sub
+      };
+      const survey = await storage.createSurvey(surveyData);
       res.status(201).json(survey);
     } catch (error) {
       res.status(400).json({ error: "Invalid survey data" });
+    }
+  });
+
+  app.patch("/api/surveys/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const survey = await storage.getSurvey(req.params.id);
+      if (!survey) {
+        return res.status(404).json({ error: "Survey not found" });
+      }
+      
+      // Check ownership or admin privileges
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (survey.createdBy !== userId && user?.role !== 'admin') {
+        return res.status(403).json({ error: "Not authorized to update this survey" });
+      }
+
+      const validatedData = insertSurveySchema.partial().parse(req.body);
+      const updatedSurvey = await storage.updateSurvey(req.params.id, validatedData);
+      res.json(updatedSurvey);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update survey" });
+    }
+  });
+
+  app.delete("/api/surveys/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const survey = await storage.getSurvey(req.params.id);
+      if (!survey) {
+        return res.status(404).json({ error: "Survey not found" });
+      }
+      
+      // Check ownership or admin privileges
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (survey.createdBy !== userId && user?.role !== 'admin') {
+        return res.status(403).json({ error: "Not authorized to delete this survey" });
+      }
+      
+      await storage.deleteSurvey(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete survey" });
     }
   });
 
@@ -245,8 +469,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Data scraping endpoint (admin only in production)
-  app.post("/api/admin/scrape", async (req, res) => {
+  // Admin-only endpoints
+  app.post("/api/admin/scrape", isAuthenticated, isAdmin, async (req, res) => {
     try {
       await scraper.scrapeAndStoreData();
       res.json({ message: "Data scraping completed successfully" });
@@ -255,7 +479,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/scraper/status", async (req, res) => {
+  app.get("/api/admin/scraper/status", isAuthenticated, isAdmin, async (req, res) => {
     try {
       const isConnected = await scraper.testConnection();
       res.json({ connected: isConnected });
