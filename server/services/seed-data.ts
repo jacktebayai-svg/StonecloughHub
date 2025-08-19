@@ -4,26 +4,27 @@ import {
   InsertBusiness, 
   InsertBlogArticle, 
   InsertForumDiscussion, 
-  InsertSurvey 
+  InsertSurvey,
+  InsertSkill
 } from '@shared/schema';
 
 export async function seedDatabase(): Promise<void> {
   try {
     console.log('🌱 Seeding database with sample data...');
 
-    // Seed council data
+    // Check if data already exists to prevent duplicates
+    const existingData = await storage.getBusinesses();
+    if (existingData.length > 0) {
+      console.log('📋 Database already contains data, skipping seeding');
+      return;
+    }
+
+    // Seed data in order (dependencies first)
+    await seedSkills();
     await seedCouncilData();
-    
-    // Seed businesses
     await seedBusinesses();
-    
-    // Seed blog articles
     await seedBlogArticles();
-    
-    // Seed forum discussions
     await seedForumDiscussions();
-    
-    // Seed surveys
     await seedSurveys();
     
     console.log('✅ Database seeding completed');
@@ -295,4 +296,35 @@ async function seedSurveys(): Promise<void> {
   }
   
   console.log('✅ Seeded surveys');
+}
+
+async function seedSkills(): Promise<void> {
+  const skills: InsertSkill[] = [
+    { name: 'Plumbing' },
+    { name: 'Electrical Work' },
+    { name: 'Gardening' },
+    { name: 'Carpentry' },
+    { name: 'Painting & Decorating' },
+    { name: 'Web Development' },
+    { name: 'Graphic Design' },
+    { name: 'Photography' },
+    { name: 'Tutoring' },
+    { name: 'Pet Care' },
+    { name: 'Childcare' },
+    { name: 'Cleaning Services' },
+    { name: 'Catering' },
+    { name: 'Music Lessons' },
+    { name: 'Fitness Training' },
+    { name: 'Computer Repair' },
+    { name: 'Translation' },
+    { name: 'Event Planning' },
+    { name: 'Hair & Beauty' },
+    { name: 'Driving Instruction' }
+  ];
+
+  for (const skill of skills) {
+    await storage.createSkill(skill);
+  }
+  
+  console.log('✅ Seeded skills');
 }

@@ -8,6 +8,10 @@ import {
 } from "@shared/schema";
 import { setupAuth, isAuthenticated, isAdmin, isModerator } from "./auth";
 import authRoutes from "./routes/auth";
+import uploadRoutes from "./routes/upload";
+import adminRoutes from "./routes/admin";
+import exportRoutes from "./routes/export";
+import { createRateLimitMiddleware, createCacheMiddleware, CACHE_KEYS } from "./services/cache";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup Auth
@@ -38,8 +42,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Apply rate limiting to API routes
+  app.use('/api/', createRateLimitMiddleware(100, 900)); // 100 requests per 15 minutes
+
   // Auth routes using Supabase
   app.use("/api/auth", authRoutes);
+
+  // File upload routes
+  app.use("/api/upload", uploadRoutes);
+
+  // Admin routes
+  app.use("/api/admin", adminRoutes);
+
+  // Export and public API routes
+  app.use("/api/export", exportRoutes);
+
+  // Serve uploaded files
+  app.use('/uploads', require('express').static(process.cwd() + '/uploads'));
+
+  // Apply caching to frequently accessed endpoints
+  const councilDataCache = createCacheMiddleware(CACHE_KEYS.COUNCIL_DATA, 3600);
+  const businessCache = createCacheMiddleware(CACHE_KEYS.BUSINESSES, 1800);
 
   // Council Data endpoints
   app.get("/api/council-data", async (req, res) => {

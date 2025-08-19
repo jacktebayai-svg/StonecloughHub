@@ -11,7 +11,7 @@
     "db:push": "drizzle-kit push",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
-    "vercel-build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "vercel-build": "vite build",
     "railway:build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "railway:start": "NODE_ENV=production node dist/index.js",
     "scraper:build": "esbuild server/run-scraper.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
@@ -21,7 +21,16 @@
     "docker:build-scraper": "docker build -t stoneclough-hub-scraper -f Dockerfile.scraper .",
     "docker:run": "docker run -p 3000:3000 --env-file .env stoneclough-hub",
     "docker:run-scraper": "docker run --env-file .env stoneclough-hub-scraper",
-    "test:railway": "node scripts/test-railway-deployment.js"
+    "test:railway": "node scripts/test-railway-deployment.js",
+    "db:check": "tsx scripts/check-db.ts",
+    "setup:dev": "./scripts/dev-setup.sh",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:stoneclough": "./scripts/deploy-stoneclough.sh",
+    "status": "pm2 status || echo 'PM2 not running'",
+    "logs": "pm2 logs || docker-compose logs -f",
+    "restart": "pm2 restart stoneclough-hub || docker-compose restart",
+    "stop": "pm2 stop stoneclough-hub || docker-compose down",
+    "test": "echo \"Tests will be added here\" && exit 0"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

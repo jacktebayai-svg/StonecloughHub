@@ -1,4 +1,289 @@
-# StonecloughHub 🏘️
+# Stoneclough Hub
+
+A modern community platform built for Stoneclough village, providing local news, community discussions, business directory, civic information, and resident services.
+
+## 🏗️ Architecture
+
+**Frontend**: React 18 + TypeScript + Vite + Tailwind CSS  
+**Backend**: Express.js + TypeScript + Drizzle ORM  
+**Database**: PostgreSQL with Redis caching  
+**Authentication**: Supabase Auth  
+**Real-time**: WebSockets  
+**Deployment**: Docker + Nginx  
+
+## ✨ Features
+
+- **Community Forum** - Threaded discussions with real-time updates
+- **Local News Blog** - Village updates and announcements  
+- **Business Directory** - Local business listings with contact info
+- **Civic Data** - Council information, meetings, and documents
+- **User Dashboard** - Personalized user experience
+- **Admin Panel** - Content management and user administration
+- **Real-time Notifications** - WebSocket-powered live updates
+- **File Uploads** - Image and document handling
+- **Email Notifications** - Automated community updates
+- **Mobile Responsive** - Works on all devices
+
+## 🚀 Quick Start
+
+### Development Setup
+
+1. **Clone and setup**
+   ```bash
+   git clone <repository-url>
+   cd StonecloughHub
+   chmod +x scripts/*.sh
+   npm run setup:dev
+   ```
+
+2. **Configure environment**
+   - Copy `.env.example` to `.env`
+   - Update database, Supabase, and email settings
+
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+### Production Deployment
+
+```bash
+npm run deploy
+```
+
+## 📋 Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm start` | Start production server |
+| `npm run setup:dev` | Complete development setup |
+| `npm run deploy` | Production deployment |
+| `npm run db:migrate` | Run database migrations |
+| `npm run db:seed` | Seed database with sample data |
+| `npm test` | Run test suite |
+| `npm run status` | Check application status |
+| `npm run logs` | View application logs |
+
+## 🗄️ Database Schema
+
+### Core Tables
+
+- **users** - User profiles and authentication
+- **forum_discussions** - Community forum topics
+- **forum_replies** - Discussion responses  
+- **blog_posts** - News articles and updates
+- **businesses** - Local business directory
+- **council_meetings** - Civic meeting information
+- **surveys** - Community polls and surveys
+- **notifications** - User notification system
+- **skills** - Community skills sharing
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Required for production:
+
+```env
+# Database
+DATABASE_URL=postgresql://user:pass@host:port/db
+
+# Supabase Authentication  
+SUPABASE_URL=https://project.supabase.co
+SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_KEY=your_service_key
+
+# Application
+NODE_ENV=production
+PORT=5000
+APP_URL=https://your-domain.com
+
+# Email (optional)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your_email
+SMTP_PASS=your_password
+
+# Redis Cache (optional)
+REDIS_URL=redis://localhost:6379
+```
+
+### Docker Setup
+
+**Development:**
+```bash
+docker-compose up -d
+```
+
+**Production:**
+```bash
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+## 🌐 API Endpoints
+
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration  
+- `POST /api/auth/logout` - User logout
+- `POST /api/auth/refresh` - Refresh session
+
+### Forum
+- `GET /api/forum/discussions` - List discussions
+- `POST /api/forum/discussions` - Create discussion
+- `GET /api/forum/discussions/:id/replies` - Get replies
+- `POST /api/forum/discussions/:id/replies` - Add reply
+
+### Blog  
+- `GET /api/blog/posts` - List blog posts
+- `POST /api/blog/posts` - Create post (admin)
+- `PUT /api/blog/posts/:id` - Update post (admin)
+- `DELETE /api/blog/posts/:id` - Delete post (admin)
+
+### Business Directory
+- `GET /api/businesses` - List businesses
+- `POST /api/businesses` - Add business
+- `PUT /api/businesses/:id` - Update business
+- `DELETE /api/businesses/:id` - Remove business
+
+### Admin
+- `GET /api/admin/users` - Manage users
+- `GET /api/admin/analytics` - View analytics
+- `POST /api/admin/moderate` - Content moderation
+
+## 🔐 Security Features
+
+- **Rate Limiting** - API endpoint protection
+- **Input Validation** - Zod schema validation
+- **CORS Protection** - Cross-origin request security
+- **Session Management** - Secure user sessions
+- **File Upload Security** - Safe file handling
+- **SQL Injection Protection** - Parameterized queries
+- **XSS Prevention** - Input sanitization
+
+## 📊 Monitoring & Logging
+
+- **Health Checks** - `/health` endpoint
+- **Application Logs** - PM2/Docker logging
+- **Error Tracking** - Structured error handling
+- **Performance Monitoring** - Request timing
+- **Database Monitoring** - Connection pooling metrics
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run specific test suites
+npm run test:api
+npm run test:frontend
+npm run test:e2e
+```
+
+## 📱 Frontend Components
+
+### Key Components
+- `AuthModal` - Login/register forms
+- `Header` - Navigation with auth state
+- `ForumDiscussion` - Forum thread display
+- `BlogPost` - Article display component
+- `BusinessCard` - Directory listing
+- `Dashboard` - User dashboard
+- `AdminPanel` - Administrative interface
+
+### Real-time Features
+- Live forum updates
+- Notification system
+- Admin alerts
+- User presence indicators
+
+## 🎨 Styling
+
+- **Tailwind CSS** - Utility-first styling
+- **Radix UI** - Accessible components
+- **Framer Motion** - Smooth animations
+- **Lucide Icons** - Consistent iconography
+- **Dark Mode** - Theme switching support
+
+## 🚀 Deployment Options
+
+### Vercel
+```bash
+npm run vercel-build
+```
+
+### Railway  
+```bash
+npm run railway:build
+npm run railway:start
+```
+
+### Docker
+```bash
+npm run docker:build
+npm run docker:run
+```
+
+### VPS/Server
+1. Install Node.js, PostgreSQL, Redis, Nginx
+2. Clone repository and run deployment script
+3. Configure Nginx with provided config
+4. Set up SSL certificates
+5. Configure firewall and monitoring
+
+## 🛠️ Development
+
+### Project Structure
+```
+StonecloughHub/
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/     # React components
+│   │   ├── pages/         # Page components  
+│   │   ├── lib/           # Utilities
+│   │   └── hooks/         # Custom hooks
+├── server/                # Express backend
+│   ├── routes/           # API routes
+│   ├── db/               # Database schema
+│   ├── middleware/       # Express middleware
+│   └── services/         # Business logic
+├── scripts/              # Build/deploy scripts
+├── uploads/              # File uploads
+└── scraped_data/         # Web scraped content
+```
+
+### Adding New Features
+
+1. **Database Changes**: Update schema in `server/db/schema.ts`
+2. **API Endpoints**: Add routes in `server/routes/`
+3. **Frontend Pages**: Create components in `client/src/pages/`
+4. **Real-time**: Update WebSocket handlers
+5. **Tests**: Add test coverage
+6. **Documentation**: Update README
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes  
+4. Add tests if applicable
+5. Update documentation
+6. Submit a pull request
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## 📞 Support
+
+For community support and feature requests, please visit the forum or contact the development team.
+
+---
+
+**Built with ❤️ for the Stoneclough Community**
 
 A comprehensive community platform for Stoneclough, featuring business directories, community forums, local council data integration, and resident engagement tools.
 

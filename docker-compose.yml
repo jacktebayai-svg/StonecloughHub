@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: stoneclough_hub
+      POSTGRES_USER: stoneclough_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-development_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./server/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stoneclough_user -d stoneclough_hub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Mailhog (for email testing in development)
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web UI
+    profiles:
+      - dev
+
+  # Main Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${PORT:-5000}:${PORT:-5000}"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=${PORT:-5000}
+      - DATABASE_URL=postgresql://stoneclough_user:${POSTGRES_PASSWORD:-development_password}@postgres:5432/stoneclough_hub
+      - REDIS_URL=redis://redis:6379
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - SMTP_HOST=${SMTP_HOST:-mailhog}
+      - SMTP_PORT=${SMTP_PORT:-1025}
+      - SMTP_USER=${SMTP_USER:-test@stoneclough-hub.com}
+      - SMTP_PASS=${SMTP_PASS:-}
+      - SMTP_FROM=${SMTP_FROM:-noreply@stoneclough-hub.com}
+      - APP_URL=${APP_URL:-http://localhost:5000}
+      - JWT_SECRET=${JWT_SECRET:-development-jwt-secret}
+      - SESSION_SECRET=${SESSION_SECRET:-development-session-secret}
+    volumes:
+      - uploads_data:/app/uploads
+      - scraped_data:/app/scraped_data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Database migrations (run once)
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql://stoneclough_user:${POSTGRES_PASSWORD:-development_password}@postgres:5432/stoneclough_hub
+    command: ["node", "dist/db/migrate.js"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - migrate
+
+  # Database seeding (run once)
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql://stoneclough_user:${POSTGRES_PASSWORD:-development_password}@postgres:5432/stoneclough_hub
+      - REDIS_URL=redis://redis:6379
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+    command: ["node", "-e", "require('./dist/server/services/seed-data.js').seedDatabase().then(() => console.log('Seeding complete')).catch(console.error)"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles:
+      - seed
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  uploads_data:
+    driver: local
+  scraped_data:
+    driver: local
+
+networks:
+  default:
+    name: stoneclough-hub-network

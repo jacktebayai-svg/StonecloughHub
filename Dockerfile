@@ -34,18 +34,19 @@ COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=build --chown=nextjs:nodejs /app/dist ./dist
 COPY --from=build --chown=nextjs:nodejs /app/package.json ./package.json
 
-# Create directory for scraped data
-RUN mkdir -p /app/scraped_data && chown -R nextjs:nodejs /app/scraped_data
+# Create directories for uploads and scraped data
+RUN mkdir -p /app/uploads/images /app/uploads/documents /app/uploads/temp /app/scraped_data && \
+    chown -R nextjs:nodejs /app/uploads /app/scraped_data
 
 # Switch to non-root user
 USER nextjs
 
-# Expose port (Railway will set PORT environment variable)
-EXPOSE 3000
+# Expose port (Railway will set PORT environment variable, default to 5000)
+EXPOSE ${PORT:-5000}
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:$PORT/health || exit 1
+  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 5000) + '/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
 
 # Start the application
 CMD ["npm", "start"]

@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "name": "stoneclough-hub",
   "builds": [
     {
       "src": "package.json",
@@ -9,14 +10,29 @@
       }
     },
     {
-      "src": "api/**/*.ts",
-      "use": "@vercel/node"
+      "src": "server/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "server/**/*",
+          "uploads/**/*",
+          "dist/**/*"
+        ]
+      }
     }
   ],
   "routes": [
     {
+      "src": "/health",
+      "dest": "server/index.ts"
+    },
+    {
       "src": "/api/(.*)",
-      "dest": "/api/index.ts"
+      "dest": "server/index.ts"
+    },
+    {
+      "src": "/uploads/(.*)",
+      "dest": "server/index.ts"
     },
     {
       "handle": "filesystem"
@@ -25,5 +41,17 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "functions": {
+    "server/index.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "regions": ["lhr1"],
+  "github": {
+    "silent": true
+  }
 }

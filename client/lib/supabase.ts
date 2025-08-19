@@ -38,27 +38,37 @@ if (!supabaseUrl || !supabaseAnonKey) {
             
             return { data: { user: data.user, session: data.session }, error: null };
           } else {
-            return { data: { user: null, session: null }, error: data.error };
+            return { data: { user: null, session: null }, error: data };
           }
         } catch (error) {
           return { data: { user: null, session: null }, error: { message: 'Network error' } };
         }
       },
       
-      signUp: async (credentials: { email: string; password: string }) => {
+      signUp: async (credentials: { email: string; password: string; options?: any }) => {
         try {
+          const payload = {
+            email: credentials.email,
+            password: credentials.password,
+            full_name: credentials.options?.data?.full_name || ''
+          };
+          
           const response = await fetch('/api/auth/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(credentials)
+            body: JSON.stringify(payload)
           });
           
           const data = await response.json();
           
           if (response.ok) {
+            // Show the signup success message
+            if (data.message) {
+              alert(data.message);
+            }
             return { data: { user: data.user, session: data.session }, error: null };
           } else {
-            return { data: { user: null, session: null }, error: data.error };
+            return { data: { user: null, session: null }, error: data };
           }
         } catch (error) {
           return { data: { user: null, session: null }, error: { message: 'Network error' } };

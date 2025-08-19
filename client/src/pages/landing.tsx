@@ -5,14 +5,31 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { BusinessCard } from "@/components/business/business-card";
 import { ArticleCard } from "@/components/blog/article-card";
-import { FileText, Building2, MessageSquare, BarChart3, Users } from "lucide-react";
+import { 
+  FileText, 
+  Building2, 
+  MessageSquare, 
+  BarChart3, 
+  Users,
+  Search,
+  Shield,
+  TrendingUp,
+  Globe,
+  MapPin,
+  Clock,
+  Star,
+  ArrowRight,
+  CheckCircle
+} from "lucide-react";
 import { motion } from "framer-motion";
-import { DataChart } from "@/components/charts/data-chart"; // Import DataChart
+import { DataChart } from "@/components/charts/data-chart";
 import { supabase } from "../../lib/supabase";
 import { useState } from "react";
 
 export default function Landing() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [showSignUp, setShowSignUp] = useState(false);
+  const [authData, setAuthData] = useState({ email: '', password: '', name: '' });
   
   const handleLogin = () => {
     window.location.href = "/api/auth/google";
@@ -34,6 +51,94 @@ export default function Landing() {
       setIsLoggingIn(false);
     }
   };
+  
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoggingIn(true);
+    try {
+      if (showSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email: authData.email,
+          password: authData.password,
+          options: {
+            data: {
+              full_name: authData.name
+            }
+          }
+        });
+        if (error) {
+          console.error('Sign up error:', error);
+        } else {
+          alert('Check your email for the confirmation link!');
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: authData.email,
+          password: authData.password
+        });
+        if (error) {
+          console.error('Sign in error:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+  
+  // Platform features
+  const features = [
+    {
+      icon: Building2,
+      title: 'Business Directory',
+      description: 'Discover and support local businesses in Stoneclough. Find services, read reviews, and connect with entrepreneurs.',
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
+    },
+    {
+      icon: MessageSquare,
+      title: 'Community Forum',
+      description: 'Engage in meaningful discussions about local issues, events, and community initiatives with your neighbors.',
+      color: 'text-green-600',
+      bgColor: 'bg-green-50'
+    },
+    {
+      icon: FileText,
+      title: 'Local Blog & News',
+      description: 'Stay informed with community-driven content, local news, and insights from residents and officials.',
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50'
+    },
+    {
+      icon: BarChart3,
+      title: 'Council Data Transparency',
+      description: 'Access real-time council data including budgets, spending, planning applications, and meeting records.',
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50'
+    },
+    {
+      icon: Users,
+      title: 'Surveys & Polls',
+      description: 'Participate in community surveys and polls to have your voice heard on local matters.',
+      color: 'text-red-600',
+      bgColor: 'bg-red-50'
+    },
+    {
+      icon: Search,
+      title: 'Smart Search',
+      description: 'Find any local information quickly with our intelligent search across all platform content.',
+      color: 'text-indigo-600',
+      bgColor: 'bg-indigo-50'
+    }
+  ];
+  
+  const stats = [
+    { label: 'Active Users', value: '2,500+', icon: Users },
+    { label: 'Local Businesses', value: '150+', icon: Building2 },
+    { label: 'Council Documents', value: '10,000+', icon: FileText },
+    { label: 'Community Posts', value: '5,000+', icon: MessageSquare }
+  ];
 
   const { data: promotedBusinesses, isLoading: isLoadingBusinesses } = useQuery({
     queryKey: ['promotedBusinesses'],
@@ -111,156 +216,289 @@ export default function Landing() {
         </motion.div>
       </header>
 
-      {/* Demo Login Section */}
-      <section className="container mx-auto px-4 py-8">
-        <motion.div 
-          className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6 mb-8"
-          variants={itemVariants}
-        >
-          <h2 className="text-2xl font-bold text-stoneclough-blue dark:text-stoneclough-light mb-4 text-center">🎯 Demo Login - Test All Features</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg text-red-600">👑 Admin Account</CardTitle>
-                <CardDescription>Full access to all features</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm mb-2"><strong>Email:</strong> admin@stoneclough.local</p>
-                <p className="text-sm mb-4"><strong>Password:</strong> admin123</p>
-                <Button 
-                  onClick={() => handleDemoLogin('admin@stoneclough.local', 'admin123', 'Admin')}
-                  disabled={isLoggingIn}
-                  className="w-full bg-red-600 hover:bg-red-700"
-                >
-                  {isLoggingIn ? 'Logging in...' : 'Login as Admin'}
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg text-blue-600">🛡️ Moderator Account</CardTitle>
-                <CardDescription>Moderate content and discussions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm mb-2"><strong>Email:</strong> moderator@stoneclough.local</p>
-                <p className="text-sm mb-4"><strong>Password:</strong> mod123</p>
-                <Button 
-                  onClick={() => handleDemoLogin('moderator@stoneclough.local', 'mod123', 'Moderator')}
-                  disabled={isLoggingIn}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                >
-                  {isLoggingIn ? 'Logging in...' : 'Login as Moderator'}
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg text-green-600">👤 User Account</CardTitle>
-                <CardDescription>Standard community member</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm mb-2"><strong>Email:</strong> demo@stoneclough.local</p>
-                <p className="text-sm mb-4"><strong>Password:</strong> demo123</p>
-                <Button 
-                  onClick={() => handleDemoLogin('demo@stoneclough.local', 'demo123', 'User')}
-                  disabled={isLoggingIn}
-                  className="w-full bg-green-600 hover:bg-green-700"
-                >
-                  {isLoggingIn ? 'Logging in...' : 'Login as User'}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Featured Content Grid */}
-      <main className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Promoted Businesses */}
-          <motion.section
-            className="bg-stoneclough-light dark:bg-stoneclough-blue p-6 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300"
-            variants={itemVariants}
-            whileHover={{ scale: 1.02 }}
-          >
-            <h3 className="text-2xl font-bold text-stoneclough-blue dark:text-stoneclough-light mb-6 text-center">Featured Local Businesses</h3>
-            {isLoadingBusinesses ? (
-              <p className="text-center text-stoneclough-gray-blue">Loading businesses...</p>
-            ) : promotedBusinesses && promotedBusinesses.length > 0 ? (
-              <div className="space-y-4">
-                {promotedBusinesses.map((business: any) => (
-                  <BusinessCard key={business.id} business={business} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-stoneclough-gray-blue">No promoted businesses found.</p>
-            )}
-            <div className="text-center mt-6">
-              <Link href="/directory">
-                <Button size="lg" variant="outline" className="shadow-md">View All Businesses</Button>
-              </Link>
-            </div>
-          </motion.section>
-
-          {/* Promoted Articles */}
-          <motion.section
-            className="bg-white dark:bg-stoneclough-blue/90 p-6 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300"
-            variants={itemVariants}
-            whileHover={{ scale: 1.02 }}
-          >
-            <h3 className="text-2xl font-bold text-stoneclough-blue dark:text-stoneclough-light mb-6 text-center">Latest Community Insights</h3>
-            {isLoadingArticles ? (
-              <p className="text-center text-stoneclough-gray-blue">Loading articles...</p>
-            ) : promotedArticles && promotedArticles.length > 0 ? (
-              <div className="space-y-4">
-                {promotedArticles.map((article: any) => (
-                  <ArticleCard key={article.id} article={article} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-stoneclough-gray-blue">No promoted articles found.</p>
-            )}
-            <div className="text-center mt-6">
-              <Link href="/blog">
-                <Button size="lg" variant="outline" className="shadow-md">Read All Articles</Button>
-              </Link>
-            </div>
-          </motion.section>
-
-          {/* Harvested Data Insights */}
-          <motion.section
-            className="bg-stoneclough-light dark:bg-stoneclough-blue p-6 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300"
-            variants={itemVariants}
-            whileHover={{ scale: 1.02 }}
-          >
-            <h3 className="text-2xl font-bold text-stoneclough-blue dark:text-stoneclough-light mb-6 text-center">Fast Data Insights</h3>
-            <Card className="mb-4">
-              <CardHeader>
-                <CardTitle className="text-stoneclough-blue">Council Data Overview</CardTitle>
-                <CardDescription className="text-stoneclough-gray-blue">Key metrics from Bolton Council</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <DataChart 
-                  data={sampleInsights} 
-                  type="bar"
-                  height={200}
-                  colors={['#254974', '#a2876f', '#dd6b20']}
-                />
-                <p className="text-sm text-stoneclough-gray-blue mt-4 text-center">
-                  Data updated daily from official sources.
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-blue-50 via-white to-purple-50 py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left side - Hero content */}
+            <motion.div variants={itemVariants} className="space-y-8">
+              <div>
+                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 mb-6">
+                  🚀 Now Live for Stoneclough Community
+                </Badge>
+                <h1 className="text-4xl md:text-5xl xl:text-6xl font-bold text-slate-900 tracking-tight">
+                  <span className="block">Connect with your</span>
+                  <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    local community
+                  </span>
+                </h1>
+                <p className="mt-6 text-xl text-slate-600 leading-relaxed max-w-2xl">
+                  The Stoneclough Hub brings transparency to local government, connects residents with businesses, 
+                  and fosters meaningful community discussions. Join engaged citizens building a stronger community together.
                 </p>
-              </CardContent>
-            </Card>
-            <div className="text-center mt-6">
-              <Link href="/dashboard">
-                <Button size="lg" variant="outline" className="shadow-md">View Full Dashboard</Button>
-              </Link>
-            </div>
-          </motion.section>
+              </div>
+              
+              {/* Quick stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {stats.map((stat, index) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 + index * 0.1 }}
+                    className="bg-white/80 backdrop-blur-sm rounded-lg p-4 text-center shadow-sm"
+                  >
+                    <stat.icon className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+                    <div className="text-lg font-bold text-slate-900">{stat.value}</div>
+                    <div className="text-xs text-slate-600">{stat.label}</div>
+                  </motion.div>
+                ))}
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button size="lg" onClick={handleLogin} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                  Get Started Free
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+                <Button size="lg" variant="outline">
+                  Learn More
+                </Button>
+              </div>
+            </motion.div>
+            
+            {/* Right side - Auth form */}
+            <motion.div variants={itemVariants} className="lg:pl-8">
+              <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+                <CardHeader className="space-y-1 pb-6">
+                  <div className="flex justify-center space-x-1 mb-4">
+                    <button
+                      onClick={() => setShowSignUp(false)}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                        !showSignUp ? 'bg-blue-100 text-blue-700' : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      onClick={() => setShowSignUp(true)}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                        showSignUp ? 'bg-blue-100 text-blue-700' : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Sign Up
+                    </button>
+                  </div>
+                  <CardTitle className="text-2xl font-bold text-center text-slate-900">
+                    {showSignUp ? 'Join the Community' : 'Welcome Back'}
+                  </CardTitle>
+                  <p className="text-center text-slate-600">
+                    {showSignUp ? 'Create your account to get started' : 'Sign in to access your dashboard'}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleEmailAuth} className="space-y-4">
+                    {showSignUp && (
+                      <div className="space-y-2">
+                        <label htmlFor="name" className="text-sm font-medium text-slate-700">Full Name</label>
+                        <input
+                          id="name"
+                          type="text"
+                          value={authData.name}
+                          onChange={(e) => setAuthData({ ...authData, name: e.target.value })}
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter your full name"
+                          required
+                        />
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      <label htmlFor="email" className="text-sm font-medium text-slate-700">Email</label>
+                      <input
+                        id="email"
+                        type="email"
+                        value={authData.email}
+                        onChange={(e) => setAuthData({ ...authData, email: e.target.value })}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter your email"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="password" className="text-sm font-medium text-slate-700">Password</label>
+                      <input
+                        id="password"
+                        type="password"
+                        value={authData.password}
+                        onChange={(e) => setAuthData({ ...authData, password: e.target.value })}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter your password"
+                        required
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      disabled={isLoggingIn}
+                    >
+                      {isLoggingIn ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          {showSignUp ? 'Creating account...' : 'Signing in...'}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          {showSignUp ? 'Create Account' : 'Sign In'}
+                          <ArrowRight className="w-4 h-4" />
+                        </div>
+                      )}
+                    </Button>
+                  </form>
+                  
+                  <div className="mt-6 text-center">
+                    <p className="text-sm text-slate-600 mb-4">Or try a demo account:</p>
+                    <div className="grid grid-cols-1 gap-2">
+                      <Button 
+                        onClick={() => handleDemoLogin('demo@stoneclough.local', 'demo123', 'User')}
+                        disabled={isLoggingIn}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Demo User (demo@stoneclough.local)
+                      </Button>
+                      <Button 
+                        onClick={() => handleDemoLogin('admin@stoneclough.local', 'admin123', 'Admin')}
+                        disabled={isLoggingIn}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Demo Admin (admin@stoneclough.local)
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
         </div>
-      </main>
+      </section>
+      
+      {/* Features Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              Everything you need for civic engagement
+            </h2>
+            <p className="text-lg text-slate-600 max-w-3xl mx-auto">
+              Powerful tools to stay informed, engaged, and connected with your local community
+            </p>
+          </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="group"
+              >
+                <Card className="h-full hover:shadow-lg transition-shadow duration-300 group-hover:scale-105">
+                  <CardContent className="p-6">
+                    <div className={`w-12 h-12 ${feature.bgColor} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                      <feature.icon className={`h-6 w-6 ${feature.color}`} />
+                    </div>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-3">{feature.title}</h3>
+                    <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Live Data Section */}
+      <section className="py-20 bg-slate-50">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Promoted Businesses */}
+            <motion.div variants={itemVariants} className="bg-white rounded-lg shadow-lg p-6">
+              <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center">
+                <Building2 className="h-5 w-5 mr-2 text-blue-600" />
+                Featured Businesses
+              </h3>
+              {isLoadingBusinesses ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                </div>
+              ) : promotedBusinesses && promotedBusinesses.length > 0 ? (
+                <div className="space-y-4">
+                  {promotedBusinesses.slice(0, 3).map((business: any) => (
+                    <div key={business.id} className="border-l-4 border-blue-600 pl-4">
+                      <h4 className="font-semibold text-slate-900">{business.name}</h4>
+                      <p className="text-sm text-slate-600">{business.category}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-slate-600 text-center py-8">Loading local businesses...</p>
+              )}
+            </motion.div>
+            
+            {/* Promoted Articles */}
+            <motion.div variants={itemVariants} className="bg-white rounded-lg shadow-lg p-6">
+              <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center">
+                <FileText className="h-5 w-5 mr-2 text-green-600" />
+                Community News
+              </h3>
+              {isLoadingArticles ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+                </div>
+              ) : promotedArticles && promotedArticles.length > 0 ? (
+                <div className="space-y-4">
+                  {promotedArticles.slice(0, 3).map((article: any) => (
+                    <div key={article.id} className="border-l-4 border-green-600 pl-4">
+                      <h4 className="font-semibold text-slate-900">{article.title}</h4>
+                      <p className="text-sm text-slate-600">{article.excerpt}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-slate-600 text-center py-8">Loading community articles...</p>
+              )}
+            </motion.div>
+            
+            {/* Council Data */}
+            <motion.div variants={itemVariants} className="bg-white rounded-lg shadow-lg p-6">
+              <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2 text-orange-600" />
+                Council Data
+              </h3>
+              <div className="space-y-4">
+                {sampleInsights.map((insight, index) => (
+                  <div key={insight.label} className="flex justify-between items-center">
+                    <span className="text-slate-600">{insight.label}</span>
+                    <span className="font-semibold text-slate-900">{insight.value}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-slate-500 mt-4 text-center">
+                Updated daily from Bolton Council
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="container mx-auto px-4 py-8 mt-16 border-t border-stoneclough-blue/20">

@@ -2,13 +2,25 @@ import { useState, useEffect } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
+export type UserRole = 'user' | 'admin' | 'moderator' | 'business_owner';
+
+export interface Permission {
+  action: string;
+  resource: string;
+}
+
 export interface AuthUser {
   id: string;
   email: string;
   name?: string;
-  role?: 'user' | 'admin' | 'moderator';
+  role: UserRole;
+  permissions?: Permission[];
   email_confirmed?: boolean;
+  phone_verified?: boolean;
+  two_factor_enabled?: boolean;
+  last_active?: string;
   created_at?: string;
+  updated_at?: string;
 }
 
 export interface UserProfile {
@@ -19,6 +31,19 @@ export interface UserProfile {
   location?: string;
   website?: string;
   profileImageUrl?: string;
+  preferences?: {
+    theme?: 'light' | 'dark' | 'system';
+    notifications?: {
+      email: boolean;
+      push: boolean;
+      sms: boolean;
+    };
+    privacy?: {
+      profileVisible: boolean;
+      showEmail: boolean;
+      showPhone: boolean;
+    };
+  };
   createdAt: string;
   updatedAt: string;
 }

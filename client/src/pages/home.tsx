@@ -5,108 +5,115 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { Building, Users, FileText, TrendingUp, Calendar, PoundSterling } from "lucide-react";
+import { 
+  Building2, 
+  Users, 
+  FileText, 
+  TrendingUp, 
+  Calendar, 
+  PoundSterling,
+  BarChart3,
+  MessageSquare,
+  ArrowRight,
+  Activity,
+  Clock,
+  MapPin
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { BusinessCard } from "@/components/business/business-card";
-import { ArticleCard } from "@/components/blog/article-card";
+import { motion } from "framer-motion";
 
 export default function Home() {
   const { user } = useAuth();
 
+  // Mock data for demonstration
+  const civicStats = [
+    { label: 'Active Users', value: '2,500+', icon: Users, color: 'text-blue-600' },
+    { label: 'Local Businesses', value: '150+', icon: Building2, color: 'text-green-600' },
+    { label: 'Council Documents', value: '10,000+', icon: FileText, color: 'text-purple-600' },
+    { label: 'Community Posts', value: '5,000+', icon: MessageSquare, color: 'text-orange-600' }
+  ];
+
+  const featuredBusinesses = [
+    { name: 'Stoneclough Café', category: 'Food & Drink', rating: 4.8, location: 'High Street' },
+    { name: 'Green Valley Garden Centre', category: 'Retail', rating: 4.9, location: 'Manchester Road' },
+    { name: 'Community Pharmacy', category: 'Healthcare', rating: 4.7, location: 'Church Lane' }
+  ];
+
+  const recentNews = [
+    { title: 'New Community Garden Opens', excerpt: 'Local residents celebrate the opening of a new community garden space...', date: '2 days ago' },
+    { title: 'Council Budget 2025 Released', excerpt: 'Bolton Council announces investment in local infrastructure projects...', date: '5 days ago' },
+    { title: 'Local Business Awards Winners', excerpt: 'Celebrating excellence in the Stoneclough business community...', date: '1 week ago' }
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-stoneclough-blue">
+    <div className="min-h-screen bg-white">
       <Header />
       
-      {/* Hero Section - New */}
-      <section className="bg-gradient-to-br from-stoneclough-blue to-stoneclough-blue/80 text-stoneclough-light py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6 text-stoneclough-blue">
-            The Stoneclough Hub
-            <span className="block text-stoneclough-light/80 text-3xl md:text-5xl mt-2">Your Gateway to Local Data & Community</span>
-          </h1>
-          <p className="text-xl text-stoneclough-light/90 mb-10 max-w-3xl mx-auto">
-            Access transparent local government data, discover vibrant businesses, engage in community discussions, and stay informed about Stoneclough.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/directory">
-              <Button size="lg" className="bg-stoneclough-light text-stoneclough-blue hover:bg-stoneclough-light/90 shadow-lg">
-                Explore Businesses
-              </Button>
-            </Link>
-            <Link href="/blog">
-              <Button size="lg" variant="outline" className="border-stoneclough-light text-stoneclough-light hover:bg-stoneclough-light hover:text-stoneclough-blue shadow-lg">
-                Read Our Blog
-              </Button>
-            </Link>
+      {/* Welcome Section */}
+      <section className="bg-gradient-to-br from-blue-50 via-white to-purple-50 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 mb-6">
+                Welcome back, {user?.user_metadata?.full_name || user?.email || 'Community Member'}
+              </Badge>
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">
+                Your Community
+                <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Dashboard
+                </span>
+              </h1>
+              <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
+                Stay connected with Stoneclough through real-time civic data, local business updates, and community discussions.
+              </p>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Stats Overview */}
-      <section className="py-16">
+      {/* Community Statistics */}
+      <section className="py-16 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold text-stoneclough-blue dark:text-stoneclough-light mb-4">Council Data at a Glance</h3>
-            <p className="text-stoneclough-gray-blue dark:text-stoneclough-light text-lg">Real-time insights from Bolton Council's open data</p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Community Overview</h2>
+            <p className="text-slate-600 text-lg">Real-time insights into our vibrant community</p>
+          </motion.div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-stoneclough-gray-blue dark:text-stoneclough-light">Planning Applications</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center">
-                  <div className="flex-1">
-                    <div className="text-3xl font-bold text-stoneclough-blue dark:text-stoneclough-light">
-                      25
-                    </div>
-                    <div className="flex items-center text-stoneclough-gray-blue text-sm mt-1">
-                      <Building className="h-4 w-4 mr-1" />
-                      Active this month
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-stoneclough-gray-blue dark:text-stoneclough-gray-blue/80">Total Spending</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center">
-                  <div className="flex-1">
-                    <div className="text-3xl font-bold text-stoneclough-blue dark:text-stoneclough-light">
-                      £2.4M
-                    </div>
-                    <div className="flex items-center text-stoneclough-blue text-sm mt-1">
-                      <PoundSterling className="h-4 w-4 mr-1" />
-                      Public expenditure
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-stoneclough-gray-blue dark:text-stoneclough-gray-blue/80">Upcoming Meetings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center">
-                  <div className="flex-1">
-                    <div className="text-3xl font-bold text-stoneclough-blue dark:text-stoneclough-light">
-                      8
-                    </div>
-                    <div className="flex items-center text-stoneclough-gray-blue text-sm mt-1">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      Council sessions
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {civicStats.map((stat, index) => {
+              const IconComponent = stat.icon;
+              return (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 * (index + 3) }}
+                >
+                  <Card className="text-center hover:shadow-lg transition-all duration-300 border-0 bg-white">
+                    <CardContent className="p-6">
+                      <div className={`inline-flex p-3 rounded-full bg-slate-100 mb-4`}>
+                        <IconComponent className={`h-6 w-6 ${stat.color}`} />
+                      </div>
+                      <div className="text-3xl font-bold text-slate-900 mb-2">
+                        {stat.value}
+                      </div>
+                      <div className="text-sm text-slate-600">
+                        {stat.label}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
