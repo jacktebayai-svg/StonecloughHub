@@ -113,7 +113,7 @@ class ApiClient {
       return response
     } catch (error) {
       clearTimeout(timeoutId)
-      if (error.name === 'AbortError') {
+      if ((error as Error).name === 'AbortError') {
         throw new ApiError('Request timeout', 408, 'TIMEOUT')
       }
       throw error

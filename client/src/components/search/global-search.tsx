@@ -77,7 +77,8 @@ export function GlobalSearch({
         sort: sortBy,
       });
       
-      return apiRequest(`/api/search?${searchParams.toString()}`);
+      const response = await apiRequest("GET", `/api/search?${searchParams.toString()}`);
+      return await response.json() as SearchResult[];
     },
     enabled: query.length >= 2,
     staleTime: 1000 * 60 * 5, // 5 minutes

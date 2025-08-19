@@ -364,7 +364,7 @@ export function ModernHeader() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src={user.avatar_url} alt={user.email} />
+                      <AvatarImage src={user.user_metadata?.avatar_url || user.user_metadata?.picture} alt={user.email || 'User'} />
                       <AvatarFallback className="bg-gradient-to-br from-blue-100 to-purple-100 text-blue-700 text-sm font-medium">
                         {getUserInitials(user)}
                       </AvatarFallback>
@@ -374,7 +374,7 @@ export function ModernHeader() {
                 <DropdownMenuContent className="w-64" align="end" forceMount>
                   <div className="flex items-center justify-start gap-2 p-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={user.avatar_url} alt={user.email} />
+                      <AvatarImage src={user.user_metadata?.avatar_url || user.user_metadata?.picture} alt={user.email || 'User'} />
                       <AvatarFallback className="bg-gradient-to-br from-blue-100 to-purple-100 text-blue-700">
                         {getUserInitials(user)}
                       </AvatarFallback>

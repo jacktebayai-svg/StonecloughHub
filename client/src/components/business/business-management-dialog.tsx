@@ -80,9 +80,9 @@ export function BusinessManagementDialog({
       email: business.email || "",
       website: business.website || "",
       imageUrl: business.imageUrl || "",
-      isVerified: business.isVerified,
-      isPremium: business.isPremium,
-      isPromoted: business.isPromoted,
+      isVerified: business.isVerified ?? false,
+      isPremium: business.isPremium ?? false,
+      isPromoted: business.isPromoted ?? false,
     } : {
       name: "",
       description: "",

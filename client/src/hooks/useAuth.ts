@@ -1,4 +1,16 @@
 import { useAuth as useAuthContext } from '@/contexts/AuthContext';
+import { User } from '@supabase/supabase-js';
+
+// Export types needed by usePermissions
+export type UserRole = 'user' | 'moderator' | 'admin';
+export type Permission = {
+  action: string;
+  resource: string;
+};
+export type AuthUser = User & {
+  role: UserRole;
+  permissions?: Permission[];
+};
 
 export function useAuth() {
   const {

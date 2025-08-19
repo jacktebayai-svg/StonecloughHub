@@ -56,18 +56,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionKey[]> = {
   user: [
     'profile:read',
     'profile:update',
-    'business:read',
-    'forum:create',
-    'forum:read',
-    'forum:update',
-    'blog:read',
-    'survey:read',
-    'survey:respond',
-  ],
-  
-  business_owner: [
-    'profile:read',
-    'profile:update',
     'business:create',
     'business:read',
     'business:update',
@@ -133,6 +121,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionKey[]> = {
 }
 
 export interface PermissionHookReturn {
+  user: AuthUser | null
   hasPermission: (permission: PermissionKey | PermissionKey[]) => boolean
   canAccess: (resource: string, action: string) => boolean
   userPermissions: Permission[]
@@ -144,28 +133,24 @@ export interface PermissionHookReturn {
 }
 
 export function usePermissions(): PermissionHookReturn {
-  const { user } = useAuth()
+  const { user, userProfile } = useAuth()
 
   const userPermissions = useMemo(() => {
-    if (!user) return []
+    if (!user || !userProfile) return []
     
-    // Get permissions from user's role
-    const rolePermissions = ROLE_PERMISSIONS[user.role] || []
-    const permissions = rolePermissions.map(key => PERMISSIONS[key])
-    
-    // Add any custom permissions from the user object
-    if (user.permissions) {
-      permissions.push(...user.permissions)
-    }
+    // Get permissions from user's role from userProfile
+    const userRole = userProfile.role as UserRole
+    const rolePermissions = ROLE_PERMISSIONS[userRole] || []
+    const permissions = rolePermissions.map((key: PermissionKey) => PERMISSIONS[key])
     
     return permissions
-  }, [user])
+  }, [user, userProfile])
 
   const hasPermission = (permission: PermissionKey | PermissionKey[]): boolean => {
-    if (!user) return false
+    if (!user || !userProfile) return false
     
     const permissionsToCheck = Array.isArray(permission) ? permission : [permission]
-    const userPerms = userPermissions.map(p => `${p.action}:${p.resource}`)
+    const userPerms = userPermissions.map((p: Permission) => `${p.action}:${p.resource}`)
     
     return permissionsToCheck.every(perm => {
       if (perm in PERMISSIONS) {
@@ -177,26 +162,28 @@ export function usePermissions(): PermissionHookReturn {
   }
 
   const canAccess = (resource: string, action: string): boolean => {
-    if (!user) return false
+    if (!user || !userProfile) return false
     
-    return userPermissions.some(p => 
+    return userPermissions.some((p: Permission) => 
       p.resource === resource && p.action === action
     )
   }
 
   const isRole = (role: UserRole | UserRole[]): boolean => {
-    if (!user) return false
+    if (!user || !userProfile) return false
     
     const rolesToCheck = Array.isArray(role) ? role : [role]
-    return rolesToCheck.includes(user.role)
+    return rolesToCheck.includes(userProfile.role as UserRole)
   }
 
-  const isAdmin = useMemo(() => user?.role === 'admin', [user])
-  const isModerator = useMemo(() => user?.role === 'moderator' || isAdmin, [user, isAdmin])
-  const isBusinessOwner = useMemo(() => user?.role === 'business_owner', [user])
+  const isAdmin = useMemo(() => userProfile?.role === 'admin', [userProfile])
+  const isModerator = useMemo(() => userProfile?.role === 'moderator' || isAdmin, [userProfile, isAdmin])
+  // Business ownership is determined by profile.isBusinessOwner, not role
+  const isBusinessOwner = useMemo(() => userProfile?.isBusinessOwner || false, [userProfile]) 
   const canModerate = useMemo(() => isModerator || isAdmin, [isModerator, isAdmin])
 
   return {
+    user: user as AuthUser | null,
     hasPermission,
     canAccess,
     userPermissions,

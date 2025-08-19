@@ -84,8 +84,8 @@ export function ArticleManagementDialog({
       imageUrl: article.imageUrl || "",
       readTime: article.readTime,
       authorName: article.authorName,
-      isFeatured: article.isFeatured,
-      isPromoted: article.isPromoted,
+      isFeatured: article.isFeatured ?? false,
+      isPromoted: article.isPromoted ?? false,
     } : {
       title: "",
       content: "",

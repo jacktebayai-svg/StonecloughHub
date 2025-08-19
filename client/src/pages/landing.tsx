@@ -32,7 +32,15 @@ export default function Landing() {
   const [authData, setAuthData] = useState({ email: '', password: '', name: '' });
   
   const handleLogin = () => {
-    window.location.href = "/api/auth/google";
+    // Handle login through Supabase Auth - this will be handled by the auth form in the component
+    console.log('Login initiated');
+  };
+  
+  const scrollToFeatures = () => {
+    const featuresSection = document.getElementById('features-section');
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: 'smooth' });
+    }
   };
   
   const handleDemoLogin = async (email: string, password: string, role: string) => {
@@ -93,28 +101,28 @@ export default function Landing() {
       icon: Building2,
       title: 'Business Directory',
       description: 'Discover and support local businesses in Stoneclough. Find services, read reviews, and connect with entrepreneurs.',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
+      color: 'text-stoneclough-blue',
+      bgColor: 'bg-stoneclough-light'
     },
     {
       icon: MessageSquare,
       title: 'Community Forum',
       description: 'Engage in meaningful discussions about local issues, events, and community initiatives with your neighbors.',
-      color: 'text-green-600',
+      color: 'text-hub-green',
       bgColor: 'bg-green-50'
     },
     {
       icon: FileText,
       title: 'Local Blog & News',
       description: 'Stay informed with community-driven content, local news, and insights from residents and officials.',
-      color: 'text-purple-600',
+      color: 'text-stoneclough-gray-blue',
       bgColor: 'bg-purple-50'
     },
     {
       icon: BarChart3,
       title: 'Council Data Transparency',
       description: 'Access real-time council data including budgets, spending, planning applications, and meeting records.',
-      color: 'text-orange-600',
+      color: 'text-stoneclough-orange',
       bgColor: 'bg-orange-50'
     },
     {
@@ -128,7 +136,7 @@ export default function Landing() {
       icon: Search,
       title: 'Smart Search',
       description: 'Find any local information quickly with our intelligent search across all platform content.',
-      color: 'text-indigo-600',
+      color: 'text-hub-blue',
       bgColor: 'bg-indigo-50'
     }
   ];
@@ -248,7 +256,7 @@ export default function Landing() {
                     transition={{ delay: 0.5 + index * 0.1 }}
                     className="bg-white/80 backdrop-blur-sm rounded-lg p-4 text-center shadow-sm"
                   >
-                    <stat.icon className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+                    <stat.icon className="h-6 w-6 text-stoneclough-blue mx-auto mb-2" />
                     <div className="text-lg font-bold text-slate-900">{stat.value}</div>
                     <div className="text-xs text-slate-600">{stat.label}</div>
                   </motion.div>
@@ -260,7 +268,7 @@ export default function Landing() {
                   Get Started Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button size="lg" variant="outline">
+                <Button size="lg" variant="outline" onClick={scrollToFeatures}>
                   Learn More
                 </Button>
               </div>
@@ -385,7 +393,7 @@ export default function Landing() {
       </section>
       
       {/* Features Section */}
-      <section className="py-20 bg-white">
+      <section id="features-section" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}

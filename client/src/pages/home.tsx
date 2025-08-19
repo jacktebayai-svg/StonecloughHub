@@ -184,7 +184,7 @@ export default function Home() {
             <Link href="/directory">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                 <CardHeader>
-                  <Building className="h-8 w-8 text-stoneclough-blue mb-2" />
+                  <Building2 className="h-8 w-8 text-stoneclough-blue mb-2" />
                   <CardTitle>Business Directory</CardTitle>
                   <CardDescription>Discover local businesses and services</CardDescription>
                 </CardHeader>

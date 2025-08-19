@@ -66,12 +66,18 @@ export function DiscussionDetail({ discussionId, onBack }: DiscussionDetailProps
 
   const { data: discussion, isLoading: discussionLoading } = useQuery({
     queryKey: [`/api/forum/discussions/${discussionId}`],
-    queryFn: () => apiRequest(`/api/forum/discussions/${discussionId}`),
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/forum/discussions/${discussionId}`);
+      return await response.json() as ForumDiscussion;
+    },
   });
 
   const { data: replies, isLoading: repliesLoading } = useQuery({
     queryKey: [`/api/forum/discussions/${discussionId}/replies`],
-    queryFn: () => apiRequest(`/api/forum/discussions/${discussionId}/replies`),
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/forum/discussions/${discussionId}/replies`);
+      return await response.json() as ForumReply[];
+    },
   });
 
   const replyForm = useForm<z.infer<typeof replySchema>>({
@@ -83,12 +89,18 @@ export function DiscussionDetail({ discussionId, onBack }: DiscussionDetailProps
 
   const createReplyMutation = useMutation({
     mutationFn: (data: z.infer<typeof replySchema>) => {
+      // Use user metadata or fallback to email-based name
+      const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Anonymous';
+      const nameParts = displayName.split(' ');
+      const firstName = nameParts[0] || 'A';
+      const lastName = nameParts[1] || '';
+      
       const replyData = {
         ...data,
-        authorName: `${user?.firstName || 'Anonymous'} ${user?.lastName || ''}`.trim(),
-        authorInitials: `${user?.firstName?.[0] || 'A'}${user?.lastName?.[0] || ''}`,
+        authorName: displayName,
+        authorInitials: `${firstName[0]}${lastName[0] || ''}`,
       };
-      return apiRequest(`/api/forum/discussions/${discussionId}/replies`, "POST", replyData);
+      return apiRequest("POST", `/api/forum/discussions/${discussionId}/replies`, replyData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ 
@@ -114,7 +126,7 @@ export function DiscussionDetail({ discussionId, onBack }: DiscussionDetailProps
   });
 
   const likeDiscussionMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/forum/discussions/${discussionId}/like`, "POST"),
+    mutationFn: () => apiRequest("POST", `/api/forum/discussions/${discussionId}/like`),
     onSuccess: () => {
       queryClient.invalidateQueries({ 
         queryKey: [`/api/forum/discussions/${discussionId}`] 

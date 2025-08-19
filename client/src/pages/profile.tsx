@@ -48,19 +48,19 @@ export default function ProfilePage() {
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ["profile", user?.id],
-    queryFn: () => apiRequest(`/api/profile/${user?.id}`),
+    queryFn: () => apiRequest("GET", `/api/profile/${user?.id}`),
     enabled: isAuthenticated && !!user?.id,
   });
 
   const { data: userBusinesses, isLoading: isBusinessesLoading } = useQuery({
     queryKey: ["userBusinesses", user?.id],
-    queryFn: () => apiRequest(`/api/users/${user?.id}/businesses`),
+    queryFn: () => apiRequest("GET", `/api/users/${user?.id}/businesses`),
     enabled: isAuthenticated && !!user?.id,
   });
 
   const { data: userSkills, isLoading: isSkillsLoading } = useQuery({
     queryKey: ["userSkills", user?.id],
-    queryFn: () => apiRequest(`/api/users/${user?.id}/skills`),
+    queryFn: () => apiRequest("GET", `/api/users/${user?.id}/skills`),
     enabled: isAuthenticated && !!user?.id,
   });
 
@@ -77,7 +77,7 @@ export default function ProfilePage() {
 
   const updateProfileMutation = useMutation({
     mutationFn: (data: z.infer<typeof personalDetailsSchema>) =>
-      apiRequest(`/api/profile/${user?.id}`, "PUT", data),
+      apiRequest("PUT", `/api/profile/${user?.id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       toast({ title: "Profile updated successfully" });
@@ -98,7 +98,7 @@ export default function ProfilePage() {
 
   const createBusinessMutation = useMutation({
     mutationFn: (data: z.infer<typeof businessDetailsSchema>) =>
-      apiRequest(`/api/users/${user?.id}/businesses`, "POST", data),
+      apiRequest("POST", `/api/users/${user?.id}/businesses`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userBusinesses", user?.id] });
       toast({ title: "Business added successfully" });
@@ -120,7 +120,7 @@ export default function ProfilePage() {
 
   const addSkillMutation = useMutation({
     mutationFn: (data: z.infer<typeof skillSchema>) =>
-      apiRequest(`/api/users/${user?.id}/skills`, "POST", data),
+      apiRequest("POST", `/api/users/${user?.id}/skills`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userSkills", user?.id] });
       toast({ title: "Skill added successfully" });
