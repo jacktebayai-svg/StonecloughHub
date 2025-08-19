@@ -33,7 +33,7 @@ export default defineConfig({
       strict: true,
       deny: ["**/.*"],
     },
-  proxy: { // Add this proxy configuration
+    proxy: { // Add this proxy configuration
       "/api": {
         target: "http://localhost:5000", // Your backend server
         changeOrigin: true,

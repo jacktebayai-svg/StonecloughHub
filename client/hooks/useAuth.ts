@@ -21,6 +21,9 @@ export interface AuthUser {
   last_active?: string;
   created_at?: string;
   updated_at?: string;
+  avatar_url?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface UserProfile {
@@ -123,7 +126,7 @@ export function useAuth(): AuthState & AuthActions {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event: any, session: Session | null) => {
         console.log('Auth state changed:', event, session);
         setSession(session);
         
