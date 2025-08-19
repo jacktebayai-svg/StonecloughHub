@@ -1,11 +1,6 @@
 import pg from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
-import { 
-  createOptimizedPool, 
-  createRedisClient, 
-  PerformantDatabase 
-} from './database/performance-config';
 
 if (!process.env.DATABASE_URL) {
   console.log("DATABASE_URL is not set!");
@@ -14,33 +9,43 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Create optimized connection pool
-export const pool = createOptimizedPool();
+// Create Supabase-compatible connection pool
+const connectionString = process.env.DATABASE_URL;
+
+// Configure connection pool for Supabase
+const poolConfig: pg.PoolConfig = {
+  connectionString,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  max: process.env.NODE_ENV === 'production' ? 1 : 10, // Limit connections for serverless
+  min: 0,
+  idle: 20000,
+  acquireTimeoutMillis: 60000,
+  createTimeoutMillis: 30000,
+  destroyTimeoutMillis: 5000,
+  reapIntervalMillis: 1000,
+  createRetryIntervalMillis: 200,
+};
+
+export const pool = new pg.Pool(poolConfig);
 export const db = drizzle(pool, { schema });
-
-// Create Redis client for caching
-export const redis = createRedisClient();
-
-// Create high-performance database instance
-export const performantDb = new PerformantDatabase(pool, redis);
 
 // Legacy export for backward compatibility
 export { pool as default };
 
-// Performance monitoring endpoint
-export const getDbPerformanceStats = () => {
-  return performantDb.getPerformanceStats();
-};
-
-// Cache invalidation helper
-export const invalidateCache = (pattern: string) => {
-  return performantDb.invalidateCache(pattern);
-};
-
 // Graceful shutdown for serverless
 process.on('beforeExit', async () => {
-  await performantDb.close();
-  if (redis) {
-    await redis.quit();
-  }
+  await pool.end();
 });
+
+// Health check function
+export const checkDatabaseConnection = async (): Promise<boolean> => {
+  try {
+    const client = await pool.connect();
+    await client.query('SELECT 1');
+    client.release();
+    return true;
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    return false;
+  }
+};

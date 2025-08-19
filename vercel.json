@@ -8,31 +8,16 @@
       "config": {
         "distDir": "dist/public"
       }
-    },
-    {
-      "src": "server/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "server/**/*",
-          "uploads/**/*",
-          "dist/**/*"
-        ]
-      }
     }
   ],
   "routes": [
     {
-      "src": "/health",
-      "dest": "server/index.ts"
-    },
-    {
       "src": "/api/(.*)",
-      "dest": "server/index.ts"
+      "dest": "/api/index.ts"
     },
     {
-      "src": "/uploads/(.*)",
-      "dest": "server/index.ts"
+      "src": "/health",
+      "dest": "/api/health.ts"
     },
     {
       "handle": "filesystem"
@@ -43,14 +28,38 @@
     }
   ],
   "functions": {
-    "server/index.ts": {
-      "maxDuration": 30
+    "api/*.ts": {
+      "maxDuration": 30,
+      "runtime": "nodejs20.x"
     }
   },
   "env": {
     "NODE_ENV": "production"
   },
   "regions": ["lhr1"],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization, X-Requested-With"
+        }
+      ]
+    }
+  ],
   "github": {
     "silent": true
   }

@@ -2,10 +2,11 @@ import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { graphqlHTTP } from 'express-graphql';
-import { schema } from './api/graphql-civic-api';
-import advancedCivicApi from './api/advanced-civic-api';
-import { setupWebSocket } from './api/advanced-civic-api';
+// Temporarily disable advanced APIs
+// import { graphqlHTTP } from 'express-graphql';
+// import { schema } from './api/graphql-civic-api';
+// import advancedCivicApi from './api/advanced-civic-api';
+// import { setupWebSocket } from './api/advanced-civic-api';
 
 const app = express();
 app.use(express.json());
@@ -55,19 +56,17 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Add advanced civic data API routes
-  app.use('/api/civic', advancedCivicApi);
-  
-  // Add GraphQL endpoint
-  app.use('/api/graphql', graphqlHTTP({
-    schema: schema,
-    graphiql: process.env.NODE_ENV === 'development', // Enable GraphiQL in development
-  }));
+  // Temporarily disable advanced APIs
+  // app.use('/api/civic', advancedCivicApi);
+  // app.use('/api/graphql', graphqlHTTP({
+  //   schema: schema,
+  //   graphiql: process.env.NODE_ENV === 'development',
+  // }));
   
   const server = await registerRoutes(app);
   
-  // Setup WebSocket for real-time updates
-  const { broadcast } = setupWebSocket(server);
+  // Temporarily disable WebSocket setup
+  // const { broadcast } = setupWebSocket(server);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

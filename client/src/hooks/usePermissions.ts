@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useAuth } from './useAuth'
 import type { UserRole, Permission, AuthUser } from './useAuth'
 
@@ -242,7 +242,7 @@ export function WithPermission({
     hasAccess = hasAccess && canAccess(resource, action)
   }
 
-  return hasAccess ? <>{children}</> : <>{fallback}</>
+  return hasAccess ? children : fallback
 }
 
 // Hook for checking if user can perform an action on a specific resource instance

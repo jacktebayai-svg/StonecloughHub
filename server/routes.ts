@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { scraper } from "./services/scraper";
@@ -58,7 +58,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/export", exportRoutes);
 
   // Serve uploaded files
-  app.use('/uploads', require('express').static(process.cwd() + '/uploads'));
+  app.use('/uploads', express.static(process.cwd() + '/uploads'));
 
   // Apply caching to frequently accessed endpoints
   const councilDataCache = createCacheMiddleware(CACHE_KEYS.COUNCIL_DATA, 3600);

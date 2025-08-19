@@ -205,7 +205,6 @@ class ApiClient {
     const headers = options.skipAuth ? {} : await this.getAuthHeaders()
 
     const config: RequestInit = {
-      headers,
       ...options,
       headers: {
         ...headers,
