@@ -8,10 +8,31 @@ import { ArticleCard } from "@/components/blog/article-card";
 import { FileText, Building2, MessageSquare, BarChart3, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { DataChart } from "@/components/charts/data-chart"; // Import DataChart
+import { supabase } from "../../lib/supabase";
+import { useState } from "react";
 
 export default function Landing() {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  
   const handleLogin = () => {
     window.location.href = "/api/auth/google";
+  };
+  
+  const handleDemoLogin = async (email: string, password: string, role: string) => {
+    setIsLoggingIn(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (!error) {
+        // The auth state change will handle the redirect
+        console.log(`Logged in as ${role}`);
+      } else {
+        console.error('Login error:', error);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   const { data: promotedBusinesses, isLoading: isLoadingBusinesses } = useQuery({
@@ -89,6 +110,71 @@ export default function Landing() {
           </Button>
         </motion.div>
       </header>
+
+      {/* Demo Login Section */}
+      <section className="container mx-auto px-4 py-8">
+        <motion.div 
+          className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6 mb-8"
+          variants={itemVariants}
+        >
+          <h2 className="text-2xl font-bold text-stoneclough-blue dark:text-stoneclough-light mb-4 text-center">🎯 Demo Login - Test All Features</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg text-red-600">👑 Admin Account</CardTitle>
+                <CardDescription>Full access to all features</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm mb-2"><strong>Email:</strong> admin@stoneclough.local</p>
+                <p className="text-sm mb-4"><strong>Password:</strong> admin123</p>
+                <Button 
+                  onClick={() => handleDemoLogin('admin@stoneclough.local', 'admin123', 'Admin')}
+                  disabled={isLoggingIn}
+                  className="w-full bg-red-600 hover:bg-red-700"
+                >
+                  {isLoggingIn ? 'Logging in...' : 'Login as Admin'}
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg text-blue-600">🛡️ Moderator Account</CardTitle>
+                <CardDescription>Moderate content and discussions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm mb-2"><strong>Email:</strong> moderator@stoneclough.local</p>
+                <p className="text-sm mb-4"><strong>Password:</strong> mod123</p>
+                <Button 
+                  onClick={() => handleDemoLogin('moderator@stoneclough.local', 'mod123', 'Moderator')}
+                  disabled={isLoggingIn}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
+                  {isLoggingIn ? 'Logging in...' : 'Login as Moderator'}
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg text-green-600">👤 User Account</CardTitle>
+                <CardDescription>Standard community member</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm mb-2"><strong>Email:</strong> demo@stoneclough.local</p>
+                <p className="text-sm mb-4"><strong>Password:</strong> demo123</p>
+                <Button 
+                  onClick={() => handleDemoLogin('demo@stoneclough.local', 'demo123', 'User')}
+                  disabled={isLoggingIn}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  {isLoggingIn ? 'Logging in...' : 'Login as User'}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </motion.div>
+      </section>
 
       {/* Featured Content Grid */}
       <main className="container mx-auto px-4 py-16">

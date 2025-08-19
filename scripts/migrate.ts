@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { migrate } from 'drizzle-kit/migrator';
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import pg from 'pg';
 
 async function runMigrations() {
@@ -10,14 +10,18 @@ async function runMigrations() {
 
   const pool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    ssl: process.env.DATABASE_URL?.includes('supabase.co') 
+      ? { rejectUnauthorized: false } 
+      : process.env.NODE_ENV === 'production' 
+        ? { rejectUnauthorized: false } 
+        : false,
   });
 
   const db = drizzle(pool);
 
   try {
     console.log('Running migrations...');
-    await migrate(db, { migrationsFolder: './drizzle' });
+    await migrate(db, { migrationsFolder: './migrations' });
     console.log('Migrations completed successfully');
   } catch (error) {
     console.error('Migration failed:', error);
@@ -27,7 +31,8 @@ async function runMigrations() {
   }
 }
 
-if (require.main === module) {
+// Check if this script is being run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
   runMigrations()
     .then(() => {
       console.log('Migration process completed');

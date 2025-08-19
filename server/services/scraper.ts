@@ -299,7 +299,7 @@ export class BoltonCouncilScraper {
         ];
       case 'spending':
         return [
-                    'a[href*="spending"]',
+          'a[href*="spending"]',
           'a[href*="transparency"]',
           'a[href*="finance"]',
           'a[href*="budget"]',
@@ -313,7 +313,7 @@ export class BoltonCouncilScraper {
           'a[href*="download"]',
           'a[href*="statistics"]',
           'a[href*="report"]',
-          'a[href*="register"]']
+          'a[href*="register"]'
         ];
       default:
         return [

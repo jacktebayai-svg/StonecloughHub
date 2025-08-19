@@ -131,7 +131,8 @@ async function seedDatabase() {
   }
 }
 
-if (require.main === module) {
+// Check if this script is being run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
   seedDatabase()
     .then(() => {
       console.log('Seed process completed');
