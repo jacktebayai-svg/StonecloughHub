@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Home, LayoutDashboard, Building2, MessageSquare, FileText, BarChart3, User } from "lucide-react";
+import { Home, LayoutDashboard, Building2, MessageSquare, FileText, BarChart3, User, Building } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 export function BottomNavigation() {
@@ -36,10 +36,10 @@ export function BottomNavigation() {
             Forum
           </a>
         </Link>
-        <Link href="/blog">
+        <Link href="/civic">
           <a className="flex flex-col items-center text-xs text-stoneclough-blue dark:text-stoneclough-light hover:text-blue-600 dark:hover:text-blue-400">
-            <FileText className="h-6 w-6 mb-1" />
-            Blog
+            <Building className="h-6 w-6 mb-1" />
+            Civic
           </a>
         </Link>
         <Link href="/surveys">

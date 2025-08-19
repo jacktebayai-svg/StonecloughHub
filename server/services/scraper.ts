@@ -974,13 +974,18 @@ export class BoltonCouncilScraper {
   private async storeSpendingData(spendingRecords: SpendingRecord[], sourceUrl: string): Promise<void> {
     for (const record of spendingRecords) {
       try {
+        // Skip records with invalid data
+        if (!record.supplier && !record.description) {
+          continue;
+        }
+        
         const councilData: InsertCouncilData = {
-          title: `Spending: ${record.supplier} - ${record.description}`,
-          description: record.description,
+          title: `Spending: ${record.supplier || 'Unknown'} - ${record.description || 'No description'}`,
+          description: record.description || 'Council spending record',
           dataType: 'spending_record',
-          sourceUrl: record.sourceUrl,
+          sourceUrl: record.sourceUrl || sourceUrl,
           amount: record.amount,
-          date: record.transactionDate,
+          date: record.transactionDate || new Date(), // Use current date as fallback
           metadata: {
             supplier: record.supplier,
             department: record.department,

@@ -14,6 +14,7 @@ import Blog from "@/pages/blog";
 import Surveys from "@/pages/surveys";
 import Admin from "@/pages/admin";
 import ProfilePage from "@/pages/profile"; // Import ProfilePage
+import Civic from "@/pages/civic"; // Import Civic page
 import { BottomNavigation } from "@/components/layout/bottom-navigation";
 
 function Router() {
@@ -31,6 +32,7 @@ function Router() {
           <Route path="/forum" component={Forum} />
           <Route path="/blog" component={Blog} />
           <Route path="/surveys" component={Surveys} />
+          <Route path="/civic" component={Civic} />
           <Route path="/admin" component={Admin} />
           <Route path="/profile" component={ProfilePage} /> {/* Add ProfilePage route */}
         </>

@@ -93,6 +93,12 @@ Thumbs.db
 
 # Project specific
 scraped_data/
+scraped_data_comprehensive/
+stealth-bolton-data/
+focused-bolton-data/
+comprehensive-bolton-data/
+processed-civic-data/
+data/
 .local/
 *.sqlite
 *.db
