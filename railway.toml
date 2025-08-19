@@ -1,0 +1,69 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+numReplicas = 1
+sleepApplication = false
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# Health check configuration
+healthcheckPath = "/health"
+healthcheckTimeout = 10
+
+# Service configuration
+[[services]]
+
+[services.web]
+name = "stoneclough-hub-web"
+source = "."
+build.builder = "DOCKERFILE"
+build.dockerfilePath = "Dockerfile"
+
+# Variables for the web service
+[services.web.variables]
+NODE_ENV = "production"
+PORT = "3000"
+
+# Scraper service as a separate deployment
+[[services]]
+
+[services.scraper]
+name = "stoneclough-hub-scraper"
+source = "."
+build.builder = "DOCKERFILE" 
+build.dockerfilePath = "Dockerfile.scraper"
+
+# Cron schedule for scraper (runs every 6 hours)
+[services.scraper.cron]
+schedule = "0 */6 * * *"
+
+# Variables for the scraper service
+[services.scraper.variables]
+NODE_ENV = "production"
+SCRAPER_MODE = "true"
+
+# Shared environment variables template
+# These need to be set in Railway dashboard
+[variables]
+# Database
+DATABASE_URL = "${{DATABASE_URL}}"
+DIRECT_DATABASE_URL = "${{DIRECT_DATABASE_URL}}"
+
+# Supabase
+SUPABASE_URL = "${{SUPABASE_URL}}"
+SUPABASE_ANON_KEY = "${{SUPABASE_ANON_KEY}}" 
+SUPABASE_SERVICE_KEY = "${{SUPABASE_SERVICE_KEY}}"
+
+# Client-side Supabase
+VITE_SUPABASE_URL = "${{VITE_SUPABASE_URL}}"
+VITE_SUPABASE_ANON_KEY = "${{VITE_SUPABASE_ANON_KEY}}"
+
+# Authentication
+GOOGLE_CLIENT_ID = "${{GOOGLE_CLIENT_ID}}"
+GOOGLE_CLIENT_SECRET = "${{GOOGLE_CLIENT_SECRET}}"
+SESSION_SECRET = "${{SESSION_SECRET}}"
+
+# Application
+APP_URL = "${{RAILWAY_PUBLIC_DOMAIN}}"

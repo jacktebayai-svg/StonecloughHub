@@ -13,6 +13,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup Auth
   await setupAuth(app);
 
+  // Health check endpoint for Railway
+  app.get("/health", async (req, res) => {
+    try {
+      // Check database connectivity
+      const stats = await storage.getCouncilDataStats();
+      
+      res.json({
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        database: "connected",
+        services: {
+          api: "operational",
+          scraper: "ready"
+        }
+      });
+    } catch (error) {
+      res.status(503).json({
+        status: "unhealthy",
+        timestamp: new Date().toISOString(),
+        database: "disconnected",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Auth routes using Supabase
   app.use("/api/auth", authRoutes);
 

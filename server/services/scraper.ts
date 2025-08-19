@@ -1,6 +1,14 @@
 import * as cheerio from 'cheerio';
 import { storage } from '../storage';
 import { InsertCouncilData } from '@shared/schema';
+import { HardDataExtractor } from './data-extractors.js';
+import { FileProcessor } from './file-processor.js';
+import { OrganizationIntelligence } from './organization-intelligence.js';
+import { ChartDataProcessor } from './chart-data-processor.js';
+import type { 
+  InsertCouncilDataEnhanced, BudgetItem, SpendingRecord, StatisticalData, 
+  Councillor, Department, Service, ChartData
+} from '@shared/enhanced-schema';
 
 interface PlanningApplication {
   reference: string;
@@ -590,7 +598,10 @@ export class BoltonCouncilScraper {
   private async extractAndStoreCouncilData(url: string, html: string, depth: number): Promise<void> {
     const $ = cheerio.load(html);
     
-    // Extract meeting information
+    // Enhanced data extraction using new modules
+    await this.processEnhancedCouncilData(html, url, depth);
+    
+    // Original meeting extraction (keep as fallback)
     const meeting = this.extractCouncilMeetingData($, url);
     if (meeting) {
       await this.storeCouncilMeeting(meeting);
@@ -842,6 +853,337 @@ export class BoltonCouncilScraper {
       console.log(`✅ Stored spending reference: ${title}`);
     } catch (error) {
       console.error('❌ Error storing spending reference:', error);
+    }
+  }
+
+  /**
+   * Enhanced data processing using new intelligence modules
+   */
+  private async processEnhancedCouncilData(html: string, url: string, depth: number): Promise<void> {
+    try {
+      console.log(`🧠 Enhanced processing: ${url}`);
+      
+      // Extract hard data (financial, statistical)
+      const hardData = HardDataExtractor.extractFinancialData(html, url);
+      const performanceMetrics = HardDataExtractor.extractPerformanceMetrics(html, url);
+      const statisticalData = HardDataExtractor.extractStatisticalData(html, url);
+      
+      // Extract organizational intelligence
+      const councilInfo = OrganizationIntelligence.extractCouncillors(html, url);
+      const departmentInfo = OrganizationIntelligence.extractDepartments(html, url);
+      const governanceInfo = OrganizationIntelligence.extractGovernanceStructure(html, url);
+      const policyInfo = OrganizationIntelligence.extractPolicyFramework(html, url);
+      const serviceInfo = OrganizationIntelligence.extractServiceDelivery(html, url);
+      
+      // Store extracted hard data
+      if (hardData.budgetItems.length > 0) {
+        await this.storeBudgetData(hardData.budgetItems, url);
+      }
+      
+      if (hardData.spendingRecords.length > 0) {
+        await this.storeSpendingData(hardData.spendingRecords, url);
+      }
+      
+      if (statisticalData.length > 0) {
+        await this.storeStatisticalData(statisticalData, url);
+      }
+      
+      // Store organizational data
+      if (councilInfo.councillors.length > 0) {
+        await this.storeCouncillorData(councilInfo.councillors, url);
+      }
+      
+      if (departmentInfo.departments.length > 0) {
+        await this.storeDepartmentData(departmentInfo.departments, url);
+      }
+      
+      if (serviceInfo.services.length > 0) {
+        await this.storeServiceData(serviceInfo.services, url);
+      }
+      
+      // Process files if found
+      const fileLinks = this.extractFileLinks(html, url);
+      for (const fileLink of fileLinks) {
+        try {
+          const fileData = await FileProcessor.processFile(fileLink, url);
+          await this.storeFileData(fileData, url);
+        } catch (error) {
+          console.error(`Failed to process file ${fileLink}:`, error.message);
+        }
+      }
+      
+      // Generate chart-ready data
+      await this.generateChartData({
+        budgetItems: hardData.budgetItems,
+        spendingRecords: hardData.spendingRecords,
+        councillors: councilInfo.councillors,
+        services: serviceInfo.services,
+        meetings: governanceInfo.meetings
+      }, url);
+      
+      console.log(`✅ Enhanced processing complete for ${url}`);
+      
+    } catch (error) {
+      console.error(`❌ Enhanced processing failed for ${url}:`, error);
+    }
+  }
+  
+  private extractFileLinks(html: string, baseUrl: string): string[] {
+    const $ = cheerio.load(html);
+    const fileLinks: string[] = [];
+    
+    $('a[href*=".pdf"], a[href*=".csv"], a[href*=".xlsx"], a[href*=".docx"]').each((_, element) => {
+      const href = $(element).attr('href');
+      if (href) {
+        const fullUrl = this.resolveUrl(href, baseUrl);
+        if (fullUrl && !fileLinks.includes(fullUrl)) {
+          fileLinks.push(fullUrl);
+        }
+      }
+    });
+    
+    return fileLinks.slice(0, 5); // Limit to 5 files per page
+  }
+  
+  private async storeBudgetData(budgetItems: BudgetItem[], sourceUrl: string): Promise<void> {
+    for (const item of budgetItems) {
+      try {
+        const councilData: InsertCouncilData = {
+          title: `Budget: ${item.department} - ${item.category}`,
+          description: item.description,
+          dataType: 'budget_item',
+          sourceUrl,
+          amount: item.amount,
+          date: new Date(),
+          metadata: {
+            department: item.department,
+            category: item.category,
+            year: item.year,
+            currency: item.currency,
+            type: 'budget_item'
+          }
+        };
+        
+        await storage.createCouncilData(councilData);
+      } catch (error) {
+        console.error('Error storing budget item:', error);
+      }
+    }
+  }
+  
+  private async storeSpendingData(spendingRecords: SpendingRecord[], sourceUrl: string): Promise<void> {
+    for (const record of spendingRecords) {
+      try {
+        const councilData: InsertCouncilData = {
+          title: `Spending: ${record.supplier} - ${record.description}`,
+          description: record.description,
+          dataType: 'spending_record',
+          sourceUrl: record.sourceUrl,
+          amount: record.amount,
+          date: record.transactionDate,
+          metadata: {
+            supplier: record.supplier,
+            department: record.department,
+            category: record.category,
+            type: 'spending_record'
+          }
+        };
+        
+        await storage.createCouncilData(councilData);
+      } catch (error) {
+        console.error('Error storing spending record:', error);
+      }
+    }
+  }
+  
+  private async storeStatisticalData(statisticalData: StatisticalData[], sourceUrl: string): Promise<void> {
+    for (const stat of statisticalData) {
+      try {
+        const councilData: InsertCouncilData = {
+          title: `Statistic: ${stat.category} - ${stat.metric}`,
+          description: `${stat.metric}: ${stat.value} ${stat.unit}`,
+          dataType: 'statistical_data',
+          sourceUrl: stat.sourceDocument,
+          date: stat.date,
+          metadata: {
+            category: stat.category,
+            metric: stat.metric,
+            value: stat.value,
+            unit: stat.unit,
+            confidence: stat.confidence,
+            type: 'statistical_data'
+          }
+        };
+        
+        await storage.createCouncilData(councilData);
+      } catch (error) {
+        console.error('Error storing statistical data:', error);
+      }
+    }
+  }
+  
+  private async storeCouncillorData(councillors: Councillor[], sourceUrl: string): Promise<void> {
+    for (const councillor of councillors) {
+      try {
+        const councilData: InsertCouncilData = {
+          title: `Councillor: ${councillor.name} (${councillor.ward})`,
+          description: `${councillor.party} councillor for ${councillor.ward}`,
+          dataType: 'councillor',
+          sourceUrl,
+          location: councillor.ward,
+          date: new Date(),
+          metadata: {
+            name: councillor.name,
+            ward: councillor.ward,
+            party: councillor.party,
+            committees: councillor.committees,
+            responsibilities: councillor.responsibilities,
+            type: 'councillor'
+          }
+        };
+        
+        await storage.createCouncilData(councilData);
+      } catch (error) {
+        console.error('Error storing councillor data:', error);
+      }
+    }
+  }
+  
+  private async storeDepartmentData(departments: Department[], sourceUrl: string): Promise<void> {
+    for (const dept of departments) {
+      try {
+        const councilData: InsertCouncilData = {
+          title: `Department: ${dept.name}`,
+          description: dept.description,
+          dataType: 'department',
+          sourceUrl,
+          date: new Date(),
+          metadata: {
+            name: dept.name,
+            services: dept.services,
+            responsibilities: dept.responsibilities,
+            type: 'department'
+          }
+        };
+        
+        await storage.createCouncilData(councilData);
+      } catch (error) {
+        console.error('Error storing department data:', error);
+      }
+    }
+  }
+  
+  private async storeServiceData(services: Service[], sourceUrl: string): Promise<void> {
+    for (const service of services) {
+      try {
+        const councilData: InsertCouncilData = {
+          title: `Service: ${service.name}`,
+          description: service.description,
+          dataType: 'service',
+          sourceUrl,
+          date: new Date(),
+          metadata: {
+            name: service.name,
+            department: service.department,
+            category: service.category,
+            onlineAccess: service.onlineAccess,
+            type: 'service'
+          }
+        };
+        
+        await storage.createCouncilData(councilData);
+      } catch (error) {
+        console.error('Error storing service data:', error);
+      }
+    }
+  }
+  
+  private async storeFileData(fileData: any, sourceUrl: string): Promise<void> {
+    try {
+      // Store document metadata
+      const councilData: InsertCouncilData = {
+        title: `Document: ${fileData.document.title}`,
+        description: fileData.document.description,
+        dataType: 'document',
+        sourceUrl: fileData.document.fileUrl,
+        date: fileData.document.publishDate,
+        metadata: {
+          fileType: fileData.document.fileType,
+          department: fileData.document.department,
+          category: fileData.document.category,
+          tags: fileData.document.tags,
+          extractedItems: fileData.document.extractedData?.totalItems || 0,
+          type: 'document'
+        }
+      };
+      
+      await storage.createCouncilData(councilData);
+      
+      // Store extracted data from file
+      if (fileData.extractedData) {
+        await this.storeBudgetData(fileData.extractedData.budgetItems, sourceUrl);
+        await this.storeSpendingData(fileData.extractedData.spendingRecords, sourceUrl);
+        await this.storeStatisticalData(fileData.extractedData.statisticalData, sourceUrl);
+      }
+      
+    } catch (error) {
+      console.error('Error storing file data:', error);
+    }
+  }
+  
+  private async generateChartData(data: {
+    budgetItems: BudgetItem[];
+    spendingRecords: SpendingRecord[];
+    councillors: Councillor[];
+    services: Service[];
+    meetings: any[];
+  }, sourceUrl: string): Promise<void> {
+    try {
+      // Generate various chart data
+      const budgetCharts = ChartDataProcessor.processBudgetData(data.budgetItems);
+      const spendingCharts = ChartDataProcessor.processSpendingData(data.spendingRecords);
+      const politicalCharts = ChartDataProcessor.processPoliticalData(data.councillors);
+      const serviceCharts = ChartDataProcessor.processServiceData(data.services);
+      const summaryCharts = ChartDataProcessor.createSummaryDashboard(data);
+      
+      const allCharts = [
+        ...budgetCharts,
+        ...spendingCharts, 
+        ...politicalCharts,
+        ...serviceCharts,
+        ...summaryCharts
+      ];
+      
+      // Store chart data
+      for (const chart of allCharts) {
+        const councilData: InsertCouncilData = {
+          title: `Chart: ${chart.title}`,
+          description: chart.description,
+          dataType: 'chart_data',
+          sourceUrl,
+          date: new Date(),
+          metadata: {
+            chartType: chart.chartType,
+            category: chart.category,
+            subcategory: chart.subcategory,
+            dataPoints: chart.dataPoints.length,
+            unit: chart.unit,
+            timeframe: chart.timeframe,
+            type: 'chart_data'
+          }
+        };
+        
+        await storage.createCouncilData(councilData);
+        await this.writeToJsonFile(chart, 
+          `${chart.category}_${chart.subcategory}_chart`.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 
+          'chart_data'
+        );
+      }
+      
+      console.log(`📊 Generated ${allCharts.length} chart datasets`);
+      
+    } catch (error) {
+      console.error('Error generating chart data:', error);
     }
   }
 

@@ -1,0 +1,54 @@
+# Dedicated Dockerfile for scraper service
+FROM node:20-alpine AS base
+
+# Install curl for health checks and other tools
+RUN apk add --no-cache curl
+
+# Install dependencies only when needed
+FROM base AS deps
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json* ./
+RUN npm ci --only=production --frozen-lockfile
+
+# Development dependencies for build
+FROM base AS build
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci --frozen-lockfile
+
+# Copy source code
+COPY . .
+
+# Build the TypeScript scraper
+RUN npx esbuild server/run-scraper.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+# Production image for scraper
+FROM base AS runner
+WORKDIR /app
+
+# Create a non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 scraper
+
+# Copy built application and dependencies
+COPY --from=deps --chown=scraper:nodejs /app/node_modules ./node_modules
+COPY --from=build --chown=scraper:nodejs /app/dist ./dist
+COPY --from=build --chown=scraper:nodejs /app/package.json ./package.json
+COPY --from=build --chown=scraper:nodejs /app/server ./server
+
+# Create directory for scraped data with proper permissions
+RUN mkdir -p /app/scraped_data /app/scraped_data/files && \
+    chown -R scraper:nodejs /app/scraped_data
+
+# Switch to non-root user
+USER scraper
+
+# Environment variables
+ENV NODE_ENV=production
+ENV SCRAPER_MODE=true
+
+# For Railway cron jobs, we want the scraper to run and exit
+# For manual runs, you can override with different commands
+CMD ["node", "dist/run-scraper.js"]
