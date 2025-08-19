@@ -102,6 +102,58 @@ data/
 .local/
 *.sqlite
 *.db
+*.json.backup
+*.json.tmp
+uploads/
+
+# Large data files
+*.csv
+*.xlsx
+*.xls
+
+# Server logs and temp files
+server.log
+nohup.out
+*.log.*
+
+# Build artifacts
+dist/
+build/
+.output/
+.nuxt/
+.svelte-kit/
+
+# Package managers
+.yarn/
+.pnp.*
+
+# Testing
+.nyc_output/
+coverage/
+.coverage
+*.coverage
+
+# Editor directories and files
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+*.sublime-project
+*.sublime-workspace
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+.dockerignore
+Dockerfile.*
+docker-compose.override.yml
 
 # Vercel
 .vercel
