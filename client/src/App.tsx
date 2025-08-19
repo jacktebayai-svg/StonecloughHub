@@ -13,6 +13,8 @@ import Forum from "@/pages/forum";
 import Blog from "@/pages/blog";
 import Surveys from "@/pages/surveys";
 import Admin from "@/pages/admin";
+import ProfilePage from "@/pages/profile"; // Import ProfilePage
+import { BottomNavigation } from "@/components/layout/bottom-navigation";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -30,6 +32,7 @@ function Router() {
           <Route path="/blog" component={Blog} />
           <Route path="/surveys" component={Surveys} />
           <Route path="/admin" component={Admin} />
+          <Route path="/profile" component={ProfilePage} /> {/* Add ProfilePage route */}
         </>
       )}
       <Route component={NotFound} />
@@ -43,6 +46,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router />
+        <BottomNavigation />
       </TooltipProvider>
     </QueryClientProvider>
   );

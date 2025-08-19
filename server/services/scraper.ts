@@ -32,12 +32,12 @@ export class BoltonCouncilScraper {
   private planningBaseUrl = 'https://paplanning.bolton.gov.uk/online-applications';
   private councilBaseUrl = 'https://www.bolton.gov.uk';
   private meetingsUrl = 'https://bolton.moderngov.co.uk';
-  private openDataUrl = 'https://opendata.bolton.gov.uk';
+  private openDataUrl = 'https://www.bolton.gov.uk/directory/17/open-data';
   private webcastUrl = 'https://bolton.public-i.tv';
   private maxRetries = 3;
   private baseDelay = 2000; // Base delay: 2 seconds
   private maxDelay = 8000; // Max delay: 8 seconds
-  private maxDepth = 7; // Maximum depth layers
+  private maxDepth = 10; // Maximum depth layers
   private minFilesPerLayer = 20; // Minimum files per layer
   private visitedUrls = new Set<string>();
   private currentDepth = 0;
@@ -183,11 +183,11 @@ export class BoltonCouncilScraper {
     
     try {
       const planningUrls = [
-        `${this.planningBaseUrl}/search.do?action=simple&searchType=Application`,
-        `${this.planningBaseUrl}/search.do?action=weeklyList`,
-        `${this.planningBaseUrl}/search.do?action=advanced&searchType=Application`,
-        `${this.planningBaseUrl}/appealSearch.do?action=simple&searchType=Appeal`,
-        `${this.planningBaseUrl}/search.do?action=simple&searchType=Enforcement`
+        // `${this.planningBaseUrl}/search.do?action=simple&searchType=Application`,
+        // `${this.planningBaseUrl}/search.do?action=weeklyList`,
+        // `${this.planningBaseUrl}/search.do?action=advanced&searchType=Application`,
+        // `${this.planningBaseUrl}/appealSearch.do?action=simple&searchType=Appeal`,
+        // `${this.planningBaseUrl}/search.do?action=simple&searchType=Enforcement`
       ];
       
       await this.crawlDeep(planningUrls, 'planning', this.extractAndStorePlanningData.bind(this));
@@ -212,7 +212,7 @@ export class BoltonCouncilScraper {
         if (this.visitedUrls.has(url)) continue;
         
         try {
-          await this.delay(this.delayBetweenRequests);
+          await this.delay(this.baseDelay);
           const html = await this.makeRequest(url);
           this.visitedUrls.add(url);
           
@@ -220,7 +220,12 @@ export class BoltonCouncilScraper {
           await processor(url, html, depth);
           
           // Extract links for next layer
-          const newLinks = this.extractLinksFromPage(html, url, dataType);
+          let newLinks: string[] = [];
+          if (dataType === 'spending' || dataType === 'transparency') {
+            newLinks = this.extractLinksFromPage(html, url, dataType, '/html/body/main/div/div/div[1]/div/article');
+          } else {
+            newLinks = this.extractLinksFromPage(html, url, dataType);
+          }
           nextLayer.push(...newLinks);
           
           processedCount++;
@@ -241,17 +246,22 @@ export class BoltonCouncilScraper {
     }
   }
 
-  private extractLinksFromPage(html: string, baseUrl: string, dataType: string): string[] {
+  private extractLinksFromPage(html: string, baseUrl: string, dataType: string, xpathSelector?: string): string[] {
     const $ = cheerio.load(html);
     const links: string[] = [];
     
+    let $context = $(html);
+    if (xpathSelector) {
+      $context = $(xpathSelector, $);
+    }
+
     // Extract relevant links based on data type
     const selectors = this.getLinkSelectors(dataType);
     
     selectors.forEach(selector => {
-      $(selector).each((_, element) => {
+      $context.find(selector).each((_, element) => {
         const href = $(element).attr('href');
-        if (href && !href.startsWith('javascript:') && !href.startsWith('#')) {
+        if (href && !href.startsWith('javascript:') && !href.startsWith('#') && !href.startsWith('mailto:')) {
           const fullUrl = this.resolveUrl(href, baseUrl);
           if (fullUrl && this.isRelevantUrl(fullUrl, dataType)) {
             links.push(fullUrl);
@@ -289,17 +299,36 @@ export class BoltonCouncilScraper {
         ];
       case 'spending':
         return [
-          'a[href*="spending"]',
+                    'a[href*="spending"]',
           'a[href*="transparency"]',
           'a[href*="finance"]',
           'a[href*="budget"]',
           'a[href*=".csv"]',
           'a[href*=".xlsx"]',
           'a[href*="payment"]',
-          'a[href*="procurement"]'
+          'a[href*="procurement"]',
+          'a[href*="dataset"]',
+          'a[href*="data"]',
+          'a[href*="api"]',
+          'a[href*="download"]',
+          'a[href*="statistics"]',
+          'a[href*="report"]',
+          'a[href*="register"]']
         ];
       default:
-        return ['a[href]'];
+        return [
+          'a[href]',
+          'a[href*="dataset"]',
+          'a[href*="data"]',
+          'a[href*=".csv"]',
+          'a[href*=".xlsx"]',
+          'a[href*=".pdf"]',
+          'a[href*="api"]',
+          'a[href*="download"]',
+          'a[href*="statistics"]',
+          'a[href*="report"]',
+          'a[href*="register"]',
+        ];
     }
   }
 
@@ -405,6 +434,42 @@ export class BoltonCouncilScraper {
     }
   }
 
+  private async writeToJsonFile(data: any, filename: string, dataType: string): Promise<void> {
+    try {
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
+      const dir = './scraped_data';
+      const filePath = path.join(dir, `${dataType}_${filename}.json`);
+      await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+      console.log(`💾 Saved ${dataType} data to ${filePath}`);
+    } catch (error) {
+      console.error(`❌ Error writing ${dataType} data to file ${filename}:`, error);
+    }
+  }
+
+  private async downloadFile(fileUrl: string, filename: string, dataType: string): Promise<void> {
+    try {
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
+      const dir = './scraped_data/files'; // Subdirectory for downloaded files
+      await fs.mkdir(dir, { recursive: true }); // Ensure directory exists
+
+      const response = await fetch(fileUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      const filePath = path.join(dir, `${dataType}_${filename}`);
+      await fs.writeFile(filePath, buffer);
+      console.log(`💾 Downloaded ${dataType} file to ${filePath}`);
+    } catch (error) {
+      console.error(`❌ Error downloading ${dataType} file from ${fileUrl}:`, error);
+    }
+  }
+
   private async storePlanningApplication(app: PlanningApplication): Promise<void> {
     try {
       const councilData: InsertCouncilData = {
@@ -423,6 +488,7 @@ export class BoltonCouncilScraper {
       };
 
       await storage.createCouncilData(councilData);
+      await this.writeToJsonFile(councilData, app.reference, 'planning_application');
       console.log(`✅ Stored planning application: ${app.reference}`);
     } catch (error) {
       console.error('❌ Error storing planning application:', error);
@@ -435,11 +501,11 @@ export class BoltonCouncilScraper {
     try {
       const councilUrls = [
         `${this.meetingsUrl}`, // Main meetings portal
-        `${this.meetingsUrl}/mgWhatsNew.aspx?bcr=1`, // What's new feed
-        `${this.meetingsUrl}/ieDocHome.aspx?bcr=1`, // Browse meetings
-        `${this.meetingsUrl}/mgMemberIndex.aspx?bcr=1`, // Councillors
-        `${this.councilBaseUrl}/cabinet-committees/cabinet-committee-meetings`,
-        `${this.councilBaseUrl}/opendata` // Open data portal
+        // `${this.meetingsUrl}/mgWhatsNew.aspx?bcr=1`, // What's new feed
+        // `${this.meetingsUrl}/ieDocHome.aspx?bcr=1`, // Browse meetings
+        // `${this.meetingsUrl}/mgMemberIndex.aspx?bcr=1`, // Councillors
+        // `${this.councilBaseUrl}/cabinet-committees/cabinet-committee-meetings`,
+        // `${this.councilBaseUrl}/opendata` // Open data portal
       ];
       
       await this.crawlDeep(councilUrls, 'council', this.extractAndStoreCouncilData.bind(this));
@@ -454,11 +520,11 @@ export class BoltonCouncilScraper {
     try {
       const spendingUrls = [
         `${this.openDataUrl}`, // Open data portal
-        `${this.councilBaseUrl}/opendata`, // Alternative open data
-        `${this.councilBaseUrl}/transparency-and-performance`, // Transparency hub
-        `${this.councilBaseUrl}/finance-and-legal`, // Finance section
-        `${this.councilBaseUrl}/budget`, // Budget information
-        `${this.meetingsUrl}/ieDocHome.aspx?bcr=1` // Meeting documents that may contain financial data
+        // `${this.councilBaseUrl}/opendata`, // Alternative open data
+        // `${this.councilBaseUrl}/transparency-and-performance`, // Transparency hub
+        // `${this.councilBaseUrl}/finance-and-legal`, // Finance section
+        // `${this.councilBaseUrl}/budget`, // Budget information
+        // `${this.meetingsUrl}/ieDocHome.aspx?bcr=1` // Meeting documents that may contain financial data
       ];
       
       await this.crawlDeep(spendingUrls, 'spending', this.extractAndStoreSpendingData.bind(this));
@@ -472,11 +538,11 @@ export class BoltonCouncilScraper {
     
     try {
       const documentUrls = [
-        `${this.councilBaseUrl}/publications`,
-        `${this.councilBaseUrl}/documents`,
-        `${this.councilBaseUrl}/reports`,
-        `${this.councilBaseUrl}/policies`,
-        `${this.councilBaseUrl}/strategies`
+        // `${this.councilBaseUrl}/publications`,
+        // `${this.councilBaseUrl}/documents`,
+        // `${this.councilBaseUrl}/reports`,
+        // `${this.councilBaseUrl}/policies`,
+        // `${this.councilBaseUrl}/strategies`
       ];
       
       await this.crawlDeep(documentUrls, 'documents', this.extractAndStoreDocumentData.bind(this));
@@ -490,11 +556,11 @@ export class BoltonCouncilScraper {
     
     try {
       const committeeUrls = [
-        `${this.councilBaseUrl}/planning-committee`,
-        `${this.councilBaseUrl}/licensing-committee`,
-        `${this.councilBaseUrl}/audit-committee`,
-        `${this.councilBaseUrl}/standards-committee`,
-        `${this.councilBaseUrl}/overview-scrutiny`
+        // `${this.councilBaseUrl}/planning-committee`,
+        // `${this.councilBaseUrl}/licensing-committee`,
+        // `${this.councilBaseUrl}/audit-committee`,
+        // `${this.councilBaseUrl}/standards-committee`,
+        // `${this.councilBaseUrl}/overview-scrutiny`
       ];
       
       await this.crawlDeep(committeeUrls, 'committees', this.extractAndStoreCommitteeData.bind(this));
@@ -508,11 +574,11 @@ export class BoltonCouncilScraper {
     
     try {
       const transparencyUrls = [
-        `${this.councilBaseUrl}/transparency`,
-        `${this.councilBaseUrl}/foi-requests`,
-        `${this.councilBaseUrl}/open-data`,
-        `${this.councilBaseUrl}/data-protection`,
-        `${this.councilBaseUrl}/information-governance`
+        // `${this.councilBaseUrl}/transparency`,
+        // `${this.councilBaseUrl}/foi-requests`,
+        // `${this.councilBaseUrl}/open-data`, // Removed due to ERR_TLS_CERT_ALTNAME_INVALID
+        // `${this.councilBaseUrl}/data-protection`,
+        // `${this.councilBaseUrl}/information-governance`
       ];
       
       await this.crawlDeep(transparencyUrls, 'transparency', this.extractAndStoreTransparencyData.bind(this));
@@ -540,9 +606,18 @@ export class BoltonCouncilScraper {
     $('a[href*=".csv"], a[href*=".xlsx"], a[href*="spend"]').each(async (_, element) => {
       const link = $(element).attr('href');
       const text = $(element).text().trim();
-      
-      if (link && text.toLowerCase().includes('spend')) {
-        await this.storeSpendingReference(text, link, url);
+
+      if (link) {
+        const fullLink = this.resolveUrl(link, url);
+        if (fullLink) {
+          if (fullLink.toLowerCase().endsWith('.csv') || fullLink.toLowerCase().endsWith('.xlsx')) {
+            const filename = fullLink.substring(fullLink.lastIndexOf('/') + 1);
+            await this.downloadFile(fullLink, filename, 'council_spending');
+          }
+          if (text.toLowerCase().includes('spend')) {
+            await this.storeSpendingReference(text, link, url);
+          }
+        }
       }
     });
     
@@ -556,11 +631,17 @@ export class BoltonCouncilScraper {
     $('a[href*=".pdf"], a[href*="document"], a[href*="report"]').each(async (_, element) => {
       const link = $(element).attr('href');
       const text = $(element).text().trim();
-      
-      if (link && text) {
+
+      if (link) {
         const fullLink = this.resolveUrl(link, url);
         if (fullLink) {
-          await this.storeDocumentReference(text, fullLink, url, depth);
+          if (fullLink.toLowerCase().endsWith('.pdf')) {
+            const filename = fullLink.substring(fullLink.lastIndexOf('/') + 1);
+            await this.downloadFile(fullLink, filename, 'council_document');
+          }
+          if (text) { // Store reference even if not a direct download
+            await this.storeDocumentReference(text, fullLink, url, depth);
+          }
         }
       }
     });
@@ -634,6 +715,7 @@ export class BoltonCouncilScraper {
       };
 
       await storage.createCouncilData(councilData);
+      await this.writeToJsonFile(councilData, title.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'page_metadata');
     } catch (error) {
       console.error('❌ Error storing page metadata:', error);
     }
@@ -656,6 +738,7 @@ export class BoltonCouncilScraper {
       };
 
       await storage.createCouncilData(councilData);
+      await this.writeToJsonFile(councilData, title.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'council_document');
     } catch (error) {
       console.error('❌ Error storing document reference:', error);
     }
@@ -677,6 +760,7 @@ export class BoltonCouncilScraper {
       };
 
       await storage.createCouncilData(councilData);
+      await this.writeToJsonFile(councilData, title.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'transparency_data');
     } catch (error) {
       console.error('❌ Error storing transparency reference:', error);
     }
@@ -729,6 +813,7 @@ export class BoltonCouncilScraper {
       };
 
       await storage.createCouncilData(councilData);
+      await this.writeToJsonFile(councilData, meeting.title.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'council_meeting');
       console.log(`✅ Stored council meeting: ${meeting.title}`);
     } catch (error) {
       console.error('❌ Error storing council meeting:', error);
@@ -753,6 +838,7 @@ export class BoltonCouncilScraper {
       };
 
       await storage.createCouncilData(councilData);
+      await this.writeToJsonFile(councilData, title.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'council_spending');
       console.log(`✅ Stored spending reference: ${title}`);
     } catch (error) {
       console.error('❌ Error storing spending reference:', error);

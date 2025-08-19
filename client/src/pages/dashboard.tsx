@@ -32,13 +32,13 @@ export default function Dashboard() {
   })) || [];
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-stoneclough-light">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-hub-dark mb-4">Community Data Dashboard</h1>
-          <p className="text-lg text-hub-gray max-w-3xl">
+          <h1 className="text-3xl font-bold text-stoneclough-blue mb-4">Community Data Dashboard</h1>
+          <p className="text-lg text-stoneclough-gray-blue max-w-3xl">
             Real-time access to local government data from Bolton Council. All data sourced directly from 
             <span className="font-semibold"> data.bolton.gov.uk</span> under the Open Government Licence.
           </p>
@@ -68,7 +68,7 @@ export default function Dashboard() {
               <SelectItem value="all">All time</SelectItem>
             </SelectContent>
           </Select>
-          <Button className="bg-hub-blue hover:bg-hub-dark-blue text-white">
+          <Button className="bg-stoneclough-blue hover:bg-stoneclough-blue/90 text-stoneclough-light">
             <Search className="w-4 h-4 mr-2" />
             Filter Data
           </Button>
@@ -76,43 +76,43 @@ export default function Dashboard() {
 
         {/* Summary Stats */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          <Card className="bg-slate-50 border border-slate-200 hover:shadow-lg transition-shadow">
+          <Card className="bg-stoneclough-light border border-stoneclough-blue/20 hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-lg text-hub-dark">Planning Applications</h3>
-                <Building className="text-hub-blue text-xl" />
+                <h3 className="font-semibold text-lg text-stoneclough-blue">Planning Applications</h3>
+                <Building className="text-stoneclough-blue text-xl" />
               </div>
-              <div className="text-3xl font-bold text-hub-blue mb-2">
+              <div className="text-3xl font-bold text-stoneclough-blue mb-2">
                 {stats?.planningApplications || 0}
               </div>
-              <p className="text-hub-gray text-sm mb-4">Applications in the last 30 days</p>
+              <p className="text-stoneclough-gray-blue text-sm mb-4">Applications in the last 30 days</p>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Approved</span>
-                  <span className="font-medium text-hub-green">70%</span>
+                  <span className="font-medium text-stoneclough-gray-blue">70%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Pending</span>
-                  <span className="font-medium text-yellow-600">25%</span>
+                  <span className="font-medium text-stoneclough-orange">25%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Rejected</span>
-                  <span className="font-medium text-red-600">5%</span>
+                  <span className="font-medium text-stoneclough-gray-blue">5%</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-50 border border-slate-200 hover:shadow-lg transition-shadow">
+          <Card className="bg-stoneclough-light border border-stoneclough-blue/20 hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-lg text-hub-dark">Council Spending</h3>
-                <PoundSterling className="text-hub-green text-xl" />
+                <h3 className="font-semibold text-lg text-stoneclough-blue">Council Spending</h3>
+                <PoundSterling className="text-stoneclough-gray-blue text-xl" />
               </div>
-              <div className="text-3xl font-bold text-hub-green mb-2">
+              <div className="text-3xl font-bold text-stoneclough-gray-blue mb-2">
                 £{((stats?.totalSpending || 0) / 1000000).toFixed(1)}M
               </div>
-              <p className="text-hub-gray text-sm mb-4">Total spending this quarter</p>
+              <p className="text-stoneclough-gray-blue text-sm mb-4">Total spending this quarter</p>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Infrastructure</span>
@@ -130,24 +130,24 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-50 border border-slate-200 hover:shadow-lg transition-shadow">
+          <Card className="bg-stoneclough-light border border-stoneclough-blue/20 hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-lg text-hub-dark">Council Meetings</h3>
-                <Calendar className="text-hub-blue text-xl" />
+                <h3 className="font-semibold text-lg text-stoneclough-blue">Council Meetings</h3>
+                <Calendar className="text-stoneclough-blue text-xl" />
               </div>
-              <div className="text-3xl font-bold text-hub-blue mb-2">
+              <div className="text-3xl font-bold text-stoneclough-blue mb-2">
                 {stats?.upcomingMeetings || 0}
               </div>
-              <p className="text-hub-gray text-sm mb-4">Upcoming meetings this month</p>
+              <p className="text-stoneclough-gray-blue text-sm mb-4">Upcoming meetings this month</p>
               <div className="space-y-2">
                 <div className="text-sm">
                   <div className="font-medium">Planning Committee</div>
-                  <div className="text-hub-gray">Next meeting date TBD</div>
+                  <div className="text-stoneclough-gray-blue">Next meeting date TBD</div>
                 </div>
                 <div className="text-sm">
                   <div className="font-medium">Full Council</div>
-                  <div className="text-hub-gray">Next meeting date TBD</div>
+                  <div className="text-stoneclough-gray-blue">Next meeting date TBD</div>
                 </div>
               </div>
             </CardContent>
@@ -156,9 +156,9 @@ export default function Dashboard() {
 
         {/* Interactive Charts */}
         <div className="grid lg:grid-cols-2 gap-8 mb-12">
-          <Card className="border border-slate-200 shadow-sm">
+          <Card className="border border-stoneclough-blue/20 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl font-semibold text-hub-dark">
+              <CardTitle className="text-xl font-semibold text-stoneclough-blue">
                 Data Trends Over Time
               </CardTitle>
             </CardHeader>
@@ -167,14 +167,14 @@ export default function Dashboard() {
                 data={chartData} 
                 type="line"
                 height={300}
-                colors={['#2563EB', '#059669']}
+                colors={['#254974', '#a2876f']}
               />
             </CardContent>
           </Card>
 
-          <Card className="border border-slate-200 shadow-sm">
+          <Card className="border border-stoneclough-blue/20 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl font-semibold text-hub-dark">
+              <CardTitle className="text-xl font-semibold text-stoneclough-blue">
                 Planning Applications
               </CardTitle>
             </CardHeader>
@@ -183,16 +183,16 @@ export default function Dashboard() {
                 data={planningData} 
                 type="bar"
                 height={300}
-                colors={['#2563EB']}
+                colors={['#254974']}
               />
             </CardContent>
           </Card>
         </div>
 
         {/* Recent Data Table */}
-        <Card className="border border-slate-200 shadow-sm">
+        <Card className="border border-stoneclough-blue/20 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-xl font-semibold text-hub-dark">
+            <CardTitle className="text-xl font-semibold text-stoneclough-blue">
               Recent Council Data
             </CardTitle>
           </CardHeader>
@@ -201,28 +201,28 @@ export default function Dashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="text-left py-3 px-4 font-semibold text-hub-dark">Date</th>
-                      <th className="text-left py-3 px-4 font-semibold text-hub-dark">Type</th>
-                      <th className="text-left py-3 px-4 font-semibold text-hub-dark">Title</th>
-                      <th className="text-left py-3 px-4 font-semibold text-hub-dark">Amount</th>
+                    <tr className="border-b border-stoneclough-blue/20">
+                      <th className="text-left py-3 px-4 font-semibold text-stoneclough-blue">Date</th>
+                      <th className="text-left py-3 px-4 font-semibold text-stoneclough-blue">Type</th>
+                      <th className="text-left py-3 px-4 font-semibold text-stoneclough-blue">Title</th>
+                      <th className="text-left py-3 px-4 font-semibold text-stoneclough-blue">Amount</th>
                     </tr>
                   </thead>
                   <tbody>
                     {councilData.slice(0, 10).map((item) => (
-                      <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50">
-                        <td className="py-3 px-4 text-hub-gray">
+                      <tr key={item.id} className="border-b border-stoneclough-blue/10 hover:bg-stoneclough-light/50">
+                        <td className="py-3 px-4 text-stoneclough-gray-blue">
                           {new Date(item.date).toLocaleDateString()}
                         </td>
                         <td className="py-3 px-4">
-                          <span className="capitalize px-2 py-1 bg-blue-100 text-hub-blue text-xs rounded-full">
+                          <span className="capitalize px-2 py-1 bg-stoneclough-blue/10 text-stoneclough-blue text-xs rounded-full">
                             {item.dataType.replace('_', ' ')}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-hub-dark font-medium">
+                        <td className="py-3 px-4 text-stoneclough-blue font-medium">
                           {item.title}
                         </td>
-                        <td className="py-3 px-4 text-hub-gray">
+                        <td className="py-3 px-4 text-stoneclough-gray-blue">
                           {item.amount ? `£${item.amount.toLocaleString()}` : '-'}
                         </td>
                       </tr>
@@ -232,8 +232,8 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-hub-gray">No council data available at the moment.</p>
-                <p className="text-sm text-hub-gray mt-2">
+                <p className="text-stoneclough-gray-blue">No council data available at the moment.</p>
+                <p className="text-sm text-stoneclough-gray-blue mt-2">
                   Data will be populated automatically from Bolton Council sources.
                 </p>
               </div>

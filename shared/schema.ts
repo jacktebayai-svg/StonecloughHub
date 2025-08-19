@@ -1,5 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp, boolean, json, pgEnum, index } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, timestamp, boolean, json, pgEnum, index, primaryKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -14,7 +14,7 @@ export const dataTypeEnum = pgEnum('data_type', [
   'transparency_data'
 ]);
 export const businessCategoryEnum = pgEnum('business_category', ['restaurant_cafe', 'retail_shopping', 'health_beauty', 'professional_services', 'home_garden', 'other']);
-export const forumCategoryEnum = pgEnum('forum_category', ['general', 'local_events', 'business_recommendations', 'council_planning', 'buy_sell']);
+export const forumCategoryEnum = pgEnum('forum_category', ['general', 'local_events', 'business_recommendations', 'council_planning', 'buy_sell', 'green_space']);
 export const surveyStatusEnum = pgEnum('survey_status', ['draft', 'active', 'closed']);
 export const userRoleEnum = pgEnum('user_role', ['user', 'moderator', 'admin']);
 
@@ -39,6 +39,39 @@ export const users = pgTable("users", {
   role: userRoleEnum("role").default('user').notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Profiles table
+export const profiles = pgTable("profiles", {
+  id: varchar("id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  bio: text("bio"),
+  phone: varchar("phone"),
+  address: text("address"),
+  profilePictureUrl: text("profile_picture_url"),
+  isBusinessOwner: boolean("is_business_owner").default(false),
+  isSkillProvider: boolean("is_skill_provider").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Skills table
+export const skills = pgTable("skills", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").unique().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// User Skills junction table
+export const userSkills = pgTable("user_skills", {
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  skillId: varchar("skill_id").references(() => skills.id, { onDelete: "cascade" }).notNull(),
+  level: varchar("level"), // e.g., "Beginner", "Intermediate", "Expert"
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    pk: primaryKey(table.userId, table.skillId)
+  };
 });
 
 // Data from Bolton Council
@@ -69,6 +102,7 @@ export const businesses = pgTable("businesses", {
   imageUrl: text("image_url"),
   isVerified: boolean("is_verified").default(false),
   isPremium: boolean("is_premium").default(false),
+  isPromoted: boolean("is_promoted").default(false),
   createdBy: varchar("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -79,6 +113,7 @@ export const forumDiscussions = pgTable("forum_discussions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
   content: text("content").notNull(),
+  imageUrl: text("image_url"), // New field
   category: forumCategoryEnum("category").notNull(),
   authorId: varchar("author_id").references(() => users.id),
   authorName: text("author_name").notNull(),
@@ -110,6 +145,7 @@ export const blogArticles = pgTable("blog_articles", {
   imageUrl: text("image_url"),
   readTime: integer("read_time").notNull(),
   isFeatured: boolean("is_featured").default(false),
+  isPromoted: boolean("is_promoted").default(false),
   authorId: varchar("author_id").references(() => users.id),
   authorName: text("author_name").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -160,6 +196,33 @@ export const surveyResponsesRelations = relations(surveyResponses, ({ one }) => 
   }),
 }));
 
+export const usersRelations = relations(users, ({ one, many }) => ({
+  profile: one(profiles, {
+    fields: [users.id],
+    references: [profiles.id],
+  }),
+  businesses: many(businesses),
+  userSkills: many(userSkills),
+}));
+
+export const profilesRelations = relations(profiles, ({ one }) => ({
+  user: one(users, {
+    fields: [profiles.id],
+    references: [users.id],
+  }),
+}));
+
+export const userSkillsRelations = relations(userSkills, ({ one }) => ({
+  user: one(users, {
+    fields: [userSkills.userId],
+    references: [users.id],
+  }),
+  skill: one(skills, {
+    fields: [userSkills.skillId],
+    references: [skills.id],
+  }),
+}));
+
 // Insert schemas
 export const insertCouncilDataSchema = createInsertSchema(councilData).omit({
   id: true,
@@ -204,6 +267,22 @@ export const insertSurveyResponseSchema = createInsertSchema(surveyResponses).om
   createdAt: true,
 });
 
+export const insertProfileSchema = createInsertSchema(profiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSkillSchema = createInsertSchema(skills).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserSkillSchema = createInsertSchema(userSkills).omit({
+  createdAt: true,
+});
+
 // Types
 export type InsertCouncilData = z.infer<typeof insertCouncilDataSchema>;
 export type CouncilData = typeof councilData.$inferSelect;
@@ -236,3 +315,13 @@ export const insertUserSchema = createInsertSchema(users).omit({
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+
+export type InsertProfile = z.infer<typeof insertProfileSchema>;
+export type Profile = typeof profiles.$inferSelect;
+export type UpdateProfile = z.infer<typeof insertProfileSchema>; // For partial updates
+
+export type InsertSkill = z.infer<typeof insertSkillSchema>;
+export type Skill = typeof skills.$inferSelect;
+
+export type InsertUserSkill = z.infer<typeof insertUserSkillSchema>;
+export type UserSkill = typeof userSkills.$inferSelect;

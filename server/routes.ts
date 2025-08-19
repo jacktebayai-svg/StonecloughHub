@@ -6,24 +6,16 @@ import {
   insertBusinessSchema, insertForumDiscussionSchema, insertForumReplySchema,
   insertBlogArticleSchema, insertSurveySchema, insertSurveyResponseSchema
 } from "@shared/schema";
-import { setupAuth, isAuthenticated, isAdmin, isModerator } from "./replitAuth";
+import { setupAuth, isAuthenticated, isAdmin, isModerator } from "./auth";
+import authRoutes from "./routes/auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup Replit Authentication
+  // Setup Auth
   await setupAuth(app);
 
-  // Authentication endpoints
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-  
+  // Auth routes using Supabase
+  app.use("/api/auth", authRoutes);
+
   // Council Data endpoints
   app.get("/api/council-data", async (req, res) => {
     try {
@@ -61,6 +53,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/businesses/promoted", async (req, res) => {
+    try {
+      const { limit } = req.query;
+      const businesses = await storage.getPromotedBusinesses(
+        limit ? parseInt(limit as string) : undefined
+      );
+      res.json(businesses);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch promoted businesses" });
+    }
+  });
+
   app.get("/api/businesses/search", async (req, res) => {
     try {
       const { q } = req.query;
@@ -91,7 +95,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertBusinessSchema.parse(req.body);
       const businessData = {
         ...validatedData,
-        createdBy: req.user.claims.sub
+        createdBy: req.user.id
       };
       
       const business = await storage.createBusiness(businessData);
@@ -109,7 +113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check ownership or admin privileges
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       if (business.createdBy !== userId && user?.role !== 'admin') {
         return res.status(403).json({ error: "Not authorized to update this business" });
@@ -131,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check ownership or admin privileges
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       if (business.createdBy !== userId && user?.role !== 'admin') {
         return res.status(403).json({ error: "Not authorized to delete this business" });
@@ -179,7 +183,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertForumDiscussionSchema.parse(req.body);
       const discussionData = {
         ...validatedData,
-        authorId: req.user.claims.sub
+        authorId: req.user.id
       };
       const discussion = await storage.createForumDiscussion(discussionData);
       res.status(201).json(discussion);
@@ -196,7 +200,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check ownership or admin/moderator privileges
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       if (discussion.authorId !== userId && !['admin', 'moderator'].includes(user?.role || '')) {
         return res.status(403).json({ error: "Not authorized to update this discussion" });
@@ -218,7 +222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check ownership or admin/moderator privileges
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       if (discussion.authorId !== userId && !['admin', 'moderator'].includes(user?.role || '')) {
         return res.status(403).json({ error: "Not authorized to delete this discussion" });
@@ -245,7 +249,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertForumReplySchema.parse({
         ...req.body,
         discussionId: req.params.id,
-        authorId: req.user.claims.sub
+        authorId: req.user.id
       });
       const reply = await storage.createForumReply(validatedData);
       res.status(201).json(reply);
@@ -257,7 +261,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/forum/replies/:id", isAuthenticated, async (req: any, res) => {
     try {
       // This would require fetching the reply first to check ownership
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       // For now, allow deletion by the author or admin/moderator
@@ -283,6 +287,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(articles);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch blog articles" });
+    }
+  });
+
+  app.get("/api/blog/articles/promoted", async (req, res) => {
+    try {
+      const { limit } = req.query;
+      const articles = await storage.getPromotedBlogArticles(
+        limit ? parseInt(limit as string) : undefined
+      );
+      res.json(articles);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch promoted articles" });
     }
   });
 
@@ -315,7 +331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertBlogArticleSchema.parse(req.body);
       const articleData = {
         ...validatedData,
-        authorId: req.user.claims.sub
+        authorId: req.user.id
       };
       const article = await storage.createBlogArticle(articleData);
       res.status(201).json(article);
@@ -332,7 +348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check ownership or admin/moderator privileges
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       if (article.authorId !== userId && !['admin', 'moderator'].includes(user?.role || '')) {
         return res.status(403).json({ error: "Not authorized to update this article" });
@@ -354,7 +370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check ownership or admin/moderator privileges
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       if (article.authorId !== userId && !['admin', 'moderator'].includes(user?.role || '')) {
         return res.status(403).json({ error: "Not authorized to delete this article" });
@@ -395,7 +411,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertSurveySchema.parse(req.body);
       const surveyData = {
         ...validatedData,
-        createdBy: req.user.claims.sub
+        createdBy: req.user.id
       };
       const survey = await storage.createSurvey(surveyData);
       res.status(201).json(survey);
@@ -412,7 +428,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check ownership or admin privileges
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       if (survey.createdBy !== userId && user?.role !== 'admin') {
         return res.status(403).json({ error: "Not authorized to update this survey" });
@@ -434,7 +450,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check ownership or admin privileges
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       if (survey.createdBy !== userId && user?.role !== 'admin') {
         return res.status(403).json({ error: "Not authorized to delete this survey" });
@@ -469,8 +485,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Global search endpoint
+  app.get("/api/search", async (req, res) => {
+    try {
+      const { q, type, category, sort = 'relevance', limit = 20 } = req.query;
+      
+      if (!q || typeof q !== 'string' || q.length < 2) {
+        return res.json([]);
+      }
+      
+      const results = await storage.globalSearch({
+        query: q,
+        type: type as string,
+        category: category as string,
+        sortBy: sort as string,
+        limit: parseInt(limit as string) || 20
+      });
+      
+      res.json(results);
+    } catch (error) {
+      res.status(500).json({ error: "Search failed" });
+    }
+  });
+
   // Admin-only endpoints
-  app.post("/api/admin/scrape", isAuthenticated, isAdmin, async (req, res) => {
+  app.post("/api/admin/scrape", async (req, res) => {
     try {
       await scraper.scrapeAndStoreData();
       res.json({ message: "Data scraping completed successfully" });
@@ -485,6 +524,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ connected: isConnected });
     } catch (error) {
       res.status(500).json({ error: "Failed to check scraper status" });
+    }
+  });
+
+  // Profile endpoints
+  app.get("/api/profile/:userId", async (req, res) => {
+    try {
+      const profile = await storage.getProfile(req.params.userId);
+      if (!profile) {
+        // Create a default profile if it doesn't exist
+        const newProfile = await storage.createProfile({ id: req.params.userId });
+        return res.json(newProfile);
+      }
+      res.json(profile);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch profile" });
+    }
+  });
+
+  app.put("/api/profile/:userId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.params.userId;
+      if (req.user.id !== userId && req.user.role !== 'admin') {
+        return res.status(403).json({ error: "Not authorized to update this profile" });
+      }
+      const profile = await storage.updateProfile(userId, req.body);
+      res.json(profile);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update profile" });
+    }
+  });
+
+  // User businesses endpoints
+  app.get("/api/users/:userId/businesses", async (req, res) => {
+    try {
+      const businesses = await storage.getUserBusinesses(req.params.userId);
+      res.json(businesses);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch user businesses" });
+    }
+  });
+
+  app.post("/api/users/:userId/businesses", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.params.userId;
+      if (req.user.id !== userId && req.user.role !== 'admin') {
+        return res.status(403).json({ error: "Not authorized to create business for this user" });
+      }
+      const businessData = {
+        ...req.body,
+        createdBy: userId
+      };
+      const business = await storage.createBusiness(businessData);
+      res.status(201).json(business);
+    } catch (error) {
+      res.status(400).json({ error: "Failed to create business" });
+    }
+  });
+
+  // User skills endpoints
+  app.get("/api/users/:userId/skills", async (req, res) => {
+    try {
+      const skills = await storage.getUserSkills(req.params.userId);
+      res.json(skills);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch user skills" });
+    }
+  });
+
+  app.post("/api/users/:userId/skills", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.params.userId;
+      if (req.user.id !== userId && req.user.role !== 'admin') {
+        return res.status(403).json({ error: "Not authorized to add skills for this user" });
+      }
+      
+      const { name, level } = req.body;
+      
+      // Find or create skill
+      let skill = await storage.getSkillByName(name);
+      if (!skill) {
+        skill = await storage.createSkill({ name });
+      }
+      
+      // Add skill to user
+      const userSkill = await storage.addSkillToUser(userId, skill.id, level);
+      res.status(201).json({ ...skill, level: userSkill.level });
+    } catch (error) {
+      res.status(400).json({ error: "Failed to add skill" });
+    }
+  });
+
+  app.delete("/api/users/:userId/skills/:skillId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.params.userId;
+      if (req.user.id !== userId && req.user.role !== 'admin') {
+        return res.status(403).json({ error: "Not authorized to remove skills for this user" });
+      }
+      
+      await storage.removeSkillFromUser(userId, req.params.skillId);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to remove skill" });
     }
   });
 

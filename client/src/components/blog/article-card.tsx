@@ -11,10 +11,10 @@ interface ArticleCardProps {
 }
 
 const categoryColors: Record<string, string> = {
-  "Featured Analysis": "bg-hub-blue text-white",
-  "Community": "bg-green-100 text-hub-green",
-  "Business": "bg-purple-100 text-purple-600",
-  "Planning": "bg-blue-100 text-hub-blue"
+  "Featured Analysis": "bg-stoneclough-blue text-stoneclough-light",
+  "Community": "bg-stoneclough-gray-blue/10 text-stoneclough-gray-blue",
+  "Business": "bg-stoneclough-orange/10 text-stoneclough-orange",
+  "Planning": "bg-stoneclough-yellow/10 text-stoneclough-yellow",
 };
 
 export function ArticleCard({ article, onReadMore, featured = false }: ArticleCardProps) {
@@ -25,29 +25,29 @@ export function ArticleCard({ article, onReadMore, featured = false }: ArticleCa
       <Card className="overflow-hidden shadow-sm border border-slate-200">
         <div className="grid lg:grid-cols-2 gap-0">
           <div className="order-2 lg:order-1 p-8 lg:p-12">
-            <Badge className={categoryColors[article.category] || "bg-gray-100 text-gray-600"}>
+            <Badge className={categoryColors[article.category] || "bg-stoneclough-light text-stoneclough-gray-blue"}>
               {article.category}
             </Badge>
-            <h3 className="text-2xl lg:text-3xl font-bold text-hub-dark mt-4 mb-4">
+            <h3 className="text-2xl lg:text-3xl font-bold text-stoneclough-blue mt-4 mb-4">
               {article.title}
             </h3>
-            <p className="text-hub-gray text-lg mb-6 leading-relaxed">
+            <p className="text-stoneclough-gray-blue text-lg mb-6 leading-relaxed">
               {article.excerpt}
             </p>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-hub-blue text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                <div className="w-8 h-8 bg-stoneclough-blue text-stoneclough-light rounded-full flex items-center justify-center text-sm font-semibold">
                   {article.authorName.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
-                  <div className="font-medium text-hub-dark">{article.authorName}</div>
-                  <div className="text-sm text-hub-gray">{publishedDate}</div>
+                  <div className="font-medium text-stoneclough-blue">{article.authorName}</div>
+                  <div className="text-sm text-stoneclough-gray-blue">{publishedDate}</div>
                 </div>
               </div>
-              <span className="text-sm text-hub-gray">{article.readTime} min read</span>
+              <span className="text-sm text-stoneclough-gray-blue">{article.readTime} min read</span>
             </div>
             <Button 
-              className="bg-hub-blue hover:bg-hub-dark-blue text-white"
+              className="bg-stoneclough-blue hover:bg-stoneclough-blue/90 text-stoneclough-light"
               onClick={() => onReadMore?.(article.id)}
             >
               Read Full Analysis
@@ -77,21 +77,21 @@ export function ArticleCard({ article, onReadMore, featured = false }: ArticleCa
         />
       )}
       <CardContent className="p-6">
-        <Badge className={categoryColors[article.category] || "bg-gray-100 text-gray-600"}>
+        <Badge className={categoryColors[article.category] || "bg-stoneclough-light text-stoneclough-gray-blue"}>
           {article.category}
         </Badge>
-        <h4 className="font-semibold text-lg text-hub-dark mt-3 mb-3">
+        <h4 className="font-semibold text-lg text-stoneclough-blue mt-3 mb-3">
           {article.title}
         </h4>
-        <p className="text-hub-gray text-sm mb-4">
+        <p className="text-stoneclough-gray-blue text-sm mb-4">
           {article.excerpt}
         </p>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-hub-gray">{publishedDate}</span>
+          <span className="text-xs text-stoneclough-gray-blue">{publishedDate}</span>
           <Button 
             variant="ghost" 
             size="sm"
-            className="text-hub-blue hover:text-hub-dark-blue"
+            className="text-stoneclough-blue hover:text-stoneclough-blue/90"
             onClick={() => onReadMore?.(article.id)}
           >
             Read More →

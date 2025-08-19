@@ -25,19 +25,19 @@ export default function Directory() {
   const displayBusinesses = searchQuery.length > 2 ? searchResults : businesses;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-stoneclough-light">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-hub-dark mb-4">Local Business Directory</h1>
-          <p className="text-lg text-hub-gray max-w-3xl mx-auto">
+          <h1 className="text-3xl font-bold text-stoneclough-blue mb-4">Local Business Directory</h1>
+          <p className="text-lg text-stoneclough-gray-blue max-w-3xl mx-auto">
             Discover and support local businesses in Stoneclough. All listings are community-verified and regularly updated.
           </p>
         </div>
 
         {/* Search and filter section */}
-        <Card className="shadow-sm border border-slate-200 mb-8">
+        <Card className="shadow-sm border border-stoneclough-blue/20 mb-8">
           <CardContent className="p-6">
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1">
@@ -63,7 +63,7 @@ export default function Directory() {
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="bg-hub-blue hover:bg-hub-dark-blue text-white">
+              <Button className="bg-stoneclough-blue hover:bg-stoneclough-blue/90 text-stoneclough-light">
                 <Search className="w-4 h-4 mr-2" />
                 Search
               </Button>
@@ -76,12 +76,12 @@ export default function Directory() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="animate-pulse">
-                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                  <div className="h-48 bg-slate-200"></div>
+                <div className="bg-stoneclough-light rounded-xl border border-stoneclough-blue/20 overflow-hidden">
+                  <div className="h-48 bg-stoneclough-blue/10"></div>
                   <div className="p-6">
-                    <div className="h-4 bg-slate-200 rounded mb-3"></div>
-                    <div className="h-3 bg-slate-200 rounded mb-2"></div>
-                    <div className="h-3 bg-slate-200 rounded"></div>
+                    <div className="h-4 bg-stoneclough-blue/10 rounded mb-3"></div>
+                    <div className="h-3 bg-stoneclough-blue/10 rounded mb-2"></div>
+                    <div className="h-3 bg-stoneclough-blue/10 rounded"></div>
                   </div>
                 </div>
               </div>
@@ -90,7 +90,7 @@ export default function Directory() {
         ) : displayBusinesses && displayBusinesses.length > 0 ? (
           <>
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-hub-dark mb-6">
+              <h3 className="text-xl font-semibold text-stoneclough-blue mb-6">
                 {searchQuery.length > 2 ? `Search Results for "${searchQuery}"` : "All Businesses"}
               </h3>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -102,29 +102,29 @@ export default function Directory() {
           </>
         ) : (
           <div className="text-center py-12">
-            <p className="text-hub-gray text-lg">
+            <p className="text-stoneclough-gray-blue text-lg">
               {searchQuery.length > 2 
                 ? `No businesses found for "${searchQuery}"`
                 : "No businesses found in this category"
               }
             </p>
-            <p className="text-sm text-hub-gray mt-2">
+            <p className="text-sm text-stoneclough-gray-blue mt-2">
               Try adjusting your search or browse all categories.
             </p>
           </div>
         )}
 
         {/* Call to action for businesses */}
-        <div className="bg-hub-blue rounded-xl p-8 text-white text-center mt-12">
-          <h3 className="text-2xl font-bold mb-4">Is Your Business Listed?</h3>
-          <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
+        <div className="bg-stoneclough-blue rounded-xl p-8 text-stoneclough-light text-center mt-12">
+          <h3 className="text-2xl font-bold text-stoneclough-blue mb-4">Is Your Business Listed?</h3>
+          <p className="text-stoneclough-light mb-6 max-w-2xl mx-auto">
             Join hundreds of local businesses in our community directory. Get discovered by residents and build trust through community verification.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="bg-white text-hub-blue hover:bg-blue-50">
+            <Button className="bg-stoneclough-light text-stoneclough-blue hover:bg-stoneclough-light/90">
               Add Free Listing
             </Button>
-            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-hub-blue">
+            <Button variant="outline" className="border-stoneclough-light text-stoneclough-light hover:bg-stoneclough-light hover:text-stoneclough-blue">
               View Pricing Plans
             </Button>
           </div>

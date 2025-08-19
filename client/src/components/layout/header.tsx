@@ -1,7 +1,6 @@
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { MapPin } from "lucide-react";
 
 export function Header() {
   const { user, isAuthenticated } = useAuth();
@@ -11,13 +10,13 @@ export function Header() {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm border-b">
+        <header className="bg-stoneclough-light text-stoneclough-blue shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/">
             <div className="flex items-center space-x-2 cursor-pointer">
-              <MapPin className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900 dark:text-white">
+              <img src="/Logo.svg" alt="The Stoneclough Hub Logo" className="h-16 w-16" />
+              <span className="text-xl font-bold">
                 The Stoneclough Hub
               </span>
             </div>
@@ -25,33 +24,40 @@ export function Header() {
 
           <nav className="hidden md:flex space-x-8">
             <Link href="/dashboard">
-              <span className="text-gray-700 dark:text-gray-300 hover:text-blue-600 cursor-pointer">
+              <span className="hover:text-stoneclough-gray-blue cursor-pointer">
                 Dashboard
               </span>
             </Link>
             <Link href="/directory">
-              <span className="text-gray-700 dark:text-gray-300 hover:text-blue-600 cursor-pointer">
+              <span className="hover:text-stoneclough-gray-blue cursor-pointer">
                 Directory
               </span>
             </Link>
             <Link href="/forum">
-              <span className="text-gray-700 dark:text-gray-300 hover:text-blue-600 cursor-pointer">
+              <span className="hover:text-stoneclough-gray-blue cursor-pointer">
                 Forum
               </span>
             </Link>
             <Link href="/blog">
-              <span className="text-gray-700 dark:text-gray-300 hover:text-blue-600 cursor-pointer">
+              <span className="hover:text-stoneclough-gray-blue cursor-pointer">
                 Blog
               </span>
             </Link>
             <Link href="/surveys">
-              <span className="text-gray-700 dark:text-gray-300 hover:text-blue-600 cursor-pointer">
+              <span className="hover:text-stoneclough-gray-blue cursor-pointer">
                 Surveys
               </span>
             </Link>
+            {isAuthenticated && (
+              <Link href="/profile">
+                <span className="hover:text-stoneclough-gray-blue cursor-pointer">
+                  Profile
+                </span>
+              </Link>
+            )}
             {user?.role === 'admin' && (
               <Link href="/admin">
-                <span className="text-gray-700 dark:text-gray-300 hover:text-blue-600 cursor-pointer">
+                <span className="hover:text-stoneclough-gray-blue cursor-pointer">
                   Admin
                 </span>
               </Link>
@@ -60,7 +66,7 @@ export function Header() {
 
           {isAuthenticated && user ? (
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+              <span className="text-sm">
                 {user.firstName || user.email}
               </span>
               <Button onClick={handleLogout} variant="outline">
@@ -68,7 +74,7 @@ export function Header() {
               </Button>
             </div>
           ) : (
-            <Button onClick={() => window.location.href = "/api/login"}>
+            <Button onClick={() => window.location.href = "/api/login"} className="bg-stoneclough-blue text-stoneclough-light">
               Sign In
             </Button>
           )}

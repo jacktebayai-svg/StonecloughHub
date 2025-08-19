@@ -16,13 +16,13 @@ export default function Blog() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-stoneclough-light">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-hub-dark mb-4">Community Blog</h1>
-          <p className="text-lg text-hub-gray max-w-3xl mx-auto">
+          <h1 className="text-3xl font-bold text-stoneclough-blue mb-4">Community Blog</h1>
+          <p className="text-lg text-stoneclough-gray-blue max-w-3xl mx-auto">
             Data-driven insights, community news, and expert analysis to keep you informed about what matters locally.
           </p>
         </div>
@@ -40,12 +40,12 @@ export default function Blog() {
             {[...Array(6)].map((_, i) => (
               <div key={i} className="animate-pulse">
                 <Card className="overflow-hidden">
-                  <div className="h-48 bg-slate-200"></div>
+                  <div className="h-48 bg-stoneclough-light/80"></div>
                   <CardContent className="p-6">
-                    <div className="h-4 bg-slate-200 rounded mb-3"></div>
-                    <div className="h-5 bg-slate-200 rounded mb-3"></div>
-                    <div className="h-4 bg-slate-200 rounded mb-4"></div>
-                    <div className="h-3 bg-slate-200 rounded"></div>
+                    <div className="h-4 bg-stoneclough-light/80 rounded mb-3"></div>
+                    <div className="h-5 bg-stoneclough-light/80 rounded mb-3"></div>
+                    <div className="h-4 bg-stoneclough-light/80 rounded mb-4"></div>
+                    <div className="h-3 bg-stoneclough-light/80 rounded"></div>
                   </CardContent>
                 </Card>
               </div>
@@ -59,28 +59,28 @@ export default function Blog() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-hub-gray text-lg">
+            <p className="text-stoneclough-gray-blue text-lg">
               No blog articles available at the moment.
             </p>
-            <p className="text-sm text-hub-gray mt-2">
+            <p className="text-sm text-stoneclough-gray-blue mt-2">
               Check back soon for community insights and data analysis.
             </p>
           </div>
         )}
 
         {/* Newsletter signup */}
-        <div className="bg-gradient-to-r from-hub-blue to-hub-dark-blue rounded-xl p-8 text-white text-center mt-12">
+        <div className="bg-gradient-to-r from-stoneclough-blue to-stoneclough-blue/90 rounded-xl p-8 text-stoneclough-light text-center mt-12">
           <h3 className="text-2xl font-bold mb-4">Stay Informed</h3>
-          <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
+          <p className="text-stoneclough-light mb-6 max-w-2xl mx-auto">
             Get our weekly newsletter with the latest data insights, community news, and local business highlights.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
             <Input 
               type="email" 
               placeholder="Enter your email"
-              className="flex-1 text-hub-dark"
+              className="flex-1 text-stoneclough-blue"
             />
-            <Button className="bg-white text-hub-blue hover:bg-blue-50">
+            <Button className="bg-stoneclough-light text-stoneclough-blue hover:bg-stoneclough-light/90">
               Subscribe
             </Button>
           </div>

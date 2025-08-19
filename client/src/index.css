@@ -5,19 +5,19 @@
 
 :root {
   --background: hsl(248, 20%, 98%);
-  --foreground: hsl(210, 25%, 7.8431%);
+  --foreground: var(--stoneclough-blue);
   --card: hsl(0, 0%, 100%);
   --card-foreground: hsl(210, 25%, 7.8431%);
   --popover: hsl(0, 0%, 100%);
   --popover-foreground: hsl(210, 25%, 7.8431%);
-  --primary: hsl(221, 83%, 53%);
-  --primary-foreground: hsl(0, 0%, 100%);
+  --primary: var(--stoneclough-blue);
+  --primary-foreground: var(--stoneclough-light);
   --secondary: hsl(210, 25%, 7.8431%);
   --secondary-foreground: hsl(0, 0%, 100%);
   --muted: hsl(240, 1.9608%, 90%);
-  --muted-foreground: hsl(210, 25%, 7.8431%);
-  --accent: hsl(211.5789, 51.3514%, 92.7451%);
-  --accent-foreground: hsl(203.8863, 88.2845%, 53.1373%);
+  --muted-foreground: var(--stoneclough-gray-blue);
+  --accent: var(--stoneclough-gray-blue);
+  --accent-foreground: var(--stoneclough-light);
   --destructive: hsl(356.3033, 90.5579%, 54.3137%);
   --destructive-foreground: hsl(0, 0%, 100%);
   --border: hsl(201.4286, 30.4348%, 90.9804%);
@@ -57,23 +57,29 @@
   --hub-green: hsl(146, 100%, 39%);
   --hub-gray: hsl(215, 16%, 47%);
   --hub-dark: hsl(215, 25%, 17%);
+  --stoneclough-blue: #254974;
+  --stoneclough-light: #f7fafc;
+  --stoneclough-brown: #587492;
+  --stoneclough-gray-blue: #587492;
+  --stoneclough-orange: #dd6b20;
+  --stoneclough-yellow: #ecc94b;
 }
 
 .dark {
   --background: hsl(0, 0%, 0%);
-  --foreground: hsl(200, 6.6667%, 91.1765%);
+  --foreground: var(--stoneclough-light);
   --card: hsl(228, 9.8039%, 10%);
   --card-foreground: hsl(0, 0%, 85.0980%);
   --popover: hsl(0, 0%, 0%);
   --popover-foreground: hsl(200, 6.6667%, 91.1765%);
-  --primary: hsl(203.7736, 87.6033%, 52.5490%);
-  --primary-foreground: hsl(0, 0%, 100%);
+  --primary: var(--stoneclough-blue);
+  --primary-foreground: var(--stoneclough-light);
   --secondary: hsl(195.0000, 15.3846%, 94.9020%);
   --secondary-foreground: hsl(210, 25%, 7.8431%);
   --muted: hsl(0, 0%, 9.4118%);
-  --muted-foreground: hsl(210, 3.3898%, 46.2745%);
-  --accent: hsl(205.7143, 70%, 7.8431%);
-  --accent-foreground: hsl(203.7736, 87.6033%, 52.5490%);
+  --muted-foreground: var(--stoneclough-gray-blue);
+  --accent: var(--stoneclough-gray-blue);
+  --accent-foreground: var(--stoneclough-light);
   --destructive: hsl(356.3033, 90.5579%, 54.3137%);
   --destructive-foreground: hsl(0, 0%, 100%);
   --border: hsl(210, 5.2632%, 14.9020%);
@@ -111,6 +117,12 @@
   --hub-green: hsl(146, 100%, 44%);
   --hub-gray: hsl(215, 16%, 62%);
   --hub-dark: hsl(215, 25%, 82%);
+  --stoneclough-blue: #3a6aa5;
+  --stoneclough-light: #1a202c;
+  --stoneclough-brown: #7a92ad;
+  --stoneclough-gray-blue: #7a92ad;
+  --stoneclough-orange: #f0934b;
+  --stoneclough-yellow: #f5d76e;
 }
 
 @layer base {
@@ -176,5 +188,41 @@
   
   .hover\:text-hub-dark-blue:hover {
     color: var(--hub-dark-blue);
+  }
+  .text-stoneclough-blue {
+    color: var(--stoneclough-blue);
+  }
+  .bg-stoneclough-blue {
+    background-color: var(--stoneclough-blue);
+  }
+  .text-stoneclough-light {
+    color: var(--stoneclough-light);
+  }
+  .bg-stoneclough-light {
+    background-color: var(--stoneclough-light);
+  }
+  .text-stoneclough-brown {
+    color: var(--stoneclough-brown);
+  }
+  .bg-stoneclough-brown {
+    background-color: var(--stoneclough-brown);
+  }
+  .text-stoneclough-gray-blue {
+    color: var(--stoneclough-gray-blue);
+  }
+  .bg-stoneclough-gray-blue {
+    background-color: var(--stoneclough-gray-blue);
+  }
+  .text-stoneclough-orange {
+    color: var(--stoneclough-orange);
+  }
+  .bg-stoneclough-orange {
+    background-color: var(--stoneclough-orange);
+  }
+  .text-stoneclough-yellow {
+    color: var(--stoneclough-yellow);
+  }
+  .bg-stoneclough-yellow {
+    background-color: var(--stoneclough-yellow);
   }
 }

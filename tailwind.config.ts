@@ -68,6 +68,12 @@ export default {
         'hub-green': 'var(--hub-green)',
         'hub-gray': 'var(--hub-gray)',
         'hub-dark': 'var(--hub-dark)',
+        'stoneclough-blue': '#254974',
+        'stoneclough-light': '#f7fafc',
+        'stoneclough-brown': '#587492',
+        'stoneclough-gray-blue': '#587492',
+        'stoneclough-orange': '#dd6b20',
+        'stoneclough-yellow': '#ecc94b',
       },
       borderRadius: {
         lg: "var(--radius)",

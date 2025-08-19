@@ -1,177 +1,187 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Users, FileText, MessageSquare, BarChart3, Building2 } from "lucide-react";
+import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { BusinessCard } from "@/components/business/business-card";
+import { ArticleCard } from "@/components/blog/article-card";
+import { FileText, Building2, MessageSquare, BarChart3, Users } from "lucide-react";
+import { motion } from "framer-motion";
+import { DataChart } from "@/components/charts/data-chart"; // Import DataChart
 
 export default function Landing() {
   const handleLogin = () => {
-    window.location.href = "/api/login";
+    window.location.href = "/api/auth/google";
+  };
+
+  const { data: promotedBusinesses, isLoading: isLoadingBusinesses } = useQuery({
+    queryKey: ['promotedBusinesses'],
+    queryFn: async () => {
+      const res = await fetch('/api/businesses/promoted?limit=3'); // Increased limit for carousel
+      if (!res.ok) {
+        throw new Error('Failed to fetch promoted businesses');
+      }
+      return res.json();
+    },
+  });
+
+  const { data: promotedArticles, isLoading: isLoadingArticles } = useQuery({
+    queryKey: ['promotedArticles'],
+    queryFn: async () => {
+      const res = await fetch('/api/blog/articles/promoted?limit=3'); // Increased limit for carousel
+      if (!res.ok) {
+        throw new Error('Failed to fetch promoted articles');
+      }
+      return res.json();
+    },
+  });
+
+  // Sample data for harvested insights
+  const sampleInsights = [
+    { label: 'Planning Apps', value: 25 },
+    { label: 'Council Spend', value: 1.2 },
+    { label: 'Meetings', value: 8 },
+  ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.8, staggerChildren: 0.3 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <MapPin className="h-8 w-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              The Stoneclough Hub
-            </h1>
-          </div>
-          <Button onClick={handleLogin} size="lg">
+    <motion.div
+      className="min-h-screen bg-gradient-to-b from-stoneclough-light to-white dark:from-stoneclough-blue dark:to-gray-800"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* Header with Logo and Login Button */}
+      <header className="container mx-auto px-4 py-8 flex justify-between items-center">
+        <motion.div
+          className="flex items-center space-x-4"
+          variants={itemVariants}
+        >
+          <motion.img
+            src="/Logo.svg"
+            alt="The Stoneclough Hub Logo"
+            className="h-24 w-24 drop-shadow-lg"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          />
+          <motion.span
+            className="text-2xl font-bold text-stoneclough-blue dark:text-stoneclough-light"
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+          >
+            The Stoneclough Hub
+          </motion.span>
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <Button onClick={handleLogin} size="lg" className="shadow-lg">
             Sign In
           </Button>
-        </div>
+        </motion.div>
       </header>
 
-      {/* Hero Section */}
-      <main className="container mx-auto px-4">
-        <div className="text-center py-16">
-          <Badge variant="secondary" className="mb-4">
-            Community Data Platform
-          </Badge>
-          <h2 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-            Your Local Government
-            <span className="text-blue-600"> Transparent</span>
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-            Access local government data, discover businesses, engage with your community, 
-            and stay informed about Stoneclough through our comprehensive platform.
-          </p>
-          <Button onClick={handleLogin} size="lg" className="mr-4">
-            Get Started
-          </Button>
-          <Button variant="outline" size="lg">
-            Learn More
-          </Button>
-        </div>
+      {/* Featured Content Grid */}
+      <main className="container mx-auto px-4 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Promoted Businesses */}
+          <motion.section
+            className="bg-stoneclough-light dark:bg-stoneclough-blue p-6 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300"
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+          >
+            <h3 className="text-2xl font-bold text-stoneclough-blue dark:text-stoneclough-light mb-6 text-center">Featured Local Businesses</h3>
+            {isLoadingBusinesses ? (
+              <p className="text-center text-stoneclough-gray-blue">Loading businesses...</p>
+            ) : promotedBusinesses && promotedBusinesses.length > 0 ? (
+              <div className="space-y-4">
+                {promotedBusinesses.map((business: any) => (
+                  <BusinessCard key={business.id} business={business} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-stoneclough-gray-blue">No promoted businesses found.</p>
+            )}
+            <div className="text-center mt-6">
+              <Link href="/directory">
+                <Button size="lg" variant="outline" className="shadow-md">View All Businesses</Button>
+              </Link>
+            </div>
+          </motion.section>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 py-16">
-          <Card>
-            <CardHeader>
-              <FileText className="h-10 w-10 text-blue-600 mb-2" />
-              <CardTitle>Government Data</CardTitle>
-              <CardDescription>
-                Access planning applications, council spending, and meeting minutes in real-time.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                <li>• Planning applications tracker</li>
-                <li>• Council spending transparency</li>
-                <li>• Meeting schedules & minutes</li>
-              </ul>
-            </CardContent>
-          </Card>
+          {/* Promoted Articles */}
+          <motion.section
+            className="bg-white dark:bg-stoneclough-blue/90 p-6 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300"
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+          >
+            <h3 className="text-2xl font-bold text-stoneclough-blue dark:text-stoneclough-light mb-6 text-center">Latest Community Insights</h3>
+            {isLoadingArticles ? (
+              <p className="text-center text-stoneclough-gray-blue">Loading articles...</p>
+            ) : promotedArticles && promotedArticles.length > 0 ? (
+              <div className="space-y-4">
+                {promotedArticles.map((article: any) => (
+                  <ArticleCard key={article.id} article={article} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-stoneclough-gray-blue">No promoted articles found.</p>
+            )}
+            <div className="text-center mt-6">
+              <Link href="/blog">
+                <Button size="lg" variant="outline" className="shadow-md">Read All Articles</Button>
+              </Link>
+            </div>
+          </motion.section>
 
-          <Card>
-            <CardHeader>
-              <Building2 className="h-10 w-10 text-green-600 mb-2" />
-              <CardTitle>Business Directory</CardTitle>
-              <CardDescription>
-                Discover and connect with local businesses in Stoneclough.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                <li>• Verified business listings</li>
-                <li>• Categories & search</li>
-                <li>• Contact information</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <MessageSquare className="h-10 w-10 text-purple-600 mb-2" />
-              <CardTitle>Community Forum</CardTitle>
-              <CardDescription>
-                Engage in discussions about local issues and community topics.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                <li>• Topic-based discussions</li>
-                <li>• Community moderation</li>
-                <li>• Local issue reporting</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <FileText className="h-10 w-10 text-orange-600 mb-2" />
-              <CardTitle>Community Blog</CardTitle>
-              <CardDescription>
-                Stay updated with local news, events, and community stories.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                <li>• Local news & events</li>
-                <li>• Community highlights</li>
-                <li>• Featured articles</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <BarChart3 className="h-10 w-10 text-red-600 mb-2" />
-              <CardTitle>Surveys & Polls</CardTitle>
-              <CardDescription>
-                Participate in community surveys and voice your opinions.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                <li>• Community feedback</li>
-                <li>• Public opinion polls</li>
-                <li>• Local issue voting</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <Users className="h-10 w-10 text-teal-600 mb-2" />
-              <CardTitle>Transparent Access</CardTitle>
-              <CardDescription>
-                All data sourced from official Bolton Council sources under Open Government License.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                <li>• Open government data</li>
-                <li>• Real-time updates</li>
-                <li>• Verified information</li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* CTA Section */}
-        <div className="text-center py-16 bg-blue-50 dark:bg-gray-800 rounded-lg">
-          <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Ready to get involved?
-          </h3>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-            Join The Stoneclough Hub and become part of an informed, engaged community.
-          </p>
-          <Button onClick={handleLogin} size="lg">
-            Sign In to Continue
-          </Button>
+          {/* Harvested Data Insights */}
+          <motion.section
+            className="bg-stoneclough-light dark:bg-stoneclough-blue p-6 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300"
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+          >
+            <h3 className="text-2xl font-bold text-stoneclough-blue dark:text-stoneclough-light mb-6 text-center">Fast Data Insights</h3>
+            <Card className="mb-4">
+              <CardHeader>
+                <CardTitle className="text-stoneclough-blue">Council Data Overview</CardTitle>
+                <CardDescription className="text-stoneclough-gray-blue">Key metrics from Bolton Council</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <DataChart 
+                  data={sampleInsights} 
+                  type="bar"
+                  height={200}
+                  colors={['#254974', '#a2876f', '#dd6b20']}
+                />
+                <p className="text-sm text-stoneclough-gray-blue mt-4 text-center">
+                  Data updated daily from official sources.
+                </p>
+              </CardContent>
+            </Card>
+            <div className="text-center mt-6">
+              <Link href="/dashboard">
+                <Button size="lg" variant="outline" className="shadow-md">View Full Dashboard</Button>
+              </Link>
+            </div>
+          </motion.section>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="container mx-auto px-4 py-8 mt-16 border-t">
-        <div className="text-center text-gray-600 dark:text-gray-400">
+      <footer className="container mx-auto px-4 py-8 mt-16 border-t border-stoneclough-blue/20">
+        <div className="text-center text-stoneclough-gray-blue">
           <p>&copy; 2025 The Stoneclough Hub. Data sourced from Bolton Council under Open Government License.</p>
         </div>
       </footer>
-    </div>
+    </motion.div>
   );
 }

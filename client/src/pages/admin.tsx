@@ -71,20 +71,20 @@ export default function Admin() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-stoneclough-light">
       <Header />
       
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-hub-dark mb-2">Admin Dashboard</h1>
-          <p className="text-hub-gray">Manage data scraping and database operations</p>
+          <h1 className="text-3xl font-bold text-stoneclough-blue mb-2">Admin Dashboard</h1>
+          <p className="text-stoneclough-gray-blue">Manage data scraping and database operations</p>
         </div>
 
         {/* Warning */}
-        <Card className="mb-6 border-orange-200 bg-orange-50">
+        <Card className="mb-6 border-stoneclough-gray-blue/20 bg-stoneclough-gray-blue/10">
           <CardContent className="flex items-center gap-3 pt-6">
-            <AlertCircle className="text-orange-600" size={20} />
-            <p className="text-orange-800">
+            <AlertCircle className="text-stoneclough-gray-blue" size={20} />
+            <p className="text-stoneclough-gray-blue/90">
               These operations should only be performed by administrators. 
               Data scraping may take several minutes to complete.
             </p>
@@ -113,7 +113,7 @@ export default function Admin() {
                 Seed Database with Sample Data
               </Button>
               
-              <p className="text-sm text-hub-gray">
+              <p className="text-sm text-stoneclough-gray-blue">
                 Adds sample planning applications, businesses, articles, and forum discussions 
                 to demonstrate the platform features.
               </p>
@@ -151,7 +151,7 @@ export default function Admin() {
                 Start Data Scraping
               </Button>
               
-              <div className="text-sm text-hub-gray space-y-2">
+              <div className="text-sm text-stoneclough-gray-blue space-y-2">
                 <p><strong>Sources:</strong></p>
                 <ul className="list-disc list-inside space-y-1 ml-2">
                   <li>Planning applications from paplanning.bolton.gov.uk</li>
@@ -178,8 +178,8 @@ export default function Admin() {
           <CardContent>
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-semibold mb-2">Features</h4>
-                <ul className="text-sm text-hub-gray space-y-1">
+                <h4 className="font-semibold text-stoneclough-blue mb-2">Features</h4>
+                <ul className="text-sm text-stoneclough-gray-blue space-y-1">
                   <li>• Multi-layer deep crawling</li>
                   <li>• Retry logic with exponential backoff</li>
                   <li>• Rate limiting and respectful delays</li>
@@ -189,8 +189,8 @@ export default function Admin() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold mb-2">Data Sources</h4>
-                <ul className="text-sm text-hub-gray space-y-1">
+                <h4 className="font-semibold text-stoneclough-blue mb-2">Data Sources</h4>
+                <ul className="text-sm text-stoneclough-gray-blue space-y-1">
                   <li>• Planning Applications Portal</li>
                   <li>• Council Meeting Minutes</li>
                   <li>• Committee Agendas</li>
