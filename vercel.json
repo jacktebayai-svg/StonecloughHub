@@ -1,6 +1,8 @@
 {
   "version": 2,
   "name": "stoneclough-hub",
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "dist/public",
   "rewrites": [
     {
       "source": "/api/(.*)",
