@@ -1,5 +1,5 @@
 import { Switch, Route } from "wouter";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,7 +11,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "./pages/landing";
 import { BottomNavigation } from "@/components/layout/bottom-navigation";
 
-// Lazy load components for better performance
+// Lazy load components for better performance with preloading
 const Home = lazy(() => import("@/pages/home"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
 const Directory = lazy(() => import("@/pages/directory"));
@@ -22,21 +22,32 @@ const Admin = lazy(() => import("@/pages/admin"));
 const ProfilePage = lazy(() => import("@/pages/profile"));
 const Civic = lazy(() => import("@/pages/civic"));
 
-// Loading component for Suspense fallback
+// Preload commonly used components
+const preloadComponents = () => {
+  // Preload most common pages after initial load
+  setTimeout(() => {
+    import("@/pages/home");
+    import("@/pages/directory");
+    import("@/pages/forum");
+  }, 2000);
+};
+
+// Fast loading component for better UX
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
     <div className="text-center">
       <div className="relative">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-transparent bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto mb-4">
-          <div className="absolute inset-2 bg-white rounded-full"></div>
-        </div>
-        <div className="animate-pulse">
-          <div className="h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full w-24 mx-auto mb-2"></div>
-          <div className="h-1 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full w-16 mx-auto"></div>
-        </div>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mx-auto mb-3"></div>
       </div>
-      <p className="text-gray-600 font-medium mt-4">Loading Community Hub...</p>
+      <p className="text-gray-600 font-medium text-sm">Loading...</p>
     </div>
+  </div>
+);
+
+// Minimal loading for page transitions
+const FastLoader = () => (
+  <div className="flex items-center justify-center h-64">
+    <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-500 border-t-transparent"></div>
   </div>
 );
 
@@ -94,6 +105,11 @@ function Router() {
 }
 
 function App() {
+  // Preload components after initial app load
+  useEffect(() => {
+    preloadComponents();
+  }, []);
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>

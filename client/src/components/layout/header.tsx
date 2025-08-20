@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ export function Header() {
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location] = useLocation();
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
   const handleLogout = async () => {
     await signOut();
@@ -48,10 +49,18 @@ export function Header() {
   };
 
   const isActive = (path: string) => {
+    // Show as active if it's the current location OR if it's pending navigation
+    if (path === pendingNavigation) return true;
     if (path === "/" && location === "/") return true;
     if (path !== "/" && location.startsWith(path)) return true;
     return false;
   };
+
+  const handleNavigation = useCallback((path: string) => {
+    setPendingNavigation(path);
+    // Clear pending state after a short delay
+    setTimeout(() => setPendingNavigation(null), 500);
+  }, []);
 
   const getActiveGradient = () => {
     const activeItem = navigationItems.find(item => isActive(item.href));
@@ -98,7 +107,7 @@ export function Header() {
                       {active && (
                         <motion.div
                           layoutId="activeTab"
-                          className={`absolute inset-0 bg-gradient-to-r ${item.gradient} rounded-lg opacity-10`}
+                          className={`absolute inset-0 bg-gradient-to-r ${item.gradient} rounded-lg`}
                           transition={{ duration: 0.3 }}
                         />
                       )}
@@ -107,12 +116,12 @@ export function Header() {
                       >
                         <IconComponent className={`h-4 w-4 transition-colors duration-200 ${
                           active 
-                            ? `bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent` 
+                            ? 'text-white' 
                             : 'text-gray-600 group-hover:text-gray-800'
                         }`} />
                         <span className={`text-sm font-medium transition-colors duration-200 ${
                           active 
-                            ? `font-bold bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent` 
+                            ? 'font-bold text-white' 
                             : 'text-gray-600 group-hover:text-gray-800'
                         }`}>
                           {item.label}

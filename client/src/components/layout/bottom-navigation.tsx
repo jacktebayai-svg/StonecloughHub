@@ -39,16 +39,16 @@ export function BottomNavigation() {
                   : 'hover:transform hover:-translate-y-0.5'
               }`}>
                 {active && (
-                  <div className={`absolute inset-0 bg-gradient-to-r ${item.gradient} opacity-10 rounded-lg`} />
+                  <div className={`absolute inset-0 bg-gradient-to-r ${item.gradient} rounded-lg`} />
                 )}
                 <IconComponent className={`h-5 w-5 mb-1 transition-colors duration-200 relative ${
                   active 
-                    ? `bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent` 
+                    ? 'text-white' 
                     : 'text-gray-600'
                 }`} />
                 <span className={`font-medium transition-colors duration-200 relative ${
                   active 
-                    ? `bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent text-[10px]` 
+                    ? 'text-white text-[10px] font-semibold' 
                     : 'text-gray-600 text-[10px]'
                 }`}>
                   {item.label}
