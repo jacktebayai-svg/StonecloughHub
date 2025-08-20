@@ -25,12 +25,12 @@ import { motion } from "framer-motion";
 export default function Home() {
   const { user } = useAuth();
 
-  // Mock data for demonstration
+  // Community statistics with Stoneclough branding
   const civicStats = [
-    { label: 'Active Users', value: '2,500+', icon: Users, color: 'text-blue-600' },
-    { label: 'Local Businesses', value: '150+', icon: Building2, color: 'text-green-600' },
-    { label: 'Council Documents', value: '10,000+', icon: FileText, color: 'text-purple-600' },
-    { label: 'Community Posts', value: '5,000+', icon: MessageSquare, color: 'text-orange-600' }
+    { label: 'Active Users', value: '2,500+', icon: Users, color: 'text-stoneclough-blue-600', bgColor: 'bg-stoneclough-blue-100' },
+    { label: 'Local Businesses', value: '150+', icon: Building2, color: 'text-stoneclough-accent-green', bgColor: 'bg-green-50' },
+    { label: 'Council Documents', value: '10,000+', icon: FileText, color: 'text-stoneclough-gray-700', bgColor: 'bg-stoneclough-gray-100' },
+    { label: 'Community Posts', value: '5,000+', icon: MessageSquare, color: 'text-stoneclough-accent-orange', bgColor: 'bg-orange-50' }
   ];
 
   const featuredBusinesses = [
@@ -50,7 +50,7 @@ export default function Home() {
       <Header />
       
       {/* Welcome Section */}
-      <section className="bg-gradient-to-br from-blue-50 via-white to-purple-50 py-20">
+      <section className="bg-gradient-to-br from-stoneclough-blue-50 via-white to-stoneclough-blue-100 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <motion.div
@@ -58,16 +58,16 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 mb-6">
+              <Badge className="bg-stoneclough-blue-100 text-stoneclough-blue-800 hover:bg-stoneclough-blue-100 mb-6">
                 Welcome back, {user?.user_metadata?.full_name || user?.email || 'Community Member'}
               </Badge>
-              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">
+              <h1 className="text-4xl md:text-5xl font-bold text-stoneclough-gray-900 mb-6">
                 Your Community
-                <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-stoneclough-blue-700 to-stoneclough-blue-600 bg-clip-text text-transparent">
                   Dashboard
                 </span>
               </h1>
-              <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
+              <p className="text-xl text-stoneclough-gray-700 mb-8 max-w-3xl mx-auto">
                 Stay connected with Stoneclough through real-time civic data, local business updates, and community discussions.
               </p>
             </motion.div>
@@ -76,7 +76,7 @@ export default function Home() {
       </section>
 
       {/* Community Statistics */}
-      <section className="py-16 bg-slate-50">
+      <section className="py-16 bg-stoneclough-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -84,8 +84,8 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Community Overview</h2>
-            <p className="text-slate-600 text-lg">Real-time insights into our vibrant community</p>
+            <h2 className="text-3xl font-bold text-stoneclough-gray-900 mb-4">Community Overview</h2>
+            <p className="text-stoneclough-gray-700 text-lg">Real-time insights into our vibrant community</p>
           </motion.div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -98,15 +98,15 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.1 * (index + 3) }}
                 >
-                  <Card className="text-center hover:shadow-lg transition-all duration-300 border-0 bg-white">
+                  <Card className="text-center hover:shadow-lg transition-all duration-300 border-0 bg-white hover:scale-105">
                     <CardContent className="p-6">
-                      <div className={`inline-flex p-3 rounded-full bg-slate-100 mb-4`}>
+                      <div className={`inline-flex p-3 rounded-full ${stat.bgColor} mb-4`}>
                         <IconComponent className={`h-6 w-6 ${stat.color}`} />
                       </div>
-                      <div className="text-3xl font-bold text-slate-900 mb-2">
+                      <div className="text-3xl font-bold text-stoneclough-gray-900 mb-2">
                         {stat.value}
                       </div>
-                      <div className="text-sm text-slate-600">
+                      <div className="text-sm text-stoneclough-gray-600">
                         {stat.label}
                       </div>
                     </CardContent>

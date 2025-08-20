@@ -115,49 +115,49 @@ export default function Landing() {
     }
   };
   
-  // Platform features
+  // Platform features with consistent Stoneclough branding
   const features = [
     {
       icon: Building2,
       title: 'Business Directory',
       description: 'Discover and support local businesses in Stoneclough. Find services, read reviews, and connect with entrepreneurs.',
-      color: 'text-stoneclough-blue',
-      bgColor: 'bg-stoneclough-light'
+      color: 'text-stoneclough-blue-700',
+      bgColor: 'bg-stoneclough-blue-50'
     },
     {
       icon: MessageSquare,
       title: 'Community Forum',
       description: 'Engage in meaningful discussions about local issues, events, and community initiatives with your neighbors.',
-      color: 'text-hub-green',
+      color: 'text-stoneclough-accent-green',
       bgColor: 'bg-green-50'
     },
     {
       icon: FileText,
       title: 'Local Blog & News',
       description: 'Stay informed with community-driven content, local news, and insights from residents and officials.',
-      color: 'text-stoneclough-gray-blue',
-      bgColor: 'bg-purple-50'
+      color: 'text-stoneclough-gray-700',
+      bgColor: 'bg-stoneclough-gray-50'
     },
     {
       icon: BarChart3,
       title: 'Council Data Transparency',
       description: 'Access real-time council data including budgets, spending, planning applications, and meeting records.',
-      color: 'text-stoneclough-orange',
+      color: 'text-stoneclough-accent-orange',
       bgColor: 'bg-orange-50'
     },
     {
       icon: Users,
       title: 'Surveys & Polls',
       description: 'Participate in community surveys and polls to have your voice heard on local matters.',
-      color: 'text-red-600',
-      bgColor: 'bg-red-50'
+      color: 'text-stoneclough-blue-600',
+      bgColor: 'bg-stoneclough-blue-50'
     },
     {
       icon: Search,
       title: 'Smart Search',
       description: 'Find any local information quickly with our intelligent search across all platform content.',
-      color: 'text-hub-blue',
-      bgColor: 'bg-indigo-50'
+      color: 'text-stoneclough-gray-600',
+      bgColor: 'bg-stoneclough-gray-100'
     }
   ];
   
@@ -245,22 +245,22 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-50 via-white to-purple-50 py-20">
+      <section className="relative bg-gradient-to-br from-stoneclough-blue-50 via-white to-stoneclough-blue-100 py-20">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left side - Hero content */}
             <motion.div variants={itemVariants} className="space-y-8">
               <div>
-                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 mb-6">
+                <Badge className="bg-stoneclough-blue-100 text-stoneclough-blue-800 hover:bg-stoneclough-blue-100 mb-6">
                   🚀 Now Live for Stoneclough Community
                 </Badge>
-                <h1 className="text-4xl md:text-5xl xl:text-6xl font-bold text-slate-900 tracking-tight">
+                <h1 className="text-4xl md:text-5xl xl:text-6xl font-bold text-stoneclough-gray-900 tracking-tight">
                   <span className="block">Connect with your</span>
-                  <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  <span className="block bg-gradient-to-r from-stoneclough-blue-700 to-stoneclough-blue-600 bg-clip-text text-transparent">
                     local community
                   </span>
                 </h1>
-                <p className="mt-6 text-xl text-slate-600 leading-relaxed max-w-2xl">
+                <p className="mt-6 text-xl text-stoneclough-gray-700 leading-relaxed max-w-2xl">
                   The Stoneclough Hub brings transparency to local government, connects residents with businesses, 
                   and fosters meaningful community discussions. Join engaged citizens building a stronger community together.
                 </p>
@@ -276,19 +276,19 @@ export default function Landing() {
                     transition={{ delay: 0.5 + index * 0.1 }}
                     className="bg-white/80 backdrop-blur-sm rounded-lg p-4 text-center shadow-sm"
                   >
-                    <stat.icon className="h-6 w-6 text-stoneclough-blue mx-auto mb-2" />
-                    <div className="text-lg font-bold text-slate-900">{stat.value}</div>
-                    <div className="text-xs text-slate-600">{stat.label}</div>
+                    <stat.icon className="h-6 w-6 text-stoneclough-blue-700 mx-auto mb-2" />
+                    <div className="text-lg font-bold text-stoneclough-gray-900">{stat.value}</div>
+                    <div className="text-xs text-stoneclough-gray-600">{stat.label}</div>
                   </motion.div>
                 ))}
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" onClick={handleGetStarted} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <Button size="lg" onClick={handleGetStarted} className="bg-gradient-to-r from-stoneclough-blue-700 to-stoneclough-blue-600 hover:from-stoneclough-blue-800 hover:to-stoneclough-blue-700">
                   Get Started Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button size="lg" variant="outline" onClick={scrollToFeatures}>
+                <Button size="lg" variant="outline" onClick={scrollToFeatures} className="border-stoneclough-blue-600 text-stoneclough-blue-700 hover:bg-stoneclough-blue-50">
                   Learn More
                 </Button>
               </div>

@@ -4,65 +4,95 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(248, 20%, 98%);
-  --foreground: var(--stoneclough-blue);
-  --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(210, 25%, 7.8431%);
-  --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(210, 25%, 7.8431%);
-  --primary: var(--stoneclough-blue);
-  --primary-foreground: var(--stoneclough-light);
-  --secondary: hsl(210, 25%, 7.8431%);
-  --secondary-foreground: hsl(0, 0%, 100%);
-  --muted: hsl(240, 1.9608%, 90%);
-  --muted-foreground: var(--stoneclough-gray-blue);
-  --accent: var(--stoneclough-gray-blue);
-  --accent-foreground: var(--stoneclough-light);
-  --destructive: hsl(356.3033, 90.5579%, 54.3137%);
-  --destructive-foreground: hsl(0, 0%, 100%);
-  --border: hsl(201.4286, 30.4348%, 90.9804%);
-  --input: hsl(200, 23.0769%, 97.4510%);
-  --ring: hsl(202.8169, 89.1213%, 53.1373%);
-  --chart-1: hsl(221, 83%, 53%);
-  --chart-2: hsl(146, 100%, 39%);
-  --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
-  --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
-  --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
-  --sidebar: hsl(180, 6.6667%, 97.0588%);
-  --sidebar-foreground: hsl(210, 25%, 7.8431%);
-  --sidebar-primary: hsl(203.8863, 88.2845%, 53.1373%);
-  --sidebar-primary-foreground: hsl(0, 0%, 100%);
-  --sidebar-accent: hsl(211.5789, 51.3514%, 92.7451%);
-  --sidebar-accent-foreground: hsl(203.8863, 88.2845%, 53.1373%);
-  --sidebar-border: hsl(205.0000, 25.0000%, 90.5882%);
-  --sidebar-ring: hsl(202.8169, 89.1213%, 53.1373%);
-  --font-sans: 'Inter', sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
-  --radius: 0.75rem;
-  --shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
+  /* Stoneclough Brand Color Palette */
+  --stoneclough-blue-900: #1a365d;     /* Darkest blue */
+  --stoneclough-blue-800: #254974;     /* Primary brand blue */
+  --stoneclough-blue-700: #2d5aa0;     /* Medium blue */
+  --stoneclough-blue-600: #3182ce;     /* Interactive blue */
+  --stoneclough-blue-500: #4299e1;     /* Lighter blue */
+  --stoneclough-blue-400: #63b3ed;     /* Light blue */
+  --stoneclough-blue-300: #90cdf4;     /* Very light blue */
+  --stoneclough-blue-200: #bee3f8;     /* Pale blue */
+  --stoneclough-blue-100: #ebf8ff;     /* Lightest blue */
+  --stoneclough-blue-50: #f7fafc;      /* Off-white blue tint */
   
-  /* Custom colors for the community platform */
-  --hub-blue: hsl(221, 83%, 53%);
-  --hub-dark-blue: hsl(225, 71%, 42%);
-  --hub-green: hsl(146, 100%, 39%);
-  --hub-gray: hsl(215, 16%, 47%);
-  --hub-dark: hsl(215, 25%, 17%);
-  --stoneclough-blue: #254974;
-  --stoneclough-light: #f7fafc;
-  --stoneclough-brown: #587492;
-  --stoneclough-gray-blue: #587492;
-  --stoneclough-orange: #dd6b20;
-  --stoneclough-yellow: #ecc94b;
+  --stoneclough-gray-900: #1a202c;     /* Darkest gray */
+  --stoneclough-gray-800: #2d3748;     /* Dark gray */
+  --stoneclough-gray-700: #4a5568;     /* Medium dark gray */
+  --stoneclough-gray-600: #587492;     /* Brand gray-blue */
+  --stoneclough-gray-500: #718096;     /* Medium gray */
+  --stoneclough-gray-400: #a0aec0;     /* Light gray */
+  --stoneclough-gray-300: #cbd5e0;     /* Very light gray */
+  --stoneclough-gray-200: #e2e8f0;     /* Pale gray */
+  --stoneclough-gray-100: #f7fafc;     /* Lightest gray */
+  --stoneclough-gray-50: #fafbfc;      /* Off-white */
+  
+  --stoneclough-accent-orange: #dd6b20; /* Community accent */
+  --stoneclough-accent-yellow: #ecc94b; /* Warning/highlight */
+  --stoneclough-accent-green: #38a169;  /* Success/positive */
+  --stoneclough-accent-red: #e53e3e;    /* Error/negative */
+  
+  /* Design System Colors mapped to Stoneclough palette */
+  --background: var(--stoneclough-blue-50);
+  --foreground: var(--stoneclough-gray-900);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: var(--stoneclough-gray-800);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: var(--stoneclough-gray-800);
+  --primary: var(--stoneclough-blue-800);
+  --primary-foreground: var(--stoneclough-blue-50);
+  --secondary: var(--stoneclough-gray-600);
+  --secondary-foreground: var(--stoneclough-blue-50);
+  --muted: var(--stoneclough-gray-100);
+  --muted-foreground: var(--stoneclough-gray-600);
+  --accent: var(--stoneclough-blue-600);
+  --accent-foreground: var(--stoneclough-blue-50);
+  --destructive: var(--stoneclough-accent-red);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: var(--stoneclough-gray-200);
+  --input: var(--stoneclough-gray-100);
+  --ring: var(--stoneclough-blue-600);
+  
+  /* Chart colors using Stoneclough palette */
+  --chart-1: var(--stoneclough-blue-600);
+  --chart-2: var(--stoneclough-accent-green);
+  --chart-3: var(--stoneclough-accent-orange);
+  --chart-4: var(--stoneclough-accent-yellow);
+  --chart-5: var(--stoneclough-gray-600);
+  
+  /* Sidebar using Stoneclough palette */
+  --sidebar: var(--stoneclough-blue-50);
+  --sidebar-foreground: var(--stoneclough-gray-800);
+  --sidebar-primary: var(--stoneclough-blue-800);
+  --sidebar-primary-foreground: var(--stoneclough-blue-50);
+  --sidebar-accent: var(--stoneclough-blue-100);
+  --sidebar-accent-foreground: var(--stoneclough-blue-800);
+  --sidebar-border: var(--stoneclough-gray-200);
+  --sidebar-ring: var(--stoneclough-blue-600);
+  
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --font-mono: 'Fira Code', 'Monaco', 'Cascadia Code', 'Ubuntu Mono', monospace;
+  
+  /* Design tokens */
+  --radius: 0.75rem;
+  --shadow-2xs: 0 1px 2px 0 rgb(37 73 116 / 0.05);
+  --shadow-xs: 0 1px 2px 0 rgb(37 73 116 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(37 73 116 / 0.1), 0 1px 2px -1px rgb(37 73 116 / 0.1);
+  --shadow: 0 4px 6px -1px rgb(37 73 116 / 0.1), 0 2px 4px -2px rgb(37 73 116 / 0.1);
+  --shadow-md: 0 10px 15px -3px rgb(37 73 116 / 0.1), 0 4px 6px -4px rgb(37 73 116 / 0.1);
+  --shadow-lg: 0 20px 25px -5px rgb(37 73 116 / 0.1), 0 8px 10px -6px rgb(37 73 116 / 0.1);
+  --shadow-xl: 0 25px 50px -12px rgb(37 73 116 / 0.25);
+  --shadow-2xl: 0 50px 100px -20px rgb(37 73 116 / 0.25);
+  
+  /* Legacy support - keeping existing variable names */
+  --stoneclough-blue: var(--stoneclough-blue-800);
+  --stoneclough-light: var(--stoneclough-blue-50);
+  --stoneclough-brown: var(--stoneclough-gray-600);
+  --stoneclough-gray-blue: var(--stoneclough-gray-600);
+  --stoneclough-orange: var(--stoneclough-accent-orange);
+  --stoneclough-yellow: var(--stoneclough-accent-yellow);
 }
 
 .dark {
