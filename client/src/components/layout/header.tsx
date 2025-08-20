@@ -19,12 +19,12 @@ import {
 } from "lucide-react";
 
 const navigationItems = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/directory", label: "Directory", icon: Building2 },
-  { href: "/forum", label: "Forum", icon: MessageSquare },
-  { href: "/blog", label: "Blog", icon: FileText },
-  { href: "/civic", label: "Civic", icon: Building },
-  { href: "/surveys", label: "Surveys", icon: BarChart3 },
+  { href: "/", label: "Home", icon: Home, gradient: "from-blue-500 to-cyan-500" },
+  { href: "/directory", label: "Directory", icon: Building2, gradient: "from-emerald-500 to-teal-500" },
+  { href: "/forum", label: "Forum", icon: MessageSquare, gradient: "from-orange-500 to-red-500" },
+  { href: "/blog", label: "Blog", icon: FileText, gradient: "from-indigo-500 to-purple-500" },
+  { href: "/civic", label: "Civic", icon: Building, gradient: "from-blue-600 to-indigo-600" },
+  { href: "/surveys", label: "Surveys", icon: BarChart3, gradient: "from-pink-500 to-rose-500" },
 ];
 
 export function Header() {
@@ -54,13 +54,24 @@ export function Header() {
     return false;
   };
 
+  const getActiveGradient = () => {
+    const activeItem = navigationItems.find(item => isActive(item.href));
+    return activeItem?.gradient || "from-blue-500 to-cyan-500";
+  };
+
   return (
     <>
       <motion.header 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="bg-white/90 backdrop-blur-lg border-b border-gray-200/50 shadow-sm z-40"
+        className="relative bg-white/90 backdrop-blur-lg border-b border-gray-200/50 shadow-sm z-40"
       >
+        {/* Contained background gradient that only affects header */}
+        <motion.div 
+          className={`absolute inset-0 bg-gradient-to-r ${getActiveGradient()} opacity-5`}
+          layout
+          transition={{ duration: 0.6, ease: "easeInOut" }}
+        />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -84,14 +95,36 @@ export function Header() {
                 
                 return (
                   <Link key={item.href} href={item.href}>
-                    <div className={`px-3 py-2 rounded-lg transition-colors flex items-center space-x-2 ${
-                      active 
-                        ? 'bg-blue-100 text-blue-700 font-semibold' 
-                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
-                    }`}>
-                      <IconComponent className="h-4 w-4" />
-                      <span className="text-sm font-medium">{item.label}</span>
-                    </div>
+                    <motion.div
+                      className="relative"
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {active && (
+                        <motion.div
+                          layoutId="activeTab"
+                          className={`absolute inset-0 bg-gradient-to-r ${item.gradient} rounded-lg opacity-10`}
+                          transition={{ duration: 0.3 }}
+                        />
+                      )}
+                      <motion.div
+                        className={`relative px-3 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 ${
+                          active 
+                            ? `text-transparent bg-gradient-to-r ${item.gradient} bg-clip-text font-semibold` 
+                            : 'text-gray-600 hover:text-gray-800'
+                        }`}
+                      >
+                        <IconComponent className={`h-4 w-4 ${active ? 'text-gray-700' : ''}`} />
+                        <span className="text-sm font-medium">{item.label}</span>
+                      </motion.div>
+                      {active && (
+                        <motion.div
+                          layoutId="activeIndicator"
+                          className={`absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r ${item.gradient} rounded-full`}
+                          transition={{ duration: 0.3 }}
+                        />
+                      )}
+                    </motion.div>
                   </Link>
                 );
               })}
