@@ -408,7 +408,7 @@ export default function AdvancedSearch({ isOpen, onClose, initialQuery = '' }: A
                       </CardContent>
                     </Card>
                   ))}
-                </div>
+                </motion.div>
               ) : results.length > 0 ? (
                 <motion.div
                   key="results"

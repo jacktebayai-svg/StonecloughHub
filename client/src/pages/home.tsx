@@ -191,15 +191,9 @@ export default function Home() {
                 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6"
               >
                 Your Civic
-                <motion.span 
-                  initial={{ backgroundSize: '0% 100%' }}
-                  animate={{ backgroundSize: '100% 100%' }}
-                  transition={{ delay: 0.8, duration: 1.2 }}
-                  className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"
-                  style={{ backgroundImage: 'linear-gradient(to right, #2563eb, #9333ea, #4f46e5)' }}
-                >
+                <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
                   Intelligence Hub
-                </motion.span>
+                </span>
               </motion.h1>
               <motion.p 
                 initial={{ opacity: 0, y: 20 }}
