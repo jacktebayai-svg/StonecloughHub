@@ -64,14 +64,8 @@ export function Header() {
       <motion.header 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="relative bg-white/90 backdrop-blur-lg border-b border-gray-200/50 shadow-sm z-40"
+        className="bg-white/90 backdrop-blur-lg border-b border-gray-200/50 shadow-sm z-40"
       >
-        {/* Contained background gradient that only affects header */}
-        <motion.div 
-          className={`absolute inset-0 bg-gradient-to-r ${getActiveGradient()} opacity-5`}
-          layout
-          transition={{ duration: 0.6, ease: "easeInOut" }}
-        />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -108,14 +102,16 @@ export function Header() {
                         />
                       )}
                       <motion.div
-                        className={`relative px-3 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 ${
-                          active 
-                            ? `text-transparent bg-gradient-to-r ${item.gradient} bg-clip-text font-semibold` 
-                            : 'text-gray-600 hover:text-gray-800'
-                        }`}
+                        className="relative px-3 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
                       >
-                        <IconComponent className={`h-4 w-4 ${active ? 'text-gray-700' : ''}`} />
-                        <span className="text-sm font-medium">{item.label}</span>
+                        <IconComponent className={`h-4 w-4 ${active ? 'text-blue-600' : 'text-gray-600'}`} />
+                        <span className={`text-sm font-medium ${
+                          active 
+                            ? `font-bold bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent` 
+                            : 'text-gray-600'
+                        }`}>
+                          {item.label}
+                        </span>
                       </motion.div>
                       {active && (
                         <motion.div
