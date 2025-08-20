@@ -41,9 +41,11 @@ function Router() {
 
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
+      {/* Landing page - always accessible */}
+      <Route path="/landing" component={Landing} />
+      
+      {/* Protected routes */}
+      {isAuthenticated ? (
         <>
           <Route path="/" component={withSuspense(Home)} />
           <Route path="/dashboard" component={withSuspense(Dashboard)} />
@@ -55,7 +57,11 @@ function Router() {
           <Route path="/admin" component={withSuspense(Admin)} />
           <Route path="/profile" component={withSuspense(ProfilePage)} />
         </>
+      ) : (
+        /* Show landing page when not authenticated */
+        <Route path="/" component={Landing} />
       )}
+      
       <Route component={NotFound} />
     </Switch>
   );

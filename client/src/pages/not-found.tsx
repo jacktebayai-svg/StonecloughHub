@@ -1,18 +1,42 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, Home, ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-stoneclough-light">
-      <Card className="w-full max-w-md mx-4">
-        <CardContent className="pt-6">
-          <div className="flex mb-4 gap-2">
-            <AlertCircle className="h-8 w-8 text-stoneclough-gray-blue" />
-            <h1 className="text-2xl font-bold text-stoneclough-blue">404 Page Not Found</h1>
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <Card className="w-full max-w-lg mx-4 shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle className="h-8 w-8 text-red-600" />
           </div>
-
-          <p className="mt-4 text-sm text-stoneclough-gray-blue">
-            Did you forget to add the page to the router?
+          <CardTitle className="text-3xl font-bold text-slate-900">404 - Page Not Found</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center">
+          <p className="text-slate-600 mb-8">
+            Sorry, we couldn't find the page you're looking for. It might have been moved, deleted, or you entered the wrong URL.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/">
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <Home className="w-4 h-4 mr-2" />
+                Go Home
+              </Button>
+            </Link>
+            <Button 
+              variant="outline" 
+              onClick={() => window.history.back()}
+              className="border-slate-300"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Go Back
+            </Button>
+          </div>
+          
+          <p className="text-xs text-slate-500 mt-8">
+            If you believe this is an error, please contact support.
           </p>
         </CardContent>
       </Card>

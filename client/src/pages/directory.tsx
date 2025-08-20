@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { Link } from "wouter";
 import api from "@/lib/api";
 
 export default function Directory() {
@@ -124,10 +125,16 @@ export default function Directory() {
             Join hundreds of local businesses in our community directory. Get discovered by residents and build trust through community verification.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="bg-stoneclough-light text-stoneclough-blue hover:bg-stoneclough-light/90">
-              Add Free Listing
-            </Button>
-            <Button variant="outline" className="border-stoneclough-light text-stoneclough-light hover:bg-stoneclough-light hover:text-stoneclough-blue">
+            <Link href="/profile">
+              <Button className="bg-stoneclough-light text-stoneclough-blue hover:bg-stoneclough-light/90">
+                Add Free Listing
+              </Button>
+            </Link>
+            <Button 
+              variant="outline" 
+              className="border-stoneclough-light text-stoneclough-light hover:bg-stoneclough-light hover:text-stoneclough-blue"
+              onClick={() => window.open('/pricing', '_blank')}
+            >
               View Pricing Plans
             </Button>
           </div>

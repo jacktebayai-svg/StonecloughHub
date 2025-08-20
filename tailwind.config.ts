@@ -62,12 +62,16 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
-        // Custom colors for the community platform
+        // React branding and community platform colors
+        'react-blue': '#61DAFB',
+        'react-dark-blue': '#282c34',
+        'react-light-blue': '#9EEAF9',
         'hub-blue': 'var(--hub-blue)',
         'hub-dark-blue': 'var(--hub-dark-blue)',
         'hub-green': 'var(--hub-green)',
         'hub-gray': 'var(--hub-gray)',
         'hub-dark': 'var(--hub-dark)',
+        // Keep Stoneclough theme as secondary option
         'stoneclough-blue': '#254974',
         'stoneclough-light': '#f7fafc',
         'stoneclough-brown': '#587492',

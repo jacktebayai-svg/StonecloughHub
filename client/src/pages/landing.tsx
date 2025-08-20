@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { BusinessCard } from "@/components/business/business-card";
 import { ArticleCard } from "@/components/blog/article-card";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   FileText, 
   Building2, 
@@ -30,10 +31,29 @@ export default function Landing() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
   const [authData, setAuthData] = useState({ email: '', password: '', name: '' });
+  const [location, setLocation] = useLocation();
+  const { isAuthenticated } = useAuth();
+  
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    setLocation('/dashboard');
+    return null;
+  }
   
   const handleLogin = () => {
-    // Handle login through Supabase Auth - this will be handled by the auth form in the component
-    console.log('Login initiated');
+    // Scroll to the auth form
+    const authForm = document.getElementById('auth-form');
+    if (authForm) {
+      authForm.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  
+  const handleGetStarted = () => {
+    // Scroll to the auth form for getting started
+    const authForm = document.getElementById('auth-form');
+    if (authForm) {
+      authForm.scrollIntoView({ behavior: 'smooth' });
+    }
   };
   
   const scrollToFeatures = () => {
@@ -264,7 +284,7 @@ export default function Landing() {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" onClick={handleLogin} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <Button size="lg" onClick={handleGetStarted} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                   Get Started Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -276,7 +296,7 @@ export default function Landing() {
             
             {/* Right side - Auth form */}
             <motion.div variants={itemVariants} className="lg:pl-8">
-              <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+              <Card id="auth-form" className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
                 <CardHeader className="space-y-1 pb-6">
                   <div className="flex justify-center space-x-1 mb-4">
                     <button

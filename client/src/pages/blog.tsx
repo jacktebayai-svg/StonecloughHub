@@ -84,7 +84,10 @@ export default function Blog() {
               placeholder="Enter your email"
               className="flex-1 text-stoneclough-blue"
             />
-            <Button className="bg-stoneclough-light text-stoneclough-blue hover:bg-stoneclough-light/90">
+            <Button 
+              className="bg-stoneclough-light text-stoneclough-blue hover:bg-stoneclough-light/90"
+              onClick={() => alert('Newsletter signup coming soon! Thank you for your interest.')}
+            >
               Subscribe
             </Button>
           </div>

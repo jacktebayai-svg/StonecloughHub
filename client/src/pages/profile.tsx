@@ -133,6 +133,18 @@ export default function ProfilePage() {
     },
   });
 
+  const removeSkillMutation = useMutation({
+    mutationFn: (skillId: string) =>
+      api.users.removeSkill(user!.id, skillId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userSkills", user?.id] });
+      toast({ title: "Skill removed successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to remove skill", description: error.message, variant: "destructive" });
+    },
+  });
+
   const onSubmitSkill = (data: z.infer<typeof skillSchema>) => {
     addSkillMutation.mutate(data);
   };
@@ -293,8 +305,13 @@ export default function ProfilePage() {
                     {userSkills.map((skill: any) => (
                       <Card key={skill.id} className="p-4 flex justify-between items-center">
                         <span>{skill.name} {skill.level && `(${skill.level})`}</span>
-                        <Button variant="destructive" size="sm">
-                          Remove
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => removeSkillMutation.mutate(skill.id)}
+                          disabled={removeSkillMutation.isPending}
+                        >
+                          {removeSkillMutation.isPending ? "Removing..." : "Remove"}
                         </Button>
                       </Card>
                     ))}
