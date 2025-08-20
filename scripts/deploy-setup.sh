@@ -18,12 +18,11 @@ echo "======================================"
 # Function to display menu
 show_menu() {
     echo -e "\n${YELLOW}Choose your deployment platform:${NC}"
-    echo "1) Vercel"
-    echo "2) Railway"  
-    echo "3) Netlify"
-    echo "4) Render"
-    echo "5) Show all environment variables"
-    echo "6) Exit"
+    echo "1) Vercel (Current: stoneclough-hub.vercel.app)"
+    echo "2) Railway (For custom domain stoneclough.uk)"  
+    echo "3) VPS/Server Setup for stoneclough.uk"
+    echo "4) Show all environment variables"
+    echo "5) Exit"
 }
 
 # Function to set up Vercel
@@ -101,22 +100,31 @@ setup_netlify() {
     fi
 }
 
-# Function to set up Render
-setup_render() {
-    echo -e "\n${GREEN}Setting up Render deployment...${NC}"
+# Function to set up VPS/Server for stoneclough.uk
+setup_vps() {
+    echo -e "\n${GREEN}Setting up VPS/Server for stoneclough.uk...${NC}"
     
-    echo -e "${BLUE}📋 Set these environment variables in Render:${NC}"
-    echo "   dashboard.render.com → Your Service → Environment"
+    echo -e "${BLUE}📋 VPS Deployment Guide:${NC}"
+    echo "   Follow the complete guide in DEPLOYMENT_GUIDE.md"
     echo ""
-    echo "# Render Environment Variables"
+    echo -e "${YELLOW}Quick Start Commands:${NC}"
+    echo "1. Set up your server (Ubuntu 22.04 recommended)"
+    echo "2. Point DNS: stoneclough.uk → your-server-ip"
+    echo "3. Clone repo and run: npm run deploy"
+    echo "4. Configure Nginx with SSL"
+    echo ""
+    echo -e "${BLUE}Environment Variables for VPS:${NC}"
     cat .env.production
     
-    echo -e "\n${YELLOW}Manual steps for Render:${NC}"
-    echo "1. Connect your GitHub repository to Render"
-    echo "2. Create a new Web Service"
-    echo "3. Set Build Command: npm run build"
-    echo "4. Set Start Command: npm start"
-    echo "5. Add the environment variables above"
+    echo -e "\n${YELLOW}Would you like to open the detailed deployment guide? (y/n)${NC}"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        if command -v less &> /dev/null; then
+            less DEPLOYMENT_GUIDE.md
+        else
+            cat DEPLOYMENT_GUIDE.md
+        fi
+    fi
 }
 
 # Function to show all environment variables
