@@ -18,12 +18,12 @@ const poolConfig: pg.PoolConfig = {
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   max: process.env.NODE_ENV === 'production' ? 1 : 10, // Limit connections for serverless
   min: 0,
-  idle: 20000,
-  acquireTimeoutMillis: 60000,
-  createTimeoutMillis: 30000,
-  destroyTimeoutMillis: 5000,
-  reapIntervalMillis: 1000,
-  createRetryIntervalMillis: 200,
+  idleTimeoutMillis: 20000,
+  connectionTimeoutMillis: 60000, // Fixed: was acquireTimeoutMillis
+  query_timeout: 30000, // Fixed: was createTimeoutMillis
+  statement_timeout: 5000, // Fixed: was destroyTimeoutMillis
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
 };
 
 export const pool = new pg.Pool(poolConfig);

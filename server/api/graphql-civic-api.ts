@@ -191,22 +191,18 @@ const AggregationInput = new GraphQLInputObjectType({
 // RESOLVERS
 // ============================================
 
+import type { GraphQLResolver, CouncilDataArgs, CouncilDataByIdArgs, SearchArgs, AggregateDataArgs } from '../types/graphql';
+
 const resolvers = {
   // Get civic data with advanced filtering
   councilData: async (
     _: any,
-    args: {
-      filters?: any;
-      sort?: { field: string; order: 'asc' | 'desc' };
-      page?: number;
-      limit?: number;
-    }
+    args: CouncilDataArgs
   ) => {
     const { filters = {}, sort = { field: 'date', order: 'desc' }, page = 1, limit = 20 } = args;
     
     const cacheKey = `graphql_civic_data:${JSON.stringify({ filters, sort, page, limit })}`;
     
-    let query = db.select().from(councilData);
     const conditions = [];
     
     // Apply filters
@@ -234,12 +230,7 @@ const resolvers = {
       );
     }
     
-    // Apply conditions
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
-    }
-    
-    // Sorting
+    // Determine sort field
     let sortField;
     switch (sort.field) {
       case 'title':
@@ -256,18 +247,24 @@ const resolvers = {
         sortField = councilData.date;
         break;
     }
+    
+    // Build complete query chain
+    const offset = (page - 1) * limit;
+    let query = db.select().from(councilData);
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions)) as typeof query;
+    }
+    
     query = query.orderBy(
       sort.order === 'desc' ? desc(sortField) : asc(sortField)
-    );
+    ) as typeof query;
     
-    // Pagination
-    const offset = (page - 1) * limit;
-    query = query.limit(limit).offset(offset);
+    query = query.limit(limit).offset(offset) as typeof query;
     
     const result = await query;
     
     // Get total count
-    let countQuery = db.select({ count: sql`count(*)` }).from(councilData);
     const countConditions = [];
     
     // Apply same filters for count
@@ -283,8 +280,10 @@ const resolvers = {
       );
     }
     
+    let countQuery = db.select({ count: sql`count(*)` }).from(councilData);
+    
     if (countConditions.length > 0) {
-      countQuery = countQuery.where(and(...countConditions));
+      countQuery = countQuery.where(and(...countConditions)) as typeof countQuery;
     }
     
     const totalResult = await countQuery;
@@ -306,14 +305,14 @@ const resolvers = {
   },
 
   // Get single civic data item
-  councilDataById: async (_: any, args: { id: string }) => {
+  councilDataById: async (_: any, args: CouncilDataByIdArgs) => {
     const result = await db.select().from(councilData).where(eq(councilData.id, args.id));
     
     return result[0] || null;
   },
 
   // Aggregation queries
-  aggregateData: async (_: any, args: { input: any }) => {
+  aggregateData: async (_: any, args: AggregateDataArgs) => {
     const { groupBy, metric = 'count', field, dateRange } = args.input;
     const cacheKey = `graphql_aggregate:${JSON.stringify(args.input)}`;
     
@@ -401,11 +400,10 @@ const resolvers = {
   },
 
   // Search with advanced features
-  search: async (_: any, args: { query: string; filters?: any; limit?: number; fuzzy?: boolean }) => {
+  search: async (_: any, args: SearchArgs) => {
     const { query: searchQuery, filters = {}, limit = 10, fuzzy = false } = args;
     const cacheKey = `graphql_search:${JSON.stringify(args)}`;
     
-    let query = db.select().from(councilData);
     const conditions = [];
     
     // Search conditions
@@ -425,7 +423,11 @@ const resolvers = {
       conditions.push(eq(councilData.dataType, filters.dataType));
     }
     
-    query = query.where(and(...conditions));
+    let query = db.select().from(councilData);
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions)) as typeof query;
+    }
     
     const results = await query
       .limit(limit)

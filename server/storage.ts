@@ -114,13 +114,11 @@ export class DatabaseStorage implements IStorage {
     // Create a profile for the new user
     try {
       await this.createProfile({ 
-        userId: user.id,
-        displayName: userData.name 
+        id: user.id
       });
     } catch (error) {
       console.error('Error creating profile for new user:', error);
     }
-
     return user;
   }
 
@@ -133,7 +131,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserProfile(userId: string): Promise<Profile | undefined> {
-    const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId));
+    const [profile] = await db.select().from(profiles).where(eq(profiles.id, userId));
     return profile;
   }
 

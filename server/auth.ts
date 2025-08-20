@@ -38,7 +38,10 @@ export async function setupAuth(app: Express) {
             await storage.createUser({
               id: user.id,
               email: user.email!,
-              name: user.user_metadata?.full_name || user.email!.split('@')[0],
+              name: user.user_metadata?.name || user.email,
+              firstName: user.user_metadata?.first_name || null,
+              lastName: user.user_metadata?.last_name || null,
+              profileImageUrl: user.user_metadata?.avatar_url || null,
               role: 'user'
             });
           }

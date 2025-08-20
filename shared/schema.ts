@@ -41,6 +41,7 @@ export const sessions = pgTable(
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
+  name: varchar("name"), // Add missing name field
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
@@ -111,6 +112,7 @@ export const businesses = pgTable("businesses", {
   isVerified: boolean("is_verified").default(false),
   isPremium: boolean("is_premium").default(false),
   isPromoted: boolean("is_promoted").default(false),
+  userId: varchar("user_id").references(() => users.id), // Add missing userId field
   createdBy: varchar("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

@@ -57,6 +57,9 @@ router.post("/signup", async (req, res) => {
         id: authData.user.id,
         email,
         name,
+        firstName: null,
+        lastName: null,
+        profileImageUrl: null,
         role: 'user'
       });
     } catch (dbError) {
@@ -114,6 +117,9 @@ router.post("/signin", async (req, res) => {
           id: data.user.id,
           email,
           name: data.user.user_metadata?.full_name || email.split('@')[0],
+          firstName: null,
+          lastName: null,
+          profileImageUrl: null,
           role: 'user'
         });
       }

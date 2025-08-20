@@ -109,7 +109,6 @@ const resolvers = {
     
     const cacheKey = `graphql_council_data:${JSON.stringify({ filters, page, limit })}`;
     
-    let query = db.select().from(councilData);
     const conditions = [];
     
     // Apply filters
@@ -140,22 +139,20 @@ const resolvers = {
       );
     }
     
-    // Apply conditions
+    // Build complete query chain
+    const offset = (page - 1) * limit;
+    let query = db.select().from(councilData);
+    
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      query = query.where(and(...conditions)) as typeof query;
     }
     
-    // Default sorting by date
-    query = query.orderBy(desc(councilData.date));
-    
-    // Pagination
-    const offset = (page - 1) * limit;
-    query = query.limit(limit).offset(offset);
+    query = query.orderBy(desc(councilData.date)) as typeof query;
+    query = query.limit(limit).offset(offset) as typeof query;
     
     const result = await query;
     
     // Get total count
-    let countQuery = db.select({ count: sql`count(*)` }).from(councilData);
     const countConditions = [];
     
     // Apply same filters for count
@@ -174,8 +171,10 @@ const resolvers = {
       );
     }
     
+    let countQuery = db.select({ count: sql`count(*)` }).from(councilData);
+    
     if (countConditions.length > 0) {
-      countQuery = countQuery.where(and(...countConditions));
+      countQuery = countQuery.where(and(...countConditions)) as typeof countQuery;
     }
     
     const totalResult = await countQuery;

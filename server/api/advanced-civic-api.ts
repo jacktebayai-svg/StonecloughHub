@@ -62,8 +62,7 @@ router.get('/data', async (req, res) => {
     const params = querySchema.parse(req.query);
     const cacheKey = `civic_data:${JSON.stringify(params)}`;
     
-    // Build dynamic query
-    let query = db.select().from(councilData);
+    // Build dynamic query with conditions
     const conditions = [];
     
     // Apply filters
@@ -105,12 +104,7 @@ router.get('/data', async (req, res) => {
       }
     }
     
-    // Apply conditions
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
-    }
-    
-    // Sorting
+    // Determine sort field
     let sortField;
     switch (params.sortBy) {
       case 'title':
@@ -127,13 +121,20 @@ router.get('/data', async (req, res) => {
         sortField = councilData.date;
         break;
     }
+    
+    // Build complete query chain
+    const offset = (params.page - 1) * params.limit;
+    let query = db.select().from(councilData);
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions)) as typeof query;
+    }
+    
     query = query.orderBy(
       params.sortOrder === 'desc' ? desc(sortField) : asc(sortField)
-    );
+    ) as typeof query;
     
-    // Pagination
-    const offset = (params.page - 1) * params.limit;
-    query = query.limit(params.limit).offset(offset);
+    query = query.limit(params.limit).offset(offset) as typeof query;
     
     const result = await query;
     
