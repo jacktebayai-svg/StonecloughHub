@@ -38,6 +38,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import AdvancedSearch from "@/components/civic/advanced-search";
 
 ChartJS.register(
   CategoryScale,
@@ -80,6 +81,7 @@ export default function Civic() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any>(null);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -351,7 +353,7 @@ export default function Civic() {
                   onClick={handleSearch} 
                   disabled={searchLoading}
                   size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 rounded-xl shadow-lg"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-6 rounded-xl shadow-lg"
                 >
                   {searchLoading ? (
                     <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
@@ -360,6 +362,15 @@ export default function Civic() {
                   ) : (
                     <>Search <ChevronRight className="ml-2 h-4 w-4" /></>
                   )}
+                </Button>
+                <Button 
+                  onClick={() => setShowAdvancedSearch(true)}
+                  variant="outline"
+                  size="lg"
+                  className="border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 px-6 rounded-xl"
+                >
+                  <TrendingUp className="h-5 w-5 mr-2" />
+                  Advanced
                 </Button>
               </div>
               
@@ -788,6 +799,13 @@ export default function Civic() {
       </div>
 
       <Footer />
+      
+      {/* Advanced Search Modal */}
+      <AdvancedSearch 
+        isOpen={showAdvancedSearch}
+        onClose={() => setShowAdvancedSearch(false)}
+        initialQuery={searchQuery}
+      />
     </div>
   );
 };

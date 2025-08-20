@@ -21,6 +21,7 @@ const Surveys = lazy(() => import("@/pages/surveys"));
 const Admin = lazy(() => import("@/pages/admin"));
 const ProfilePage = lazy(() => import("@/pages/profile"));
 const Civic = lazy(() => import("@/pages/civic"));
+const CivicEngagement = lazy(() => import("@/pages/civic-engagement"));
 
 // Loading component for Suspense fallback
 const PageLoader = () => (
@@ -54,6 +55,7 @@ function Router() {
           <Route path="/blog" component={withSuspense(Blog)} />
           <Route path="/surveys" component={withSuspense(Surveys)} />
           <Route path="/civic" component={withSuspense(Civic)} />
+          <Route path="/civic-engagement" component={withSuspense(CivicEngagement)} />
           <Route path="/admin" component={withSuspense(Admin)} />
           <Route path="/profile" component={withSuspense(ProfilePage)} />
         </>
