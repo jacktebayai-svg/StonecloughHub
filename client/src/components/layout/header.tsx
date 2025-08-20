@@ -26,56 +26,59 @@ export function Header() {
 
   return (
     <>
-      <header className="bg-stoneclough-light text-stoneclough-blue shadow-sm border-b">
+      <header className="bg-white border-b border-stoneclough-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/">
-              <div className="flex items-center space-x-2 cursor-pointer">
-                <img src="/Logo.svg" alt="The Stoneclough Hub Logo" className="h-16 w-16" />
-                <span className="text-xl font-bold">
-                  The Stoneclough Hub
-                </span>
+              <div className="flex items-center space-x-3 cursor-pointer">
+                <img src="/Logo.svg" alt="The Stoneclough Hub Logo" className="h-10 w-10 drop-shadow-sm" />
+                <div>
+                  <h1 className="text-xl font-bold text-stoneclough-blue-800">
+                    The Stoneclough Hub
+                  </h1>
+                  <p className="text-xs text-stoneclough-gray-600">Civic Transparency Platform</p>
+                </div>
               </div>
             </Link>
 
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden md:flex items-center space-x-1">
               <Link href="/dashboard">
-                <span className="hover:text-stoneclough-gray-blue cursor-pointer">
+                <Button variant="ghost" size="sm" className="text-stoneclough-gray-700 hover:text-stoneclough-blue-800 hover:bg-stoneclough-blue-50">
                   Dashboard
-                </span>
+                </Button>
               </Link>
               <Link href="/directory">
-                <span className="hover:text-stoneclough-gray-blue cursor-pointer">
+                <Button variant="ghost" size="sm" className="text-stoneclough-gray-700 hover:text-stoneclough-blue-800 hover:bg-stoneclough-blue-50">
                   Directory
-                </span>
+                </Button>
               </Link>
               <Link href="/forum">
-                <span className="hover:text-stoneclough-gray-blue cursor-pointer">
+                <Button variant="ghost" size="sm" className="text-stoneclough-gray-700 hover:text-stoneclough-blue-800 hover:bg-stoneclough-blue-50">
                   Forum
-                </span>
+                </Button>
               </Link>
               <Link href="/blog">
-                <span className="hover:text-stoneclough-gray-blue cursor-pointer">
+                <Button variant="ghost" size="sm" className="text-stoneclough-gray-700 hover:text-stoneclough-blue-800 hover:bg-stoneclough-blue-50">
                   Blog
-                </span>
+                </Button>
               </Link>
               <Link href="/surveys">
-                <span className="hover:text-stoneclough-gray-blue cursor-pointer">
+                <Button variant="ghost" size="sm" className="text-stoneclough-gray-700 hover:text-stoneclough-blue-800 hover:bg-stoneclough-blue-50">
                   Surveys
-                </span>
+                </Button>
               </Link>
               {isAuthenticated && (
                 <Link href="/profile">
-                  <span className="hover:text-stoneclough-gray-blue cursor-pointer">
+                  <Button variant="ghost" size="sm" className="text-stoneclough-gray-700 hover:text-stoneclough-blue-800 hover:bg-stoneclough-blue-50">
                     Profile
-                  </span>
+                  </Button>
                 </Link>
               )}
               {userProfile?.role === 'admin' && (
                 <Link href="/admin">
-                  <span className="hover:text-stoneclough-gray-blue cursor-pointer">
+                  <Button variant="ghost" size="sm" className="text-stoneclough-accent-orange hover:text-stoneclough-accent-orange hover:bg-orange-50">
                     Admin
-                  </span>
+                  </Button>
                 </Link>
               )}
             </nav>
