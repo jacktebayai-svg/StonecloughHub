@@ -19,11 +19,11 @@ import {
 } from "lucide-react";
 
 const navigationItems = [
-  { href: "/", label: "Home", icon: Home, gradient: "from-blue-500 to-cyan-500" },
-  { href: "/directory", label: "Directory", icon: Building2, gradient: "from-emerald-500 to-teal-500" },
-  { href: "/forum", label: "Forum", icon: MessageSquare, gradient: "from-orange-500 to-red-500" },
-  { href: "/blog", label: "Blog", icon: FileText, gradient: "from-indigo-500 to-purple-500" },
-  { href: "/surveys", label: "Surveys", icon: BarChart3, gradient: "from-pink-500 to-rose-500" },
+  { href: "/", label: "Home", icon: Home, gradient: "from-stoneclough-blue-600 to-stoneclough-blue-800" },
+  { href: "/directory", label: "Directory", icon: Building2, gradient: "from-community-success to-stoneclough-accent-green" },
+  { href: "/forum", label: "Forum", icon: MessageSquare, gradient: "from-community-warning to-stoneclough-accent-orange" },
+  { href: "/blog", label: "Blog", icon: FileText, gradient: "from-stoneclough-blue-700 to-stoneclough-blue-900" },
+  { href: "/surveys", label: "Surveys", icon: BarChart3, gradient: "from-stoneclough-gray-600 to-stoneclough-gray-800" },
 ];
 
 export function Header() {
@@ -64,7 +64,7 @@ export function Header() {
 
   const getActiveGradient = () => {
     const activeItem = navigationItems.find(item => isActive(item.href));
-    return activeItem?.gradient || "from-blue-500 to-cyan-500";
+    return activeItem?.gradient || "from-stoneclough-blue-600 to-stoneclough-blue-800";
   };
 
   return (
@@ -72,21 +72,21 @@ export function Header() {
       <motion.header 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="bg-white/90 backdrop-blur-lg border-b border-gray-200/50 shadow-sm z-40"
+        className="glass border-b border-border shadow-sm z-40"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link href="/">
               <div className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity">
-                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                <div className="h-10 w-10 rounded-lg gradient-community flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-lg">H</span>
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  <h1 className="text-xl font-bold text-brand">
                     Community Hub
                   </h1>
-                  <p className="text-xs text-gray-500">Your Local Community Platform</p>
+                  <p className="text-xs text-muted-foreground">Your Local Community Platform</p>
                 </div>
               </div>
             </Link>
@@ -112,17 +112,17 @@ export function Header() {
                         />
                       )}
                       <motion.div
-                        className="relative px-3 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 group-hover:bg-gray-50"
+                        className="relative px-3 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 group-hover:bg-muted"
                       >
                         <IconComponent className={`h-4 w-4 transition-colors duration-200 ${
                           active 
                             ? 'text-white' 
-                            : 'text-gray-600 group-hover:text-gray-800'
+                            : 'text-muted-foreground group-hover:text-foreground'
                         }`} />
                         <span className={`text-sm font-medium transition-colors duration-200 ${
                           active 
                             ? 'font-bold text-white' 
-                            : 'text-gray-600 group-hover:text-gray-800'
+                            : 'text-muted-foreground group-hover:text-foreground'
                         }`}>
                           {item.label}
                         </span>
@@ -144,8 +144,8 @@ export function Header() {
                 <Link href="/profile">
                   <div className={`px-3 py-2 rounded-lg transition-colors flex items-center space-x-2 ml-2 ${
                     isActive('/profile') 
-                      ? 'bg-gray-100 text-gray-800 font-semibold' 
-                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                      ? 'bg-muted text-foreground font-semibold' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}>
                     <User className="h-4 w-4" />
                     <span className="text-sm font-medium">Profile</span>
@@ -157,8 +157,8 @@ export function Header() {
                 <Link href="/admin">
                   <div className={`px-3 py-2 rounded-lg transition-colors flex items-center space-x-2 ${
                     isActive('/admin') 
-                      ? 'bg-orange-100 text-orange-700 font-semibold' 
-                      : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50'
+                      ? 'bg-community-warning/10 text-community-warning font-semibold' 
+                      : 'text-community-warning hover:text-community-warning/80 hover:bg-community-warning/5'
                   }`}>
                     <Shield className="h-4 w-4" />
                     <span className="text-sm font-medium">Admin</span>
@@ -171,7 +171,7 @@ export function Header() {
             <div className="lg:hidden">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-lg text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
                 {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
@@ -181,14 +181,14 @@ export function Header() {
             <div className="hidden lg:flex items-center space-x-3">
               {isAuthenticated && user ? (
                 <>
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-foreground">
                     {user.user_metadata?.full_name || user.email?.split('@')[0]}
                   </span>
                   <Button 
                     onClick={handleLogout} 
                     variant="outline" 
                     size="sm"
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                    className="border-border text-foreground hover:bg-muted"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
@@ -200,14 +200,14 @@ export function Header() {
                     onClick={handleSignIn} 
                     variant="outline" 
                     size="sm"
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                    className="border-border text-foreground hover:bg-muted"
                   >
                     Sign In
                   </Button>
                   <Button 
                     onClick={handleSignUp} 
                     size="sm"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-brand hover:bg-brand/90 text-brand-light"
                   >
                     Sign Up
                   </Button>
@@ -219,7 +219,7 @@ export function Header() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200/50 bg-white/95 backdrop-blur-lg">
+          <div className="lg:hidden border-t border-border glass">
             <div className="px-4 py-4 space-y-2">
               {navigationItems.map((item) => {
                 const IconComponent = item.icon;
@@ -230,8 +230,8 @@ export function Header() {
                     <div
                       className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                         active 
-                          ? 'bg-blue-100 text-blue-700 font-semibold' 
-                          : 'text-gray-600 hover:bg-gray-100'
+                          ? 'bg-accent/10 text-accent font-semibold' 
+                          : 'text-muted-foreground hover:bg-muted'
                       }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -244,8 +244,8 @@ export function Header() {
               
               {/* Mobile Auth Section */}
               {isAuthenticated && user ? (
-                <div className="pt-4 border-t border-gray-200 space-y-2">
-                  <div className="px-4 py-2 text-sm text-gray-600">
+                <div className="pt-4 border-t border-border space-y-2">
+                  <div className="px-4 py-2 text-sm text-muted-foreground">
                     {user.user_metadata?.full_name || user.email}
                   </div>
                   <button
@@ -253,20 +253,20 @@ export function Header() {
                       handleLogout();
                       setMobileMenuOpen(false);
                     }}
-                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted transition-colors"
                   >
                     <LogOut className="h-5 w-5" />
                     <span className="font-medium">Sign Out</span>
                   </button>
                 </div>
               ) : (
-                <div className="pt-4 border-t border-gray-200 space-y-2">
+                <div className="pt-4 border-t border-border space-y-2">
                   <button
                     onClick={() => {
                       handleSignIn();
                       setMobileMenuOpen(false);
                     }}
-                    className="w-full flex items-center justify-center py-3 rounded-lg text-gray-700 border border-gray-300 hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center justify-center py-3 rounded-lg text-foreground border border-border hover:bg-muted transition-colors"
                   >
                     Sign In
                   </button>
@@ -275,7 +275,7 @@ export function Header() {
                       handleSignUp();
                       setMobileMenuOpen(false);
                     }}
-                    className="w-full flex items-center justify-center py-3 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                    className="w-full flex items-center justify-center py-3 rounded-lg text-brand-light bg-brand hover:bg-brand/90 transition-colors"
                   >
                     Sign Up
                   </button>

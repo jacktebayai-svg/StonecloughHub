@@ -59,40 +59,40 @@ export default function Home() {
       label: 'Civic Services', 
       value: civicData.overview?.totalServices?.toString() || '0', 
       icon: Globe, 
-      color: 'text-blue-600', 
-      bgColor: 'bg-blue-50',
-      gradient: 'from-blue-500 to-blue-600',
+      color: 'text-accent', 
+      bgColor: 'bg-accent/10',
+      gradient: 'from-stoneclough-blue-600 to-stoneclough-blue-800',
       description: `${civicData.overview?.onlineServices || 0} available online`
     },
     { 
       label: 'Council Meetings', 
       value: civicData.overview?.totalMeetings?.toString() || '0', 
       icon: Calendar, 
-      color: 'text-purple-600', 
-      bgColor: 'bg-purple-50',
-      gradient: 'from-purple-500 to-purple-600',
+      color: 'text-secondary', 
+      bgColor: 'bg-secondary/10',
+      gradient: 'from-stoneclough-gray-600 to-stoneclough-gray-800',
       description: 'Tracked and monitored'
     },
     { 
       label: 'Data Quality', 
       value: civicData.overview?.averageQuality ? `${(civicData.overview.averageQuality * 100).toFixed(0)}%` : '0%', 
       icon: Star, 
-      color: 'text-orange-600', 
-      bgColor: 'bg-orange-50',
-      gradient: 'from-orange-500 to-orange-600',
+      color: 'text-community-warning', 
+      bgColor: 'bg-community-warning/10',
+      gradient: 'from-community-warning to-stoneclough-accent-orange',
       description: `Across ${civicData.overview?.totalPages || 0} pages`
     },
     { 
       label: 'Active Monitoring', 
       value: 'LIVE', 
       icon: Activity, 
-      color: 'text-emerald-600', 
-      bgColor: 'bg-emerald-50',
-      gradient: 'from-emerald-500 to-emerald-600',
+      color: 'text-community-success', 
+      bgColor: 'bg-community-success/10',
+      gradient: 'from-community-success to-stoneclough-accent-green',
       description: 'Real-time civic data'
     }
   ] : [
-    { label: 'Loading...', value: '...', icon: Activity, color: 'text-gray-600', bgColor: 'bg-gray-50', gradient: 'from-gray-400 to-gray-500', description: 'Fetching data' }
+    { label: 'Loading...', value: '...', icon: Activity, color: 'text-muted-foreground', bgColor: 'bg-muted', gradient: 'from-muted to-muted-foreground', description: 'Fetching data' }
   ];
 
   // Real civic data for featured items
@@ -127,7 +127,7 @@ export default function Home() {
       title: 'Council Search',
       description: 'Find services, meetings, and documents',
       icon: Search,
-      color: 'blue',
+      color: 'accent',
       href: '/civic',
       count: civicData?.overview?.totalServices || 0
     },
@@ -135,7 +135,7 @@ export default function Home() {
       title: 'Meeting Tracker',
       description: 'Monitor council meetings and decisions',
       icon: Calendar,
-      color: 'purple', 
+      color: 'secondary', 
       href: '/civic',
       count: civicData?.overview?.totalMeetings || 0
     },
@@ -143,7 +143,7 @@ export default function Home() {
       title: 'Data Quality',
       description: 'Transparency and data integrity monitoring',
       icon: CheckCircle,
-      color: 'emerald',
+      color: 'community-success',
       href: '/civic',
       count: civicData?.overview?.averageQuality ? Math.round(civicData.overview.averageQuality * 100) : 0
     },
@@ -151,21 +151,21 @@ export default function Home() {
       title: 'Community Voice',
       description: 'Participate in local governance',
       icon: MessageSquare,
-      color: 'orange',
+      color: 'community-warning',
       href: '/forum',
       count: '+'  
     }
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
       
       {/* Welcome Section */}
-      <section className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-24 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-background via-stoneclough-blue-50 to-stoneclough-blue-100 py-24 relative overflow-hidden">
         <div className="absolute inset-0">
-          <div className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-10 -left-10 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
+          <div className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-stoneclough-blue-400/20 to-stoneclough-gray-400/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-10 -left-10 w-80 h-80 bg-gradient-to-br from-stoneclough-blue-300/20 to-stoneclough-blue-400/20 rounded-full blur-3xl"></div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
@@ -178,20 +178,20 @@ export default function Home() {
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-blue-100 text-slate-800 px-6 py-3 rounded-full mb-8 shadow-lg"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-stoneclough-blue-100 to-stoneclough-gray-100 text-foreground px-6 py-3 rounded-full mb-8 shadow-lg"
               >
-                <Sparkles className="h-5 w-5 text-emerald-600" />
+                <Sparkles className="h-5 w-5 text-community-success" />
                 Welcome back, {user?.user_metadata?.full_name || user?.email || 'Community Member'}
-                <Heart className="h-4 w-4 text-red-500" />
+                <Heart className="h-4 w-4 text-destructive" />
               </motion.div>
               <motion.h1 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="text-5xl md:text-7xl font-bold text-slate-900 mb-6"
+                className="text-5xl md:text-7xl font-bold text-foreground mb-6"
               >
                 Your Civic
-                <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-brand via-accent to-brand bg-clip-text text-transparent">
                   Intelligence Hub
                 </span>
               </motion.h1>
@@ -199,7 +199,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
-                className="text-xl text-slate-600 mb-10 max-w-4xl mx-auto leading-relaxed"
+                className="text-xl text-muted-foreground mb-10 max-w-4xl mx-auto leading-relaxed"
               >
                 Your central hub for community engagement, local business directory, civic participation, and neighborhood connections.
               </motion.p>
@@ -208,7 +208,7 @@ export default function Home() {
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex items-center justify-center gap-3 text-slate-500"
+                  className="flex items-center justify-center gap-3 text-muted-foreground"
                 >
                   <motion.div
                     animate={{ rotate: 360 }}
@@ -225,15 +225,15 @@ export default function Home() {
                   transition={{ delay: 1 }}
                   className="flex flex-wrap items-center justify-center gap-4"
                 >
-                  <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 px-4 py-2 text-base font-medium">
+                  <Badge className="bg-community-success/10 text-community-success hover:bg-community-success/10 px-4 py-2 text-base font-medium">
                     <Activity className="h-4 w-4 mr-2" />
                     Live Monitoring Active
                   </Badge>
-                  <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 px-4 py-2 text-base font-medium">
+                  <Badge className="bg-accent/10 text-accent hover:bg-accent/10 px-4 py-2 text-base font-medium">
                     <Globe className="h-4 w-4 mr-2" />
                     {civicData?.overview?.totalServices || 0} Services Tracked
                   </Badge>
-                  <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100 px-4 py-2 text-base font-medium">
+                  <Badge className="bg-secondary/10 text-secondary hover:bg-secondary/10 px-4 py-2 text-base font-medium">
                     <Calendar className="h-4 w-4 mr-2" />
                     {civicData?.overview?.totalMeetings || 0} Meetings Monitored
                   </Badge>
@@ -245,7 +245,7 @@ export default function Home() {
       </section>
 
       {/* Civic Intelligence Overview */}
-      <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
+      <section className="py-20 bg-gradient-to-br from-background to-stoneclough-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -253,10 +253,10 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-center mb-16"
           >
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent mb-4">
+              <h2 className="text-4xl font-bold text-foreground mb-4">
               Community Overview
             </h2>
-            <p className="text-slate-600 text-lg max-w-3xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
               Real-time insights into your local community, connecting residents, businesses, and civic opportunities
             </p>
           </motion.div>
@@ -311,7 +311,7 @@ export default function Home() {
       </section>
 
       {/* Civic Engagement Tools */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -319,10 +319,10 @@ export default function Home() {
             transition={{ delay: 0.4 }}
             className="text-center mb-16"
           >
-            <h3 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent mb-4">
+            <h3 className="text-4xl font-bold text-foreground mb-4">
               Community Engagement Tools
             </h3>
-            <p className="text-slate-600 text-lg max-w-3xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
               Powerful tools to connect with your community, explore local businesses, and participate in neighborhood discussions
             </p>
           </motion.div>
@@ -330,10 +330,10 @@ export default function Home() {
             {civicEngagementTools.map((tool, index) => {
               const IconComponent = tool.icon;
               const colorClasses = {
-                blue: 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
-                purple: 'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700',
-                emerald: 'from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700',
-                orange: 'from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700'
+                accent: 'from-accent to-accent/80 hover:from-accent/90 hover:to-accent',
+                secondary: 'from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary',
+                'community-success': 'from-community-success to-community-success/80 hover:from-community-success/90 hover:to-community-success',
+                'community-warning': 'from-community-warning to-community-warning/80 hover:from-community-warning/90 hover:to-community-warning'
               };
               
               return (
@@ -348,19 +348,19 @@ export default function Home() {
                     <Card className={`h-full border-0 shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer group overflow-hidden hover:bg-gradient-to-br ${colorClasses[tool.color]}`}>
                       <CardContent className="p-8 group-hover:text-white transition-colors duration-300">
                         <motion.div 
-                          className={`inline-flex p-4 rounded-2xl bg-${tool.color}-100 group-hover:bg-white/20 transition-colors duration-300 mb-6`}
+                          className={`inline-flex p-4 rounded-2xl bg-${tool.color}/10 group-hover:bg-white/20 transition-colors duration-300 mb-6`}
                           whileHover={{ scale: 1.1, rotate: 5 }}
                         >
-                          <IconComponent className={`h-8 w-8 text-${tool.color}-600 group-hover:text-white transition-colors duration-300`} />
+                          <IconComponent className={`h-8 w-8 text-${tool.color} group-hover:text-white transition-colors duration-300`} />
                         </motion.div>
                         <h4 className="text-xl font-bold mb-3 group-hover:text-white transition-colors duration-300">
                           {tool.title}
                         </h4>
-                        <p className="text-slate-600 group-hover:text-white/90 transition-colors duration-300 mb-4">
+                        <p className="text-muted-foreground group-hover:text-white/90 transition-colors duration-300 mb-4">
                           {tool.description}
                         </p>
                         <div className="flex items-center justify-between">
-                          <Badge className={`bg-${tool.color}-100 text-${tool.color}-800 group-hover:bg-white/20 group-hover:text-white transition-colors duration-300`}>
+                          <Badge className={`bg-${tool.color}/10 text-${tool.color} group-hover:bg-white/20 group-hover:text-white transition-colors duration-300`}>
                             {typeof tool.count === 'number' && tool.count > 0 ? tool.count : tool.count}
                           </Badge>
                           <motion.div
@@ -381,7 +381,7 @@ export default function Home() {
       </section>
 
       {/* Latest Civic Updates */}
-      <section className="py-20 bg-gradient-to-br from-slate-100 to-blue-100">
+      <section className="py-20 bg-gradient-to-br from-muted to-stoneclough-blue-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -389,10 +389,10 @@ export default function Home() {
             transition={{ delay: 0.6 }}
             className="text-center mb-16"
           >
-            <h3 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent mb-4">
+            <h3 className="text-4xl font-bold text-foreground mb-4">
               Latest Community Updates
             </h3>
-            <p className="text-slate-600 text-lg max-w-3xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
               Stay connected with the latest happenings in your local community
             </p>
           </motion.div>
@@ -400,10 +400,10 @@ export default function Home() {
             {recentCivicUpdates.map((update, index) => {
               const IconComponent = update.icon;
               const typeColors = {
-                services: 'from-blue-500 to-blue-600',
-                digital: 'from-emerald-500 to-emerald-600', 
-                meetings: 'from-purple-500 to-purple-600',
-                loading: 'from-gray-400 to-gray-500'
+                services: 'from-accent to-accent/80',
+                digital: 'from-community-success to-community-success/80', 
+                meetings: 'from-secondary to-secondary/80',
+                loading: 'from-muted-foreground to-muted'
               };
               
               return (
@@ -425,19 +425,19 @@ export default function Home() {
                           <IconComponent className="h-6 w-6" />
                         </motion.div>
                         <div className="flex-1">
-                          <h4 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors duration-300">
+                          <h4 className="text-xl font-bold text-foreground mb-2 group-hover:text-accent transition-colors duration-300">
                             {update.title}
                           </h4>
-                          <Badge className="bg-slate-100 text-slate-700 text-xs">
+                          <Badge className="bg-muted text-muted-foreground text-xs">
                             {update.date}
                           </Badge>
                         </div>
                       </div>
-                      <p className="text-slate-600 leading-relaxed">
+                      <p className="text-muted-foreground leading-relaxed">
                         {update.excerpt}
                       </p>
                       <motion.div 
-                        className="mt-6 flex items-center gap-2 text-blue-600 font-medium group-hover:gap-3 transition-all duration-300"
+                        className="mt-6 flex items-center gap-2 text-accent font-medium group-hover:gap-3 transition-all duration-300"
                         whileHover={{ x: 5 }}
                       >
                         <span>Learn more</span>
@@ -456,7 +456,7 @@ export default function Home() {
             className="text-center mt-12"
           >
             <Link href="/civic">
-              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl shadow-lg">
+              <Button size="lg" className="gradient-brand text-brand-light px-8 py-3 rounded-xl shadow-lg">
                 View Full Civic Dashboard
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>

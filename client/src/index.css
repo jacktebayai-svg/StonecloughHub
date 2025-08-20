@@ -141,18 +141,13 @@
   --shadow-xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
   --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
   
-  /* Custom dark mode colors */
-  --hub-blue: hsl(221, 83%, 58%);
-  --hub-dark-blue: hsl(225, 71%, 47%);
-  --hub-green: hsl(146, 100%, 44%);
-  --hub-gray: hsl(215, 16%, 62%);
-  --hub-dark: hsl(215, 25%, 82%);
-  --stoneclough-blue: #3a6aa5;
-  --stoneclough-light: #1a202c;
-  --stoneclough-brown: #7a92ad;
-  --stoneclough-gray-blue: #7a92ad;
-  --stoneclough-orange: #f0934b;
-  --stoneclough-yellow: #f5d76e;
+  /* Dark mode colors using Stoneclough palette */
+  --stoneclough-blue: var(--stoneclough-blue-600);
+  --stoneclough-light: var(--stoneclough-gray-900);
+  --stoneclough-brown: var(--stoneclough-gray-600);
+  --stoneclough-gray-blue: var(--stoneclough-gray-600);
+  --stoneclough-orange: var(--stoneclough-accent-orange);
+  --stoneclough-yellow: var(--stoneclough-accent-yellow);
 }
 
 @layer base {
@@ -168,91 +163,114 @@
 
 /* Custom utility classes for the community platform */
 @layer utilities {
-  .text-hub-blue {
-    color: var(--hub-blue);
+  /* Design system utility classes - using proper semantic naming */
+  .text-brand {
+    color: var(--primary);
   }
   
-  .text-hub-dark-blue {
-    color: var(--hub-dark-blue);
+  .bg-brand {
+    background-color: var(--primary);
   }
   
-  .text-hub-green {
-    color: var(--hub-green);
+  .text-brand-light {
+    color: var(--primary-foreground);
   }
   
-  .text-hub-gray {
-    color: var(--hub-gray);
+  .bg-brand-light {
+    background-color: var(--primary-foreground);
   }
   
-  .text-hub-dark {
-    color: var(--hub-dark);
+  .text-secondary-brand {
+    color: var(--secondary);
   }
   
-  .bg-hub-blue {
-    background-color: var(--hub-blue);
+  .bg-secondary-brand {
+    background-color: var(--secondary);
   }
   
-  .bg-hub-dark-blue {
-    background-color: var(--hub-dark-blue);
+  .text-accent-brand {
+    color: var(--accent);
   }
   
-  .bg-hub-green {
-    background-color: var(--hub-green);
+  .bg-accent-brand {
+    background-color: var(--accent);
   }
   
-  .bg-hub-dark {
-    background-color: var(--hub-dark);
+  /* Community-specific semantic colors */
+  .text-community-success {
+    color: var(--stoneclough-accent-green);
   }
   
-  .border-hub-blue {
-    border-color: var(--hub-blue);
+  .bg-community-success {
+    background-color: var(--stoneclough-accent-green);
   }
   
-  .hover\:bg-hub-dark-blue:hover {
-    background-color: var(--hub-dark-blue);
+  .text-community-warning {
+    color: var(--stoneclough-accent-orange);
   }
   
-  .hover\:text-hub-blue:hover {
-    color: var(--hub-blue);
+  .bg-community-warning {
+    background-color: var(--stoneclough-accent-orange);
   }
   
-  .hover\:text-hub-dark-blue:hover {
-    color: var(--hub-dark-blue);
+  .text-community-highlight {
+    color: var(--stoneclough-accent-yellow);
   }
-  .text-stoneclough-blue {
-    color: var(--stoneclough-blue);
+  
+  .bg-community-highlight {
+    background-color: var(--stoneclough-accent-yellow);
   }
-  .bg-stoneclough-blue {
-    background-color: var(--stoneclough-blue);
+  
+  /* Glass effect utilities */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
-  .text-stoneclough-light {
-    color: var(--stoneclough-light);
+  
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
-  .bg-stoneclough-light {
-    background-color: var(--stoneclough-light);
+  
+  /* Gradient utilities using design system colors */
+  .gradient-brand {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
   }
-  .text-stoneclough-brown {
-    color: var(--stoneclough-brown);
+  
+  .gradient-brand-soft {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
   }
-  .bg-stoneclough-brown {
-    background-color: var(--stoneclough-brown);
+  
+  .gradient-community {
+    background: linear-gradient(135deg, var(--stoneclough-blue-600), var(--stoneclough-blue-800));
   }
-  .text-stoneclough-gray-blue {
-    color: var(--stoneclough-gray-blue);
+  
+  .gradient-success {
+    background: linear-gradient(135deg, var(--community-success), var(--stoneclough-accent-green));
   }
-  .bg-stoneclough-gray-blue {
-    background-color: var(--stoneclough-gray-blue);
+  
+  .gradient-warning {
+    background: linear-gradient(135deg, var(--community-warning), var(--stoneclough-accent-orange));
   }
-  .text-stoneclough-orange {
-    color: var(--stoneclough-orange);
+  
+  .gradient-accent {
+    background: linear-gradient(135deg, var(--accent), var(--stoneclough-blue-700));
   }
-  .bg-stoneclough-orange {
-    background-color: var(--stoneclough-orange);
+  
+  /* Text gradients */
+  .text-gradient-brand {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-  .text-stoneclough-yellow {
-    color: var(--stoneclough-yellow);
-  }
-  .bg-stoneclough-yellow {
-    background-color: var(--stoneclough-yellow);
+  
+  .text-gradient-community {
+    background: linear-gradient(135deg, var(--stoneclough-blue-600), var(--stoneclough-blue-800));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }
