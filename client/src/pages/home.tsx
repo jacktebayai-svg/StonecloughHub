@@ -278,9 +278,8 @@ export default function Home() {
                   whileHover={{ y: -5, scale: 1.02 }}
                   className="group"
                 >
-                  <Card className={`text-center border-0 bg-gradient-to-br ${stat.gradient} text-white shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden`}>
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <CardContent className="p-8 relative z-10">
+                  <Card className={`text-center border-0 bg-gradient-to-br ${stat.gradient} text-white shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden`}>
+                    <CardContent className="p-8">
                       <motion.div 
                         className="inline-flex p-4 rounded-2xl bg-white/20 backdrop-blur-sm mb-6"
                         whileHover={{ rotate: [0, -10, 10, -10, 0] }}

@@ -481,9 +481,8 @@ export default function Civic() {
                   whileHover={{ y: -5, scale: 1.02 }}
                   className="group"
                 >
-                  <Card className={`bg-gradient-to-br ${metric.gradient} text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden`}>
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <CardContent className="p-6 relative z-10">
+                  <Card className={`bg-gradient-to-br ${metric.gradient} text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden`}>
+                    <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
                           <IconComponent className="h-6 w-6 text-white" />
