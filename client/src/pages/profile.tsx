@@ -529,7 +529,7 @@ export default function ProfilePage() {
                       </Button>
                     </motion.div>
                   </form>
-                </div>
+                </CardContent>
               </Card>
 
               {/* Current Businesses */}
