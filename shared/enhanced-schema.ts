@@ -243,6 +243,34 @@ export const chartDataSchema = z.object({
   lastUpdated: z.date()
 });
 
+// Citation and Fact-checking Schemas
+export const citationMetadataSchema = z.object({
+  sourceUrl: z.string(),
+  fileUrl: z.string().optional(),
+  parentPageUrl: z.string().optional(),
+  title: z.string().optional(),
+  type: z.string().optional(),
+  fileType: z.string().optional(),
+  confidence: z.enum(['high', 'medium', 'low']).optional(),
+  dateAdded: z.date().optional(),
+  lastVerified: z.date().optional(),
+  accessible: z.boolean().optional(),
+  verificationStatus: z.string().optional(),
+  extractionMethod: z.string().optional(),
+  pageReference: z.string().optional(),
+  metadata: z.record(z.any()).optional()
+});
+
+export const multipleSourcesSchema = z.object({
+  sources: z.array(citationMetadataSchema),
+  primarySource: citationMetadataSchema,
+  overallConfidence: z.enum(['high', 'medium', 'low']),
+  lastVerified: z.date().optional(),
+  crossReferenced: z.boolean().default(false),
+  conflictingInfo: z.boolean().default(false),
+  verificationNotes: z.string().optional()
+});
+
 // Comprehensive council data insert schema
 export const insertCouncilDataEnhanced = z.object({
   title: z.string(),
@@ -256,6 +284,8 @@ export const insertCouncilDataEnhanced = z.object({
   category: z.string(),
   subcategory: z.string().optional(),
   sourceUrl: z.string(),
+  fileUrl: z.string().optional(), // Direct file link for citations
+  parentPageUrl: z.string().optional(), // Parent page URL for context
   department: z.string().optional(),
   ward: z.string().optional(),
   amount: z.number().optional(),
@@ -273,7 +303,9 @@ export const insertCouncilDataEnhanced = z.object({
   tags: z.array(z.string()).optional(),
   confidence: z.enum(['high', 'medium', 'low']).default('medium'),
   lastValidated: z.date().optional(),
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.any()).optional(),
+  citationMetadata: citationMetadataSchema.optional(), // Enhanced citation info
+  allSources: multipleSourcesSchema.optional() // All sources for fact-checking
 });
 
 // Type exports for TypeScript
@@ -291,4 +323,6 @@ export type StatisticalData = z.infer<typeof statisticalDataSchema>;
 export type Policy = z.infer<typeof policySchema>;
 export type Consultation = z.infer<typeof consultationSchema>;
 export type ChartData = z.infer<typeof chartDataSchema>;
+export type CitationMetadata = z.infer<typeof citationMetadataSchema>;
+export type MultipleSources = z.infer<typeof multipleSourcesSchema>;
 export type InsertCouncilDataEnhanced = z.infer<typeof insertCouncilDataEnhanced>;

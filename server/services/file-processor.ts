@@ -1,7 +1,12 @@
 import { createWriteStream } from 'fs';
 import { pipeline } from 'stream/promises';
 import { HardDataExtractor } from './data-extractors.js';
+import { SpendingRecordSchema, BudgetItemSchema, StatisticalDataSchema } from '@shared/scraper-validation-schemas';
 import type { BudgetItem, SpendingRecord, StatisticalData, Document } from '@shared/enhanced-schema';
+import * as iconv from 'iconv-lite';
+import { detect as detectEncoding } from 'chardet';
+import PdfParserService from './pdf-parser-service.js';
+import CitationService from './citation-service.js';
 
 /**
  * File Processing System
@@ -152,42 +157,183 @@ export class FileProcessor {
   }
 
   /**
-   * Process PDF files (requires pdf-parse or similar)
+   * Enhanced PDF processing with structured extraction
    */
   private static async processPDF(filePath: string, sourceUrl: string): Promise<any> {
-    console.log('📋 Processing PDF file...');
+    console.log('📋 Processing PDF file with enhanced extraction...');
     
     try {
-      // Note: In a real implementation, you'd use a library like pdf-parse
-      // For now, we'll simulate PDF text extraction
-      const fs = await import('fs/promises');
-      const fileContent = await fs.readFile(filePath);
+      const pdfParser = new PdfParserService();
       
-      // Simulate PDF text extraction
-      const extractedText = `PDF Content from ${filePath} - Contains budget and financial data`;
+      // Determine PDF type based on filename/source
+      const isAgenda = filePath.toLowerCase().includes('agenda') || sourceUrl.toLowerCase().includes('agenda');
+      const isMinutes = filePath.toLowerCase().includes('minutes') || sourceUrl.toLowerCase().includes('minutes');
       
-      // Process the extracted text
-      const hardData = HardDataExtractor.extractFinancialData(extractedText, sourceUrl);
-      const metrics = HardDataExtractor.extractPerformanceMetrics(extractedText, sourceUrl);
-      const statistics = HardDataExtractor.extractStatisticalData(extractedText, sourceUrl);
-
-      return {
-        budgetItems: hardData.budgetItems,
-        spendingRecords: hardData.spendingRecords,
-        statisticalData: [...statistics, ...metrics.map(m => ({
-          category: 'Performance',
-          subcategory: m.service,
-          metric: m.metric,
-          value: m.value,
-          unit: m.unit,
-          period: m.period,
-          date: m.date,
+      let parsedContent;
+      
+      if (isAgenda) {
+        console.log('📅 Parsing as agenda document...');
+        parsedContent = await pdfParser.parseAgendaPdf(filePath);
+        
+        // Convert agenda items to statistical data
+        const statisticalData = parsedContent.agendaItems.map((item, index) => ({
+          id: undefined,
+          category: 'Meeting Agenda',
+          subcategory: parsedContent.committee,
+          metric: `Agenda Item ${item.itemNumber}`,
+          value: index + 1, // Sequential numbering
+          unit: 'item',
+          period: 'meeting',
+          date: parsedContent.meetingDate || new Date(),
+          geography: undefined,
+          demographic: undefined,
           sourceDocument: sourceUrl,
-          confidence: 'medium',
+          methodology: `Extracted from ${parsedContent.meetingTitle}`,
+          confidence: 'high' as const,
           lastUpdated: new Date()
-        }))],
-        structuredData: hardData.structuredData
-      };
+        }));
+        
+        return {
+          budgetItems: [],
+          spendingRecords: [],
+          statisticalData,
+          structuredData: [{
+            type: 'agenda',
+            meetingTitle: parsedContent.meetingTitle,
+            meetingDate: parsedContent.meetingDate,
+            committee: parsedContent.committee,
+            agendaItems: parsedContent.agendaItems,
+            extractedAt: new Date(),
+            sourceUrl
+          }]
+        };
+        
+      } else if (isMinutes) {
+        console.log('📝 Parsing as minutes document...');
+        parsedContent = await pdfParser.parseMinutesPdf(filePath);
+        
+        // Convert decisions to statistical data
+        const statisticalData = parsedContent.decisions.map((decision, index) => ({
+          id: undefined,
+          category: 'Meeting Decisions',
+          subcategory: parsedContent.committee,
+          metric: `Decision ${index + 1}`,
+          value: 1, // Each decision is one unit
+          unit: 'decision',
+          period: 'meeting',
+          date: parsedContent.meetingDate || new Date(),
+          geography: undefined,
+          demographic: undefined,
+          sourceDocument: sourceUrl,
+          methodology: `Extracted from ${parsedContent.meetingTitle} minutes`,
+          confidence: 'high' as const,
+          lastUpdated: new Date()
+        }));
+        
+        return {
+          budgetItems: [],
+          spendingRecords: [],
+          statisticalData,
+          structuredData: [{
+            type: 'minutes',
+            meetingTitle: parsedContent.meetingTitle,
+            meetingDate: parsedContent.meetingDate,
+            committee: parsedContent.committee,
+            attendees: parsedContent.attendees,
+            decisions: parsedContent.decisions,
+            actions: parsedContent.actions,
+            extractedAt: new Date(),
+            sourceUrl
+          }]
+        };
+        
+      } else {
+        console.log('📄 Parsing as general document...');
+        parsedContent = await pdfParser.parsePdf(filePath, {
+          extractAgendaItems: true,
+          extractDecisions: true,
+          extractAmounts: true,
+          useOcr: false
+        });
+        
+        // Convert amounts to spending records
+        const spendingRecords = parsedContent.pages
+          .flatMap(page => page.amounts
+            .filter(amount => amount.confidence !== 'low')
+            .map(amount => ({
+              id: undefined,
+              transactionDate: new Date(),
+              supplier: 'PDF Extract',
+              department: this.inferDepartment(parsedContent.metadata?.title || '', sourceUrl),
+              description: amount.context,
+              amount: amount.amount,
+              paymentMethod: undefined,
+              category: 'PDF Financial Data',
+              invoiceNumber: undefined,
+              sourceUrl,
+              extractedAt: new Date()
+            }))
+          );
+        
+        // Convert other content to statistical data
+        const statisticalData = [
+          ...parsedContent.pages.flatMap(page => 
+            page.agendaItems.map(item => ({
+              id: undefined,
+              category: 'Document Content',
+              subcategory: 'Agenda Items',
+              metric: item.title.substring(0, 100),
+              value: 1,
+              unit: 'item',
+              period: 'document',
+              date: new Date(),
+              geography: undefined,
+              demographic: undefined,
+              sourceDocument: sourceUrl,
+              methodology: `Extracted from page ${item.pageNumber}`,
+              confidence: item.confidence,
+              lastUpdated: new Date()
+            }))
+          ),
+          ...parsedContent.pages.flatMap(page => 
+            page.decisions.map(decision => ({
+              id: undefined,
+              category: 'Document Content',
+              subcategory: 'Decisions',
+              metric: decision.title.substring(0, 100),
+              value: 1,
+              unit: 'decision',
+              period: 'document',
+              date: new Date(),
+              geography: undefined,
+              demographic: undefined,
+              sourceDocument: sourceUrl,
+              methodology: `Extracted from page ${decision.pageNumber}`,
+              confidence: decision.confidence,
+              lastUpdated: new Date()
+            }))
+          )
+        ];
+        
+        return {
+          budgetItems: [],
+          spendingRecords,
+          statisticalData,
+          structuredData: [{
+            type: 'general_pdf',
+            fullText: parsedContent.fullText,
+            pageCount: parsedContent.pageCount,
+            extractionMethod: parsedContent.extractionMethod,
+            confidence: parsedContent.confidence,
+            metadata: parsedContent.metadata,
+            extractedAt: new Date(),
+            sourceUrl
+          }]
+        };
+      }
+      
+      // Cleanup temp files
+      await pdfParser.cleanup();
       
     } catch (error) {
       console.error('Error processing PDF:', error);
@@ -196,39 +342,76 @@ export class FileProcessor {
   }
 
   /**
-   * Process CSV files
+   * Enhanced CSV processing with encoding detection and robust parsing
    */
   private static async processCSV(filePath: string, sourceUrl: string): Promise<any> {
-    console.log('📊 Processing CSV file...');
+    console.log('📊 Processing CSV file with enhanced parsing...');
     
     try {
       const fs = await import('fs/promises');
-      const csvContent = await fs.readFile(filePath, 'utf-8');
       
-      const lines = csvContent.split('\n');
-      const headers = lines[0]?.split(',').map(h => h.trim().replace(/"/g, '')) || [];
+      // Read file as buffer first for encoding detection
+      const fileBuffer = await fs.readFile(filePath);
+      
+      // Detect encoding
+      const detectedEncoding = detectEncoding(fileBuffer) || 'utf-8';
+      console.log(`🔍 Detected encoding: ${detectedEncoding}`);
+      
+      // Convert to UTF-8 if needed
+      let csvContent: string;
+      try {
+        csvContent = iconv.decode(fileBuffer, detectedEncoding);
+      } catch (encodingError) {
+        console.warn('⚠️ Encoding conversion failed, falling back to UTF-8');
+        csvContent = fileBuffer.toString('utf-8');
+      }
+      
+      // Robust CSV parsing
+      const parseResult = this.parseCSVContent(csvContent);
+      const { headers, rows, delimiter } = parseResult;
+      
+      console.log(`📋 CSV structure: ${headers.length} columns, ${rows.length} rows, delimiter: '${delimiter}'`);
       
       const budgetItems: BudgetItem[] = [];
       const spendingRecords: SpendingRecord[] = [];
       const statisticalData: StatisticalData[] = [];
+      
+      // Analyze headers to understand data structure
+      const headerAnalysis = this.analyzeCSVHeaders(headers);
+      console.log(`🔬 Header analysis:`, headerAnalysis);
 
-      for (let i = 1; i < lines.length; i++) {
-        const cells = lines[i].split(',').map(c => c.trim().replace(/"/g, ''));
+      for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i];
         
-        if (cells.length >= headers.length) {
-          const rowData = this.processCSVRow(headers, cells, sourceUrl);
-          
-          if (rowData.type === 'budget') {
-            budgetItems.push(rowData.data as BudgetItem);
-          } else if (rowData.type === 'spending') {
-            spendingRecords.push(rowData.data as SpendingRecord);
-          } else if (rowData.type === 'statistical') {
-            statisticalData.push(rowData.data as StatisticalData);
+        if (cells.length >= headers.length - 2) { // Allow some tolerance for missing cells
+          try {
+            const rowData = this.processEnhancedCSVRow(headers, cells, sourceUrl, headerAnalysis);
+            
+            if (rowData.type === 'budget' && rowData.data) {
+              // Validate with Zod schema
+              const validatedBudget = BudgetItemSchema.safeParse(rowData.data);
+              if (validatedBudget.success) {
+                budgetItems.push(validatedBudget.data);
+              }
+            } else if (rowData.type === 'spending' && rowData.data) {
+              const validatedSpending = SpendingRecordSchema.safeParse(rowData.data);
+              if (validatedSpending.success) {
+                spendingRecords.push(validatedSpending.data);
+              }
+            } else if (rowData.type === 'statistical' && rowData.data) {
+              const validatedStats = StatisticalDataSchema.safeParse(rowData.data);
+              if (validatedStats.success) {
+                statisticalData.push(validatedStats.data);
+              }
+            }
+          } catch (rowError) {
+            console.warn(`⚠️ Error processing row ${i + 1}:`, rowError);
+            continue;
           }
         }
       }
 
-      console.log(`📈 CSV processed: ${budgetItems.length} budget items, ${spendingRecords.length} spending records, ${statisticalData.length} statistics`);
+      console.log(`📈 Enhanced CSV processed: ${budgetItems.length} budget items, ${spendingRecords.length} spending records, ${statisticalData.length} statistics`);
 
       return {
         budgetItems,
@@ -241,6 +424,435 @@ export class FileProcessor {
       console.error('Error processing CSV:', error);
       return this.getEmptyData();
     }
+  }
+  
+  /**
+   * Parse CSV content with delimiter detection and proper quoting
+   */
+  private static parseCSVContent(content: string): {
+    headers: string[];
+    rows: string[][];
+    delimiter: string;
+  } {
+    // Detect delimiter
+    const possibleDelimiters = [',', ';', '\t', '|'];
+    let bestDelimiter = ',';
+    let maxColumns = 0;
+    
+    for (const delimiter of possibleDelimiters) {
+      const firstLine = content.split('\n')[0] || '';
+      const columns = this.parseCSVLine(firstLine, delimiter).length;
+      if (columns > maxColumns) {
+        maxColumns = columns;
+        bestDelimiter = delimiter;
+      }
+    }
+    
+    // Split into lines and parse each
+    const lines = content.split('\n').filter(line => line.trim().length > 0);
+    const headers = this.parseCSVLine(lines[0] || '', bestDelimiter)
+      .map(h => h.trim().replace(/^["']|["']$/g, ''));
+    
+    const rows: string[][] = [];
+    for (let i = 1; i < lines.length; i++) {
+      const row = this.parseCSVLine(lines[i], bestDelimiter)
+        .map(cell => cell.trim().replace(/^["']|["']$/g, ''));
+      if (row.some(cell => cell.length > 0)) {
+        rows.push(row);
+      }
+    }
+    
+    return { headers, rows, delimiter: bestDelimiter };
+  }
+  
+  /**
+   * Parse a single CSV line respecting quotes
+   */
+  private static parseCSVLine(line: string, delimiter: string): string[] {
+    const result: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    let quoteChar = '';
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      const nextChar = line[i + 1];
+      
+      if (!inQuotes && (char === '"' || char === "'")) {
+        inQuotes = true;
+        quoteChar = char;
+      } else if (inQuotes && char === quoteChar) {
+        if (nextChar === quoteChar) {
+          // Escaped quote
+          current += char;
+          i++; // Skip next character
+        } else {
+          inQuotes = false;
+          quoteChar = '';
+        }
+      } else if (!inQuotes && char === delimiter) {
+        result.push(current);
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    
+    result.push(current);
+    return result;
+  }
+  
+  /**
+   * Analyze CSV headers to understand data structure
+   */
+  private static analyzeCSVHeaders(headers: string[]): {
+    financialColumns: number[];
+    dateColumns: number[];
+    textColumns: number[];
+    categoryColumn: number | null;
+    departmentColumn: number | null;
+    descriptionColumn: number | null;
+    dataType: 'spending' | 'budget' | 'statistical' | 'mixed';
+  } {
+    const analysis = {
+      financialColumns: [] as number[],
+      dateColumns: [] as number[],
+      textColumns: [] as number[],
+      categoryColumn: null as number | null,
+      departmentColumn: null as number | null,
+      descriptionColumn: null as number | null,
+      dataType: 'mixed' as 'spending' | 'budget' | 'statistical' | 'mixed'
+    };
+    
+    headers.forEach((header, index) => {
+      const lowerHeader = header.toLowerCase();
+      
+      // Financial columns
+      if (lowerHeader.includes('amount') || lowerHeader.includes('cost') || 
+          lowerHeader.includes('budget') || lowerHeader.includes('spend') ||
+          lowerHeader.includes('price') || lowerHeader.includes('value') ||
+          lowerHeader.includes('£') || lowerHeader.includes('$')) {
+        analysis.financialColumns.push(index);
+      }
+      
+      // Date columns
+      if (lowerHeader.includes('date') || lowerHeader.includes('time') ||
+          lowerHeader.includes('received') || lowerHeader.includes('published') ||
+          lowerHeader.includes('updated') || lowerHeader.includes('created')) {
+        analysis.dateColumns.push(index);
+      }
+      
+      // Category identification
+      if (lowerHeader.includes('category') || lowerHeader.includes('type') ||
+          lowerHeader.includes('classification')) {
+        analysis.categoryColumn = index;
+      }
+      
+      // Department identification
+      if (lowerHeader.includes('department') || lowerHeader.includes('service') ||
+          lowerHeader.includes('division') || lowerHeader.includes('team')) {
+        analysis.departmentColumn = index;
+      }
+      
+      // Description identification
+      if (lowerHeader.includes('description') || lowerHeader.includes('detail') ||
+          lowerHeader.includes('purpose') || lowerHeader.includes('summary')) {
+        analysis.descriptionColumn = index;
+      }
+      
+      // Text columns (fallback)
+      if (!analysis.financialColumns.includes(index) && 
+          !analysis.dateColumns.includes(index)) {
+        analysis.textColumns.push(index);
+      }
+    });
+    
+    // Determine data type
+    const hasSpendingIndicators = headers.some(h => 
+      h.toLowerCase().includes('supplier') || h.toLowerCase().includes('transaction') ||
+      h.toLowerCase().includes('invoice') || h.toLowerCase().includes('payment'));
+    
+    const hasBudgetIndicators = headers.some(h => 
+      h.toLowerCase().includes('budget') || h.toLowerCase().includes('allocation') ||
+      h.toLowerCase().includes('forecast'));
+    
+    if (hasSpendingIndicators) analysis.dataType = 'spending';
+    else if (hasBudgetIndicators) analysis.dataType = 'budget';
+    else if (analysis.financialColumns.length > 0) analysis.dataType = 'spending';
+    else analysis.dataType = 'statistical';
+    
+    return analysis;
+  }
+  
+  /**
+   * Enhanced CSV row processing with header analysis
+   */
+  private static processEnhancedCSVRow(
+    headers: string[], 
+    cells: string[], 
+    sourceUrl: string, 
+    analysis: any
+  ): {
+    type: 'budget' | 'spending' | 'statistical';
+    data: any;
+  } {
+    const now = new Date();
+    
+    // Extract key fields based on analysis
+    const amount = this.extractAndParseAmount(cells, analysis.financialColumns);
+    const transactionDate = this.extractAndParseDate(cells, analysis.dateColumns) || now;
+    const department = analysis.departmentColumn !== null ? cells[analysis.departmentColumn] : 'General';
+    const category = analysis.categoryColumn !== null ? cells[analysis.categoryColumn] : 'Uncategorized';
+    const description = analysis.descriptionColumn !== null ? cells[analysis.descriptionColumn] : 'No description';
+    
+    if (analysis.dataType === 'budget' && amount > 0) {
+      return {
+        type: 'budget',
+        data: {
+          department: department || 'General',
+          category: category || 'Uncategorized',
+          subcategory: null,
+          budgetedAmount: amount,
+          actualAmount: null,
+          variance: null,
+          currency: 'GBP',
+          year: transactionDate.getFullYear(),
+          period: 'annual',
+          description: description || null,
+          sourceUrl,
+          lastUpdated: now
+        }
+      };
+    } else if (analysis.dataType === 'spending' && amount > 0) {
+      // Look for supplier information
+      const supplier = this.findSupplierField(headers, cells) || 'Unknown Supplier';
+      
+      return {
+        type: 'spending',
+        data: {
+          transactionDate,
+          supplier: supplier.trim(),
+          department: department || 'General',
+          description: description || 'Transaction',
+          amount,
+          category: category || 'General Spending',
+          procurementMethod: null,
+          invoiceNumber: this.findInvoiceNumber(headers, cells),
+          sourceUrl,
+          downloadUrl: sourceUrl,
+          extractedAt: now
+        }
+      };
+    } else {
+      // Statistical data
+      const value = amount || this.extractNumericValue(cells);
+      const metric = this.determineMetricName(headers, analysis);
+      
+      return {
+        type: 'statistical',
+        data: {
+          category: category || 'CSV Data',
+          subcategory: null,
+          metric: metric || 'Unknown Metric',
+          value: value || 0,
+          unit: this.determineUnit(cells, headers),
+          period: this.determinePeriod(cells, headers),
+          date: transactionDate,
+          sourceDocument: sourceUrl,
+          confidence: value > 0 ? 'high' : 'low',
+          methodology: null,
+          comparativePeriod: null,
+          lastUpdated: now
+        }
+      };
+    }
+  }
+  
+  /**
+   * Extract and parse amount from financial columns
+   */
+  private static extractAndParseAmount(cells: string[], financialColumns: number[]): number {
+    for (const colIndex of financialColumns) {
+      if (colIndex < cells.length) {
+        const amount = this.parseAmount(cells[colIndex]);
+        if (amount > 0) return amount;
+      }
+    }
+    return 0;
+  }
+  
+  /**
+   * Extract and parse date from date columns
+   */
+  private static extractAndParseDate(cells: string[], dateColumns: number[]): Date | null {
+    for (const colIndex of dateColumns) {
+      if (colIndex < cells.length) {
+        const dateStr = cells[colIndex].trim();
+        if (dateStr) {
+          const parsedDate = this.parseFlexibleDate(dateStr);
+          if (parsedDate) return parsedDate;
+        }
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * Flexible date parsing for various formats
+   */
+  private static parseFlexibleDate(dateStr: string): Date | null {
+    // Remove common prefixes/suffixes
+    const cleaned = dateStr.replace(/^(on|at|date:?)\s*/i, '').trim();
+    
+    // Try common date formats
+    const formats = [
+      // ISO formats
+      /^(\d{4})-(\d{1,2})-(\d{1,2})/, // YYYY-MM-DD
+      // UK formats  
+      /^(\d{1,2})\/(\d{1,2})\/(\d{4})/, // DD/MM/YYYY
+      /^(\d{1,2})-(\d{1,2})-(\d{4})/, // DD-MM-YYYY
+      // US formats
+      /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/, // MM/DD/YY(YY)
+    ];
+    
+    // Try direct parsing first
+    const directParse = new Date(cleaned);
+    if (!isNaN(directParse.getTime()) && directParse.getFullYear() > 2000) {
+      return directParse;
+    }
+    
+    // Try manual parsing for specific formats
+    for (const format of formats) {
+      const match = cleaned.match(format);
+      if (match) {
+        let year: number, month: number, day: number;
+        
+        if (format.source.includes('YYYY')) {
+          // ISO or YYYY first format
+          year = parseInt(match[1]);
+          month = parseInt(match[2]) - 1; // JS months are 0-indexed
+          day = parseInt(match[3]);
+        } else {
+          // Assume DD/MM/YYYY for UK government data
+          day = parseInt(match[1]);
+          month = parseInt(match[2]) - 1;
+          year = parseInt(match[3]);
+          if (year < 100) year += 2000; // Handle 2-digit years
+        }
+        
+        const parsedDate = new Date(year, month, day);
+        if (!isNaN(parsedDate.getTime()) && year > 2000 && year < 2030) {
+          return parsedDate;
+        }
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Find supplier field in the data
+   */
+  private static findSupplierField(headers: string[], cells: string[]): string | null {
+    const supplierHeaders = ['supplier', 'vendor', 'company', 'organisation', 'organization', 'payee'];
+    
+    for (let i = 0; i < headers.length; i++) {
+      const header = headers[i].toLowerCase();
+      if (supplierHeaders.some(s => header.includes(s))) {
+        return cells[i] || null;
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Find invoice number in the data
+   */
+  private static findInvoiceNumber(headers: string[], cells: string[]): string | null {
+    const invoiceHeaders = ['invoice', 'reference', 'ref', 'number', 'id'];
+    
+    for (let i = 0; i < headers.length; i++) {
+      const header = headers[i].toLowerCase();
+      if (invoiceHeaders.some(s => header.includes(s))) {
+        const value = cells[i];
+        if (value && /^[A-Z0-9-]+$/i.test(value.trim())) {
+          return value.trim();
+        }
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Extract numeric value from any cell
+   */
+  private static extractNumericValue(cells: string[]): number {
+    for (const cell of cells) {
+      const numMatch = cell.match(/([\d,]+(?:\.\d+)?)/);
+      if (numMatch) {
+        const num = parseFloat(numMatch[1].replace(/,/g, ''));
+        if (!isNaN(num) && num > 0) return num;
+      }
+    }
+    return 0;
+  }
+  
+  /**
+   * Determine metric name from headers
+   */
+  private static determineMetricName(headers: string[], analysis: any): string {
+    if (analysis.financialColumns.length > 0) {
+      return headers[analysis.financialColumns[0]] || 'Financial Metric';
+    }
+    
+    // Find first non-date, non-department column
+    for (let i = 0; i < headers.length; i++) {
+      if (!analysis.dateColumns.includes(i) && 
+          i !== analysis.departmentColumn && 
+          i !== analysis.categoryColumn) {
+        return headers[i] || `Metric_${i}`;
+      }
+    }
+    
+    return 'Unknown Metric';
+  }
+  
+  /**
+   * Determine unit from cell content and headers
+   */
+  private static determineUnit(cells: string[], headers: string[]): string {
+    // Check cells for unit indicators
+    for (const cell of cells) {
+      const unitMatch = cell.match(/\d+\s*(%|£|\$|days?|hours?|weeks?|months?|years?|people)/i);
+      if (unitMatch) return unitMatch[1];
+    }
+    
+    // Check headers for unit indicators
+    for (const header of headers) {
+      if (header.toLowerCase().includes('percent')) return '%';
+      if (header.toLowerCase().includes('pound') || header.includes('£')) return '£';
+      if (header.toLowerCase().includes('count') || header.toLowerCase().includes('number')) return 'count';
+    }
+    
+    return 'units';
+  }
+  
+  /**
+   * Determine time period from data
+   */
+  private static determinePeriod(cells: string[], headers: string[]): string {
+    // Check for period indicators in headers or cells
+    const combinedText = [...headers, ...cells].join(' ').toLowerCase();
+    
+    if (combinedText.includes('annual') || combinedText.includes('yearly')) return 'annual';
+    if (combinedText.includes('quarter') || combinedText.includes('q1') || combinedText.includes('q2')) return 'quarterly';
+    if (combinedText.includes('month') || combinedText.includes('monthly')) return 'monthly';
+    if (combinedText.includes('week') || combinedText.includes('weekly')) return 'weekly';
+    if (combinedText.includes('daily')) return 'daily';
+    
+    return 'unknown';
   }
 
   /**

@@ -74,11 +74,14 @@ CREATE TABLE enhanced_council_data (
   
   -- Source and extraction metadata
   source_url TEXT,
+  file_url TEXT, -- Direct link to source file (PDF, CSV, etc.)
+  parent_page_url TEXT, -- Page where the file was found
   source_domain VARCHAR(255),
   source_title TEXT,
   extraction_method extraction_method DEFAULT 'html_parser',
   extraction_confidence DECIMAL(3,2) CHECK (extraction_confidence >= 0 AND extraction_confidence <= 1),
   extraction_metadata JSONB, -- Detailed extraction information
+  citation_metadata JSONB, -- Enhanced citation information
   
   -- Temporal data
   event_date TIMESTAMP WITH TIME ZONE, -- When the event/item occurred
