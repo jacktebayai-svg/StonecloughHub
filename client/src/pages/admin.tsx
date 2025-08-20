@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { api } from "@/lib/api";
 import { AlertCircle, Database, Download, RefreshCw } from "lucide-react";
 
 export default function Admin() {
@@ -13,7 +13,7 @@ export default function Admin() {
   const [isLoading, setIsLoading] = useState(false);
 
   const seedMutation = useMutation({
-    mutationFn: () => apiRequest("/api/admin/seed", "POST"),
+    mutationFn: () => api.admin.seedDatabase(),
     onSuccess: () => {
       toast({
         title: "Database Seeded",
@@ -30,7 +30,7 @@ export default function Admin() {
   });
 
   const scrapeMutation = useMutation({
-    mutationFn: () => apiRequest("/api/admin/scrape", "POST"),
+    mutationFn: () => api.admin.startScraping(),
     onSuccess: () => {
       toast({
         title: "Scraping Complete",

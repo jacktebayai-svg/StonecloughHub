@@ -1,7 +1,7 @@
 import express from 'express';
 import { z } from 'zod';
 import { eq, desc, asc, and, or, like, gte, lte, sql, inArray } from 'drizzle-orm';
-import { performantDb } from '../db';
+import { db } from '../db';
 import { councilData } from '@shared/schema';
 import { WebSocketServer } from 'ws';
 
@@ -63,72 +63,82 @@ router.get('/data', async (req, res) => {
     const cacheKey = `civic_data:${JSON.stringify(params)}`;
     
     // Build dynamic query
-    const result = await performantDb.query(async (db) => {
-      let query = db.select().from(councilData);
-      const conditions = [];
+    let query = db.select().from(councilData);
+    const conditions = [];
+    
+    // Apply filters
+    if (params.dataType) {
+      conditions.push(eq(councilData.dataType, params.dataType as any));
+    }
+    if (params.status) {
+      conditions.push(eq(councilData.status, params.status));
+    }
+    if (params.dateFrom) {
+      conditions.push(gte(councilData.date, new Date(params.dateFrom)));
+    }
+    if (params.dateTo) {
+      conditions.push(lte(councilData.date, new Date(params.dateTo)));
+    }
+    if (params.minAmount !== undefined) {
+      conditions.push(gte(councilData.amount, params.minAmount));
+    }
+    if (params.maxAmount !== undefined) {
+      conditions.push(lte(councilData.amount, params.maxAmount));
+    }
+    
+    // Full-text search
+    if (params.search) {
+      const searchFields = params.searchFields.split(',');
+      const searchConditions = [];
       
-      // Apply filters
-      if (params.dataType) {
-        conditions.push(eq(councilData.dataType, params.dataType));
-      }
-      if (params.status) {
-        conditions.push(eq(councilData.status, params.status));
-      }
-      if (params.dateFrom) {
-        conditions.push(gte(councilData.date, new Date(params.dateFrom)));
-      }
-      if (params.dateTo) {
-        conditions.push(lte(councilData.date, new Date(params.dateTo)));
-      }
-      if (params.minAmount !== undefined) {
-        conditions.push(gte(councilData.amount, params.minAmount));
-      }
-      if (params.maxAmount !== undefined) {
-        conditions.push(lte(councilData.amount, params.maxAmount));
-      }
-      
-      // Full-text search
-      if (params.search) {
-        const searchFields = params.searchFields.split(',');
-        const searchConditions = [];
-        
-        for (const field of searchFields) {
-          if (field === 'title') {
-            searchConditions.push(like(councilData.title, `%${params.search}%`));
-          }
-          if (field === 'description') {
-            searchConditions.push(like(councilData.description, `%${params.search}%`));
-          }
+      for (const field of searchFields) {
+        if (field === 'title') {
+          searchConditions.push(like(councilData.title, `%${params.search}%`));
         }
-        
-        if (searchConditions.length > 0) {
-          conditions.push(or(...searchConditions));
+        if (field === 'description') {
+          searchConditions.push(like(councilData.description, `%${params.search}%`));
         }
       }
       
-      // Apply conditions
-      if (conditions.length > 0) {
-        query = query.where(and(...conditions));
+      if (searchConditions.length > 0) {
+        conditions.push(or(...searchConditions));
       }
-      
-      // Sorting
-      const sortField = councilData[params.sortBy as keyof typeof councilData] || councilData.date;
-      query = query.orderBy(
-        params.sortOrder === 'desc' ? desc(sortField) : asc(sortField)
-      );
-      
-      // Pagination
-      const offset = (params.page - 1) * params.limit;
-      query = query.limit(params.limit).offset(offset);
-      
-      return query;
-    }, cacheKey, 300); // Cache for 5 minutes
+    }
+    
+    // Apply conditions
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    // Sorting
+    let sortField;
+    switch (params.sortBy) {
+      case 'title':
+        sortField = councilData.title;
+        break;
+      case 'amount':
+        sortField = councilData.amount;
+        break;
+      case 'status':
+        sortField = councilData.status;
+        break;
+      case 'date':
+      default:
+        sortField = councilData.date;
+        break;
+    }
+    query = query.orderBy(
+      params.sortOrder === 'desc' ? desc(sortField) : asc(sortField)
+    );
+    
+    // Pagination
+    const offset = (params.page - 1) * params.limit;
+    query = query.limit(params.limit).offset(offset);
+    
+    const result = await query;
     
     // Get total count for pagination
-    const totalResult = await performantDb.query(async (db) => {
-      return db.select({ count: sql`count(*)` }).from(councilData);
-    }, `civic_data_count:${JSON.stringify(params)}`, 300);
-    
+    const totalResult = await db.select({ count: sql`count(*)` }).from(councilData);
     const total = Number(totalResult[0].count);
     const totalPages = Math.ceil(total / params.limit);
     
@@ -176,9 +186,7 @@ router.get('/data/:id', async (req, res) => {
     const { id } = req.params;
     const cacheKey = `civic_data_detail:${id}`;
     
-    const result = await performantDb.query(async (db) => {
-      return db.select().from(councilData).where(eq(councilData.id, id));
-    }, cacheKey, 600); // Cache for 10 minutes
+    const result = await db.select().from(councilData).where(eq(councilData.id, id));
     
     if (result.length === 0) {
       return res.status(404).json({
@@ -207,59 +215,82 @@ router.get('/analytics/aggregate', async (req, res) => {
     const params = aggregationSchema.parse(req.query);
     const cacheKey = `civic_analytics:${JSON.stringify(params)}`;
     
-    const result = await performantDb.query(async (db) => {
-      let query;
-      const groupByField = councilData[params.groupBy as keyof typeof councilData];
-      
-      if (!groupByField) {
+    let query;
+    let groupByField;
+    
+    // Map groupBy parameter to actual column
+    switch (params.groupBy) {
+      case 'status':
+        groupByField = councilData.status;
+        break;
+      case 'dataType':
+        groupByField = councilData.dataType;
+        break;
+      case 'date':
+        groupByField = councilData.date;
+        break;
+      default:
         throw new Error(`Invalid groupBy field: ${params.groupBy}`);
-      }
-      
-      switch (params.metric) {
-        case 'count':
-          query = db
-            .select({
-              group: groupByField,
-              value: sql`count(*)`,
-            })
-            .from(councilData)
-            .groupBy(groupByField);
-          break;
-          
-        case 'sum':
-          if (!params.field) {
-            throw new Error('Field is required for sum metric');
-          }
-          const sumField = councilData[params.field as keyof typeof councilData];
-          query = db
-            .select({
-              group: groupByField,
-              value: sql`sum(${sumField})`,
-            })
-            .from(councilData)
-            .groupBy(groupByField);
-          break;
-          
-        case 'avg':
-          if (!params.field) {
-            throw new Error('Field is required for avg metric');
-          }
-          const avgField = councilData[params.field as keyof typeof councilData];
-          query = db
-            .select({
-              group: groupByField,
-              value: sql`avg(${avgField})`,
-            })
-            .from(councilData)
-            .groupBy(groupByField);
-          break;
-          
-        default:
-          throw new Error(`Unsupported metric: ${params.metric}`);
-      }
-      
-      return query.orderBy(sql`value DESC`);
-    }, cacheKey, 900); // Cache for 15 minutes
+    }
+    
+    switch (params.metric) {
+      case 'count':
+        query = db
+          .select({
+            group: groupByField,
+            value: sql`count(*)`,
+          })
+          .from(councilData)
+          .groupBy(groupByField);
+        break;
+        
+      case 'sum':
+        if (!params.field) {
+          throw new Error('Field is required for sum metric');
+        }
+        let sumField;
+        switch (params.field) {
+          case 'amount':
+            sumField = councilData.amount;
+            break;
+          default:
+            throw new Error(`Invalid sum field: ${params.field}`);
+        }
+        query = db
+          .select({
+            group: groupByField,
+            value: sql`sum(${sumField})`,
+          })
+          .from(councilData)
+          .groupBy(groupByField);
+        break;
+        
+      case 'avg':
+        if (!params.field) {
+          throw new Error('Field is required for avg metric');
+        }
+        let avgField;
+        switch (params.field) {
+          case 'amount':
+            avgField = councilData.amount;
+            break;
+          default:
+            throw new Error(`Invalid avg field: ${params.field}`);
+        }
+        query = db
+          .select({
+            group: groupByField,
+            value: sql`avg(${avgField})`,
+          })
+          .from(councilData)
+          .groupBy(groupByField);
+        break;
+        
+      default:
+        throw new Error(`Unsupported metric: ${params.metric}`);
+    }
+    
+    const result = await query.orderBy(sql`value DESC`);
     
     res.json({
       success: true,
@@ -281,20 +312,18 @@ router.get('/metadata/filters', async (req, res) => {
   try {
     const cacheKey = 'civic_data_filters';
     
-    const filters = await performantDb.query(async (db) => {
-      const [
-        dataTypes,
-        statuses,
-      ] = await Promise.all([
-        db.selectDistinct({ value: councilData.dataType }).from(councilData),
-        db.selectDistinct({ value: councilData.status }).from(councilData),
-      ]);
-      
-      return {
-        dataTypes: dataTypes.map(d => d.value).filter(Boolean),
-        statuses: statuses.map(s => s.value).filter(Boolean),
-      };
-    }, cacheKey, 3600); // Cache for 1 hour
+    const [
+      dataTypes,
+      statuses,
+    ] = await Promise.all([
+      db.selectDistinct({ value: councilData.dataType }).from(councilData),
+      db.selectDistinct({ value: councilData.status }).from(councilData),
+    ]);
+    
+    const filters = {
+      dataTypes: dataTypes.map((d: any) => d.value).filter(Boolean),
+      statuses: statuses.map((s: any) => s.value).filter(Boolean),
+    };
     
     res.json({
       success: true,
@@ -324,32 +353,30 @@ router.get('/search', async (req, res) => {
     
     const cacheKey = `search:${q}:${type}:${limit}:${fuzzy}`;
     
-    const results = await performantDb.query(async (db) => {
-      let query = db.select().from(councilData);
-      
-      if (fuzzy === 'true') {
-        // Use PostgreSQL's similarity function for fuzzy search
-        query = query.where(
-          sql`similarity(title || ' ' || description, ${q}) > 0.3`
-        );
-      } else {
-        // Exact text search
-        query = query.where(
-          or(
-            like(councilData.title, `%${q}%`),
-            like(councilData.description, `%${q}%`)
-          )
-        );
-      }
-      
-      if (type) {
-        query = query.where(eq(councilData.dataType, type as string));
-      }
-      
-      return query
-        .limit(Number(limit))
-        .orderBy(desc(councilData.date));
-    }, cacheKey, 300);
+    let query = db.select().from(councilData);
+    
+    if (fuzzy === 'true') {
+      // Use PostgreSQL's similarity function for fuzzy search
+      query = query.where(
+        sql`similarity(title || ' ' || description, ${q}) > 0.3`
+      );
+    } else {
+      // Exact text search
+      query = query.where(
+        or(
+          like(councilData.title, `%${q}%`),
+          like(councilData.description, `%${q}%`)
+        )
+      );
+    }
+    
+    if (type) {
+      query = query.where(eq(councilData.dataType, type as any));
+    }
+    
+    const results = await query
+      .limit(Number(limit))
+      .orderBy(desc(councilData.date));
     
     res.json({
       success: true,
@@ -370,7 +397,7 @@ router.get('/search', async (req, res) => {
 // Performance statistics endpoint
 router.get('/admin/performance', async (req, res) => {
   try {
-    const stats = performantDb.getPerformanceStats();
+    const stats = { message: 'Performance stats not available without performantDb' };
     
     res.json({
       success: true,
@@ -399,7 +426,7 @@ router.post('/admin/cache/invalidate', async (req, res) => {
       });
     }
     
-    await performantDb.invalidateCache(pattern);
+    // Cache invalidation not available without performantDb
     
     res.json({
       success: true,

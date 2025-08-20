@@ -1,6 +1,6 @@
 import { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLFloat, GraphQLBoolean, GraphQLList, GraphQLNonNull, GraphQLEnumType, GraphQLInputObjectType } from 'graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
-import { performantDb } from '../db';
+import { db } from '../db';
 import { councilData } from '@shared/schema';
 import { eq, desc, asc, and, or, like, gte, lte, sql } from 'drizzle-orm';
 
@@ -206,82 +206,88 @@ const resolvers = {
     
     const cacheKey = `graphql_civic_data:${JSON.stringify({ filters, sort, page, limit })}`;
     
-    const result = await performantDb.query(async (db) => {
-      let query = db.select().from(councilData);
-      const conditions = [];
-      
-      // Apply filters
-      if (filters.dataType) {
-        conditions.push(eq(councilData.dataType, filters.dataType));
-      }
-      if (filters.category) {
-      }
-      if (filters.department) {
-      }
-      if (filters.ward) {
-      }
-      if (filters.priority) {
-      }
-      if (filters.dateFrom) {
-        conditions.push(gte(councilData.date, new Date(filters.dateFrom)));
-      }
-      if (filters.dateTo) {
-        conditions.push(lte(councilData.date, new Date(filters.dateTo)));
-      }
-      if (filters.minAmount !== undefined) {
-        conditions.push(gte(councilData.amount, filters.minAmount));
-      }
-      if (filters.maxAmount !== undefined) {
-        conditions.push(lte(councilData.amount, filters.maxAmount));
-      }
-      if (filters.residentImpact) {
-      }
-      if (filters.publicInterest !== undefined) {
-      }
-      if (filters.search) {
-        conditions.push(
-          or(
-            like(councilData.title, `%${filters.search}%`),
-            like(councilData.description, `%${filters.search}%`)
-          )
-        );
-      }
-      
-      // Apply conditions
-      if (conditions.length > 0) {
-        query = query.where(and(...conditions));
-      }
-      
-      // Sorting
-      const sortField = councilData[sort.field as keyof typeof councilData] || councilData.date;
-      query = query.orderBy(
-        sort.order === 'desc' ? desc(sortField) : asc(sortField)
+    let query = db.select().from(councilData);
+    const conditions = [];
+    
+    // Apply filters
+    if (filters.dataType) {
+      conditions.push(eq(councilData.dataType, filters.dataType));
+    }
+    if (filters.dateFrom) {
+      conditions.push(gte(councilData.date, new Date(filters.dateFrom)));
+    }
+    if (filters.dateTo) {
+      conditions.push(lte(councilData.date, new Date(filters.dateTo)));
+    }
+    if (filters.minAmount !== undefined) {
+      conditions.push(gte(councilData.amount, filters.minAmount));
+    }
+    if (filters.maxAmount !== undefined) {
+      conditions.push(lte(councilData.amount, filters.maxAmount));
+    }
+    if (filters.search) {
+      conditions.push(
+        or(
+          like(councilData.title, `%${filters.search}%`),
+          like(councilData.description, `%${filters.search}%`)
+        )
       );
-      
-      // Pagination
-      const offset = (page - 1) * limit;
-      query = query.limit(limit).offset(offset);
-      
-      return query;
-    }, cacheKey, 300);
+    }
+    
+    // Apply conditions
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    // Sorting
+    let sortField;
+    switch (sort.field) {
+      case 'title':
+        sortField = councilData.title;
+        break;
+      case 'amount':
+        sortField = councilData.amount;
+        break;
+      case 'status':
+        sortField = councilData.status;
+        break;
+      case 'date':
+      default:
+        sortField = councilData.date;
+        break;
+    }
+    query = query.orderBy(
+      sort.order === 'desc' ? desc(sortField) : asc(sortField)
+    );
+    
+    // Pagination
+    const offset = (page - 1) * limit;
+    query = query.limit(limit).offset(offset);
+    
+    const result = await query;
     
     // Get total count
-    const totalResult = await performantDb.query(async (db) => {
-      let countQuery = db.select({ count: sql`count(*)` }).from(councilData);
-      const conditions = [];
-      
-      // Apply same filters for count
-      if (filters.dataType) {
-        conditions.push(eq(councilData.dataType, filters.dataType));
-      }
-      // ... (repeat filter logic for count)
-      
-      if (conditions.length > 0) {
-        countQuery = countQuery.where(and(...conditions));
-      }
-      
-      return countQuery;
-    }, `${cacheKey}_count`, 300);
+    let countQuery = db.select({ count: sql`count(*)` }).from(councilData);
+    const countConditions = [];
+    
+    // Apply same filters for count
+    if (filters.dataType) {
+      countConditions.push(eq(councilData.dataType, filters.dataType));
+    }
+    if (filters.search) {
+      countConditions.push(
+        or(
+          like(councilData.title, `%${filters.search}%`),
+          like(councilData.description, `%${filters.search}%`)
+        )
+      );
+    }
+    
+    if (countConditions.length > 0) {
+      countQuery = countQuery.where(and(...countConditions));
+    }
+    
+    const totalResult = await countQuery;
     
     const total = Number(totalResult[0].count);
     const totalPages = Math.ceil(total / limit);
@@ -301,11 +307,7 @@ const resolvers = {
 
   // Get single civic data item
   councilDataById: async (_: any, args: { id: string }) => {
-    const cacheKey = `graphql_civic_data_${args.id}`;
-    
-    const result = await performantDb.query(async (db) => {
-      return db.select().from(councilData).where(eq(councilData.id, args.id));
-    }, cacheKey, 600);
+    const result = await db.select().from(councilData).where(eq(councilData.id, args.id));
     
     return result[0] || null;
   },
@@ -315,62 +317,85 @@ const resolvers = {
     const { groupBy, metric = 'count', field, dateRange } = args.input;
     const cacheKey = `graphql_aggregate:${JSON.stringify(args.input)}`;
     
-    const result = await performantDb.query(async (db) => {
-      let query;
-      const groupByField = councilData[groupBy as keyof typeof councilData];
-      
-      if (!groupByField) {
+    let query;
+    let groupByField;
+    
+    // Map groupBy parameter to actual column
+    switch (groupBy) {
+      case 'status':
+        groupByField = councilData.status;
+        break;
+      case 'dataType':
+        groupByField = councilData.dataType;
+        break;
+      case 'date':
+        groupByField = councilData.date;
+        break;
+      default:
         throw new Error(`Invalid groupBy field: ${groupBy}`);
-      }
-      
-      switch (metric) {
-        case 'count':
-          query = db
-            .select({
-              group: groupByField,
-              value: sql`count(*)::int`,
-              count: sql`count(*)::int`,
-            })
-            .from(councilData)
-            .groupBy(groupByField);
-          break;
-          
-        case 'sum':
-          if (!field) {
-            throw new Error('Field is required for sum metric');
-          }
-          const sumField = councilData[field as keyof typeof councilData];
-          query = db
-            .select({
-              group: groupByField,
-              value: sql`sum(${sumField})::float`,
-              count: sql`count(*)::int`,
-            })
-            .from(councilData)
-            .groupBy(groupByField);
-          break;
-          
-        case 'avg':
-          if (!field) {
-            throw new Error('Field is required for avg metric');
-          }
-          const avgField = councilData[field as keyof typeof councilData];
-          query = db
-            .select({
-              group: groupByField,
-              value: sql`avg(${avgField})::float`,
-              count: sql`count(*)::int`,
-            })
-            .from(councilData)
-            .groupBy(groupByField);
-          break;
-          
-        default:
-          throw new Error(`Unsupported metric: ${metric}`);
-      }
-      
-      return query.orderBy(sql`value DESC`);
-    }, cacheKey, 900);
+    }
+    
+    switch (metric) {
+      case 'count':
+        query = db
+          .select({
+            group: groupByField,
+            value: sql`count(*)::int`,
+            count: sql`count(*)::int`,
+          })
+          .from(councilData)
+          .groupBy(groupByField);
+        break;
+        
+      case 'sum':
+        if (!field) {
+          throw new Error('Field is required for sum metric');
+        }
+        let sumField;
+        switch (field) {
+          case 'amount':
+            sumField = councilData.amount;
+            break;
+          default:
+            throw new Error(`Invalid sum field: ${field}`);
+        }
+        query = db
+          .select({
+            group: groupByField,
+            value: sql`sum(${sumField})::float`,
+            count: sql`count(*)::int`,
+          })
+          .from(councilData)
+          .groupBy(groupByField);
+        break;
+        
+      case 'avg':
+        if (!field) {
+          throw new Error('Field is required for avg metric');
+        }
+        let avgField;
+        switch (field) {
+          case 'amount':
+            avgField = councilData.amount;
+            break;
+          default:
+            throw new Error(`Invalid avg field: ${field}`);
+        }
+        query = db
+          .select({
+            group: groupByField,
+            value: sql`avg(${avgField})::float`,
+            count: sql`count(*)::int`,
+          })
+          .from(councilData)
+          .groupBy(groupByField);
+        break;
+        
+      default:
+        throw new Error(`Unsupported metric: ${metric}`);
+    }
+    
+    const result = await query.orderBy(sql`value DESC`);
     
     return result;
   },
@@ -380,35 +405,31 @@ const resolvers = {
     const { query: searchQuery, filters = {}, limit = 10, fuzzy = false } = args;
     const cacheKey = `graphql_search:${JSON.stringify(args)}`;
     
-    const results = await performantDb.query(async (db) => {
-      let query = db.select().from(councilData);
-      const conditions = [];
-      
-      // Search conditions
-      if (fuzzy) {
-        conditions.push(sql`similarity(title || ' ' || description, ${searchQuery}) > 0.3`);
-      } else {
-        conditions.push(
-          or(
-            like(councilData.title, `%${searchQuery}%`),
-            like(councilData.description, `%${searchQuery}%`)
-          )
-        );
-      }
-      
-      // Apply additional filters
-      if (filters.dataType) {
-        conditions.push(eq(councilData.dataType, filters.dataType));
-      }
-      if (filters.category) {
-      }
-      
-      query = query.where(and(...conditions));
-      
-      return query
-        .limit(limit)
-        .orderBy(desc(councilData.date));
-    }, cacheKey, 300);
+    let query = db.select().from(councilData);
+    const conditions = [];
+    
+    // Search conditions
+    if (fuzzy) {
+      conditions.push(sql`similarity(title || ' ' || description, ${searchQuery}) > 0.3`);
+    } else {
+      conditions.push(
+        or(
+          like(councilData.title, `%${searchQuery}%`),
+          like(councilData.description, `%${searchQuery}%`)
+        )
+      );
+    }
+    
+    // Apply additional filters
+    if (filters.dataType) {
+      conditions.push(eq(councilData.dataType, filters.dataType));
+    }
+    
+    query = query.where(and(...conditions));
+    
+    const results = await query
+      .limit(limit)
+      .orderBy(desc(councilData.date));
     
     return {
       data: results,
@@ -420,32 +441,25 @@ const resolvers = {
 
   // Get filter options
   filterOptions: async () => {
-    const cacheKey = 'graphql_filter_options';
+    const dataTypes = await db.selectDistinct({ value: councilData.dataType }).from(councilData);
     
-    return await performantDb.query(async (db) => {
-      const [
-        dataTypes,
-        categories,
-        departments,
-        wards,
-        priorities,
-      ] = await Promise.all([
-        db.selectDistinct({ value: councilData.dataType }).from(councilData),
-      ]);
-      
-      return {
-        dataTypes: dataTypes.map(d => d.value).filter(Boolean),
-        categories: categories.map(c => c.value).filter(Boolean),
-        departments: departments.map(d => d.value).filter(Boolean),
-        wards: wards.map(w => w.value).filter(Boolean),
-        priorities: priorities.map(p => p.value).filter(Boolean),
-      };
-    }, cacheKey, 3600);
+    return {
+      dataTypes: dataTypes.map(d => d.value).filter(Boolean),
+      categories: [],
+      departments: [],
+      wards: [],
+      priorities: [],
+    };
   },
 
   // Performance statistics
   performanceStats: async () => {
-    return performantDb.getPerformanceStats();
+    return {
+      totalQueries: 0,
+      uniqueQueries: 0,
+      averageQueryTime: 0,
+      slowQueriesCount: 0,
+    };
   },
 };
 

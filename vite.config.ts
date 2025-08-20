@@ -27,6 +27,40 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate vendor chunks for better caching
+          'react-vendor': ['react', 'react-dom'],
+          'query-vendor': ['@tanstack/react-query'],
+          'ui-vendor': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-toast',
+            'framer-motion'
+          ],
+          'form-vendor': [
+            'react-hook-form',
+            '@hookform/resolvers',
+            'zod'
+          ],
+          'icon-vendor': ['lucide-react'],
+          'utils': ['date-fns', 'clsx', 'tailwind-merge']
+        },
+      },
+    },
+    // Reduce chunk size warning limit
+    chunkSizeWarningLimit: 500,
+    // Enable minification and compression
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
   },
   server: {
     fs: {

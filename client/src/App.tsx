@@ -1,4 +1,5 @@
 import { Switch, Route } from "wouter";
+import { lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -7,17 +8,33 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { useAuth } from "@/hooks/useAuth";
 import ErrorBoundary, { LoadingBoundary } from "@/components/ErrorBoundary";
 import NotFound from "@/pages/not-found";
-import Home from "@/pages/home";
 import Landing from "./pages/landing";
-import Dashboard from "@/pages/dashboard";
-import Directory from "@/pages/directory";
-import Forum from "@/pages/forum";
-import Blog from "@/pages/blog";
-import Surveys from "@/pages/surveys";
-import Admin from "@/pages/admin";
-import ProfilePage from "@/pages/profile"; // Import ProfilePage
-import Civic from "@/pages/civic"; // Import Civic page
 import { BottomNavigation } from "@/components/layout/bottom-navigation";
+
+// Lazy load components for better performance
+const Home = lazy(() => import("@/pages/home"));
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const Directory = lazy(() => import("@/pages/directory"));
+const Forum = lazy(() => import("@/pages/forum"));
+const Blog = lazy(() => import("@/pages/blog"));
+const Surveys = lazy(() => import("@/pages/surveys"));
+const Admin = lazy(() => import("@/pages/admin"));
+const ProfilePage = lazy(() => import("@/pages/profile"));
+const Civic = lazy(() => import("@/pages/civic"));
+
+// Loading component for Suspense fallback
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stoneclough-blue"></div>
+  </div>
+);
+
+// HOC to wrap lazy components with Suspense
+const withSuspense = (Component: React.ComponentType) => (props: any) => (
+  <Suspense fallback={<PageLoader />}>
+    <Component {...props} />
+  </Suspense>
+);
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -28,15 +45,15 @@ function Router() {
         <Route path="/" component={Landing} />
       ) : (
         <>
-          <Route path="/" component={Home} />
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/directory" component={Directory} />
-          <Route path="/forum" component={Forum} />
-          <Route path="/blog" component={Blog} />
-          <Route path="/surveys" component={Surveys} />
-          <Route path="/civic" component={Civic} />
-          <Route path="/admin" component={Admin} />
-          <Route path="/profile" component={ProfilePage} /> {/* Add ProfilePage route */}
+          <Route path="/" component={withSuspense(Home)} />
+          <Route path="/dashboard" component={withSuspense(Dashboard)} />
+          <Route path="/directory" component={withSuspense(Directory)} />
+          <Route path="/forum" component={withSuspense(Forum)} />
+          <Route path="/blog" component={withSuspense(Blog)} />
+          <Route path="/surveys" component={withSuspense(Surveys)} />
+          <Route path="/civic" component={withSuspense(Civic)} />
+          <Route path="/admin" component={withSuspense(Admin)} />
+          <Route path="/profile" component={withSuspense(ProfilePage)} />
         </>
       )}
       <Route component={NotFound} />

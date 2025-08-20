@@ -5,15 +5,19 @@ import { ArticleCard } from "@/components/blog/article-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/api";
+import type { BlogArticle } from "@shared/schema";
 
 export default function Blog() {
   const { data: featuredArticle } = useQuery({
     queryKey: ["/api/blog/articles/featured"],
-  });
+    queryFn: () => api.blog.getFeatured(),
+  }) as { data: BlogArticle | undefined };
 
   const { data: articles, isLoading } = useQuery({
     queryKey: ["/api/blog/articles", { limit: 9 }],
-  });
+    queryFn: () => api.blog.getArticles(9),
+  }) as { data: BlogArticle[] | undefined; isLoading: boolean };
 
   return (
     <div className="min-h-screen bg-stoneclough-light">

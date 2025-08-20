@@ -1,19 +1,21 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Header } from '@/components/layout/header'
+import { Footer } from '@/components/layout/footer'
+import { BusinessCard } from '@/components/business/business-card'
+import { useAuth } from '@/contexts/AuthContext'
+import api from '@/lib/api'
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/hooks/useAuth";
-import { apiRequest } from "@/lib/queryClient";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { Profile, Business } from "@shared/schema";
 
 // Define schemas for validation
 const personalDetailsSchema = z.object({
@@ -48,19 +50,19 @@ export default function ProfilePage() {
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ["profile", user?.id],
-    queryFn: () => apiRequest("GET", `/api/profile/${user?.id}`),
+    queryFn: () => api.profile.get(user!.id),
     enabled: isAuthenticated && !!user?.id,
   });
 
   const { data: userBusinesses, isLoading: isBusinessesLoading } = useQuery({
     queryKey: ["userBusinesses", user?.id],
-    queryFn: () => apiRequest("GET", `/api/users/${user?.id}/businesses`),
+    queryFn: () => api.users.getBusinesses(user!.id),
     enabled: isAuthenticated && !!user?.id,
   });
 
   const { data: userSkills, isLoading: isSkillsLoading } = useQuery({
     queryKey: ["userSkills", user?.id],
-    queryFn: () => apiRequest("GET", `/api/users/${user?.id}/skills`),
+    queryFn: () => api.users.getSkills(user!.id),
     enabled: isAuthenticated && !!user?.id,
   });
 
@@ -77,7 +79,7 @@ export default function ProfilePage() {
 
   const updateProfileMutation = useMutation({
     mutationFn: (data: z.infer<typeof personalDetailsSchema>) =>
-      apiRequest("PUT", `/api/profile/${user?.id}`, data),
+      api.profile.update(user!.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       toast({ title: "Profile updated successfully" });
@@ -98,7 +100,7 @@ export default function ProfilePage() {
 
   const createBusinessMutation = useMutation({
     mutationFn: (data: z.infer<typeof businessDetailsSchema>) =>
-      apiRequest("POST", `/api/users/${user?.id}/businesses`, data),
+      api.users.createBusiness(user!.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userBusinesses", user?.id] });
       toast({ title: "Business added successfully" });
@@ -120,7 +122,7 @@ export default function ProfilePage() {
 
   const addSkillMutation = useMutation({
     mutationFn: (data: z.infer<typeof skillSchema>) =>
-      apiRequest("POST", `/api/users/${user?.id}/skills`, data),
+      api.users.addSkill(user!.id, data.name, data.level || ''),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userSkills", user?.id] });
       toast({ title: "Skill added successfully" });

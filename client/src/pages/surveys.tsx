@@ -25,7 +25,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Trash2 } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -37,7 +37,7 @@ const newSurveySchema = z.object({
   questions: z.array(z.object({
     questionText: z.string().min(1, "Question text is required"),
     questionType: z.enum(['text', 'radio', 'checkbox']),
-    options: z.string().optional(), // Comma-separated for simplicity
+    options: z.union([z.string(), z.array(z.string())]).optional(), // Accept both string and array
   })).min(1, "At least one question is required"),
   endsAt: z.string().optional(), // Date string
 });
@@ -55,6 +55,7 @@ export default function Surveys() {
 
   const { data: surveys, isLoading } = useQuery({
     queryKey: ["/api/surveys"],
+    queryFn: () => api.surveys.getAll(),
   });
 
   const activeSurveys = surveys?.filter(s => s.status === 'active') || [];
@@ -76,7 +77,7 @@ export default function Surveys() {
 
   const createSurveyMutation = useMutation({
     mutationFn: (data: z.infer<typeof newSurveySchema>) =>
-      apiRequest("/api/surveys", "POST", data),
+      api.surveys.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/surveys"] });
       toast({ title: "Survey created successfully" });
@@ -96,7 +97,7 @@ export default function Surveys() {
     // Parse options string into array for radio/checkbox types
     const questionsWithParsedOptions = data.questions.map(q => ({
       ...q,
-      options: q.options ? q.options.split(',').map(opt => opt.trim()) : undefined
+      options: q.options && typeof q.options === 'string' ? q.options.split(',').map(opt => opt.trim()) : q.options
     }));
     createSurveyMutation.mutate({ ...data, questions: questionsWithParsedOptions });
   };
@@ -108,7 +109,7 @@ export default function Surveys() {
 
   const createSurveyResponseMutation = useMutation({
     mutationFn: (data: z.infer<typeof surveyResponseSchema>) =>
-      apiRequest(`/api/surveys/${selectedSurveyToTake?.id}/responses`, "POST", data),
+      api.surveys.submitResponse(selectedSurveyToTake?.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/surveys"] });
       toast({ title: "Survey response submitted successfully" });

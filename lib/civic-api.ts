@@ -1,4 +1,4 @@
-import { createDatabaseConnection } from '@/scripts/civic-database-setup';
+import { createDatabaseConnection } from '../scripts/civic-database-setup';
 import path from 'path';
 
 interface CivicService {

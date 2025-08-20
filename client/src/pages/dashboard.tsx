@@ -7,6 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { DataChart } from "@/components/charts/data-chart";
 import { Building, PoundSterling, Calendar, Search } from "lucide-react";
+import api from "@/lib/api";
+import type { CouncilData } from "@shared/schema";
+
+type DashboardStats = {
+  planningApplications?: number;
+  totalSpending?: number;
+  upcomingMeetings?: number;
+};
 
 export default function Dashboard() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -14,11 +22,13 @@ export default function Dashboard() {
 
   const { data: stats } = useQuery({
     queryKey: ["/api/council-data/stats"],
-  });
+    queryFn: () => api.councilData.getStats(),
+  }) as { data: DashboardStats | undefined };
 
   const { data: councilData } = useQuery({
     queryKey: ["/api/council-data", { limit: 100 }],
-  });
+    queryFn: () => api.councilData.getData(undefined, 100),
+  }) as { data: CouncilData[] | undefined };
 
   // Process data for charts
   const chartData = councilData?.slice(0, 10).map(item => ({

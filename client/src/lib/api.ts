@@ -506,6 +506,12 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ subject, content, recipients }),
     }),
+    seedDatabase: () => this.request<any>('/api/admin/seed', {
+      method: 'POST',
+    }),
+    startScraping: () => this.request<any>('/api/admin/scrape', {
+      method: 'POST',
+    }),
   }
 }
 

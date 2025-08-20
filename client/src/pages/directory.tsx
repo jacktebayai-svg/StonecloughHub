@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import api from "@/lib/api";
 
 export default function Directory() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,10 +16,12 @@ export default function Directory() {
 
   const { data: businesses, isLoading } = useQuery({
     queryKey: ["/api/businesses", { category: categoryFilter !== "all" ? categoryFilter : undefined }],
+    queryFn: () => api.businesses.getAll(categoryFilter !== "all" ? categoryFilter : undefined),
   });
 
   const { data: searchResults } = useQuery({
     queryKey: ["/api/businesses/search", { q: searchQuery }],
+    queryFn: () => api.businesses.search(searchQuery),
     enabled: searchQuery.length > 2,
   });
 
