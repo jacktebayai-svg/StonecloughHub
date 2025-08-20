@@ -346,9 +346,8 @@ export default function Home() {
                   whileHover={{ y: -8 }}
                 >
                   <Link href={tool.href}>
-                    <Card className="h-full border-0 shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer group overflow-hidden">
-                      <div className={`absolute inset-0 bg-gradient-to-br ${colorClasses[tool.color]} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
-                      <CardContent className="p-8 relative z-10 group-hover:text-white transition-colors duration-300">
+                    <Card className={`h-full border-0 shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer group overflow-hidden hover:bg-gradient-to-br ${colorClasses[tool.color]}`}>
+                      <CardContent className="p-8 group-hover:text-white transition-colors duration-300">
                         <motion.div 
                           className={`inline-flex p-4 rounded-2xl bg-${tool.color}-100 group-hover:bg-white/20 transition-colors duration-300 mb-6`}
                           whileHover={{ scale: 1.1, rotate: 5 }}
