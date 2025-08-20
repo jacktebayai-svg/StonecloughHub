@@ -37,7 +37,12 @@
     "logs": "pm2 logs || docker-compose logs -f",
     "restart": "pm2 restart stoneclough-hub || docker-compose restart",
     "stop": "pm2 stop stoneclough-hub || docker-compose down",
-    "test": "echo \"Tests will be added here\" && exit 0"
+    "test": "echo \"Tests will be added here\" && exit 0",
+    "deploy:setup": "./scripts/deploy-setup.sh",
+    "env:copy": "./scripts/copy-env.sh",
+    "env:vercel": "./scripts/copy-env.sh vercel",
+    "env:railway": "./scripts/copy-env.sh railway",
+    "env:netlify": "./scripts/copy-env.sh netlify"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
