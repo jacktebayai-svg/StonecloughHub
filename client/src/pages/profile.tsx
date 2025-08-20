@@ -438,7 +438,7 @@ export default function ProfilePage() {
                       <Plus className="h-5 w-5 text-blue-600" />
                       <h4 className="text-xl font-bold text-slate-900">Add New Business</h4>
                     </div>
-                  <form onSubmit={businessForm.handleSubmit(onSubmitBusiness)} className="space-y-6">
+                    <form onSubmit={businessForm.handleSubmit(onSubmitBusiness)} className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
                         <Label htmlFor="businessName" className="text-sm font-semibold text-slate-700">Business Name *</Label>
@@ -528,7 +528,8 @@ export default function ProfilePage() {
                         {!createBusinessMutation.isPending && <Plus className="ml-2 h-5 w-5" />}
                       </Button>
                     </motion.div>
-                  </form>
+                    </form>
+                  </div>
                 </CardContent>
               </Card>
 
