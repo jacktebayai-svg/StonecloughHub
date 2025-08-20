@@ -4,17 +4,38 @@ import type { Database } from './database.types'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+let supabase: any;
+
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+  console.warn('Missing Supabase environment variables - using mock mode')
+  // Create mock client that won't break the app
+  supabase = {
+    auth: {
+      getSession: async () => ({ data: { session: null }, error: null }),
+      onAuthStateChange: (callback: any) => {
+        // Immediately call with no session
+        setTimeout(() => callback('INITIAL_SESSION', null), 0)
+        return { data: { subscription: { unsubscribe: () => {} } } }
+      },
+      signUp: async () => ({ data: null, error: { message: 'Supabase not configured' } }),
+      signInWithPassword: async () => ({ data: null, error: { message: 'Supabase not configured' } }),
+      signOut: async () => ({ error: null }),
+      resetPasswordForEmail: async () => ({ data: null, error: { message: 'Supabase not configured' } }),
+      updateUser: async () => ({ data: null, error: { message: 'Supabase not configured' } }),
+      getUser: async () => ({ data: { user: null }, error: null })
+    }
+  }
+} else {
+  supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true
+    }
+  })
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-})
+export { supabase }
 
 // Auth helpers
 export const auth = {

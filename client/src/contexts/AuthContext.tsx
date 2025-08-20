@@ -35,17 +35,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.warn('Auth loading timeout - forcing loading to false')
+      setLoading(false)
+    }, 5000) // 5 second timeout
+
     // Get initial session
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setSession(session)
-      setUser(session?.user ?? null)
-      
-      if (session?.user) {
-        await fetchUserProfile(session.user.id)
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        setSession(session)
+        setUser(session?.user ?? null)
+        
+        // Don't wait for profile - set loading to false immediately after auth check
+        setLoading(false)
+        clearTimeout(timeoutId)
+        
+        // Fetch profile in background without blocking loading
+        if (session?.user) {
+          fetchUserProfile(session.user.id)
+        }
+      } catch (error) {
+        console.error('Error getting initial session:', error)
+        setLoading(false)
+        clearTimeout(timeoutId)
       }
-      
-      setLoading(false)
     }
 
     getInitialSession()
@@ -53,16 +68,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setSession(session)
-        setUser(session?.user ?? null)
-        
-        if (session?.user) {
-          await fetchUserProfile(session.user.id)
-        } else {
-          setUserProfile(null)
+        try {
+          setSession(session)
+          setUser(session?.user ?? null)
+          
+          if (session?.user) {
+            await fetchUserProfile(session.user.id)
+          } else {
+            setUserProfile(null)
+          }
+        } catch (error) {
+          console.error('Error in auth state change:', error)
+        } finally {
+          setLoading(false)
         }
-        
-        setLoading(false)
       }
     )
 
@@ -75,6 +94,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserProfile(profile)
     } catch (error) {
       console.error('Error fetching user profile:', error)
+      // Set a basic profile if API call fails
+      setUserProfile({ id: userId, role: 'user' })
     }
   }
 
