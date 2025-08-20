@@ -24,8 +24,19 @@ const Civic = lazy(() => import("@/pages/civic"));
 
 // Loading component for Suspense fallback
 const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stoneclough-blue"></div>
+  <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="text-center">
+      <div className="relative">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-transparent bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto mb-4">
+          <div className="absolute inset-2 bg-white rounded-full"></div>
+        </div>
+        <div className="animate-pulse">
+          <div className="h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full w-24 mx-auto mb-2"></div>
+          <div className="h-1 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full w-16 mx-auto"></div>
+        </div>
+      </div>
+      <p className="text-gray-600 font-medium mt-4">Loading Community Hub...</p>
+    </div>
   </div>
 );
 
@@ -38,6 +49,11 @@ const withSuspense = (Component: React.ComponentType) => (props: any) => (
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
+
+  // Show loading while authentication is being determined
+  if (isLoading) {
+    return <PageLoader />;
+  }
 
   return (
     <Switch>
@@ -58,8 +74,18 @@ function Router() {
           <Route path="/profile" component={withSuspense(ProfilePage)} />
         </>
       ) : (
-        /* Show landing page when not authenticated */
-        <Route path="/" component={Landing} />
+        /* Show landing page when not authenticated, redirect protected routes */
+        <>
+          <Route path="/" component={Landing} />
+          <Route path="/profile" component={Landing} />
+          <Route path="/dashboard" component={Landing} />
+          <Route path="/directory" component={Landing} />
+          <Route path="/forum" component={Landing} />
+          <Route path="/blog" component={Landing} />
+          <Route path="/surveys" component={Landing} />
+          <Route path="/civic" component={Landing} />
+          <Route path="/admin" component={Landing} />
+        </>
       )}
       
       <Route component={NotFound} />

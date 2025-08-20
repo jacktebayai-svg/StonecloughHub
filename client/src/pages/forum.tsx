@@ -1,4 +1,4 @@
-import { ModernForum } from "../../components/pages/ModernForum";
+import { ModernForum } from "@/components/pages/ModernForum";
 
 export default function Forum() {
   return <ModernForum />;

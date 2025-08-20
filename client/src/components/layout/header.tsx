@@ -23,7 +23,6 @@ const navigationItems = [
   { href: "/directory", label: "Directory", icon: Building2, gradient: "from-emerald-500 to-teal-500" },
   { href: "/forum", label: "Forum", icon: MessageSquare, gradient: "from-orange-500 to-red-500" },
   { href: "/blog", label: "Blog", icon: FileText, gradient: "from-indigo-500 to-purple-500" },
-  { href: "/civic", label: "Civic", icon: Building, gradient: "from-blue-600 to-indigo-600" },
   { href: "/surveys", label: "Surveys", icon: BarChart3, gradient: "from-pink-500 to-rose-500" },
 ];
 
@@ -71,12 +70,14 @@ export function Header() {
             {/* Logo */}
             <Link href="/">
               <div className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity">
-                <img src="/Logo.svg" alt="The Stoneclough Hub Logo" className="h-10 w-10" />
+                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">H</span>
+                </div>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-800">
-                    The Stoneclough Hub
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Community Hub
                   </h1>
-                  <p className="text-xs text-gray-500">Civic Transparency Platform</p>
+                  <p className="text-xs text-gray-500">Your Local Community Platform</p>
                 </div>
               </div>
             </Link>
@@ -102,13 +103,17 @@ export function Header() {
                         />
                       )}
                       <motion.div
-                        className="relative px-3 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
+                        className="relative px-3 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 group-hover:bg-gray-50"
                       >
-                        <IconComponent className={`h-4 w-4 ${active ? 'text-blue-600' : 'text-gray-600'}`} />
-                        <span className={`text-sm font-medium ${
+                        <IconComponent className={`h-4 w-4 transition-colors duration-200 ${
+                          active 
+                            ? `bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent` 
+                            : 'text-gray-600 group-hover:text-gray-800'
+                        }`} />
+                        <span className={`text-sm font-medium transition-colors duration-200 ${
                           active 
                             ? `font-bold bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent` 
-                            : 'text-gray-600'
+                            : 'text-gray-600 group-hover:text-gray-800'
                         }`}>
                           {item.label}
                         </span>

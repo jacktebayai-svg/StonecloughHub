@@ -201,7 +201,7 @@ export default function Home() {
                 transition={{ delay: 0.6 }}
                 className="text-xl text-slate-600 mb-10 max-w-4xl mx-auto leading-relaxed"
               >
-                Real-time transparency into Bolton Council operations, empowering Stoneclough residents with the data and tools needed for civic engagement.
+                Your central hub for community engagement, local business directory, civic participation, and neighborhood connections.
               </motion.p>
               
               {loading ? (
@@ -253,11 +253,11 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent mb-4">
-              Civic Intelligence Overview
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent mb-4">
+              Community Overview
             </h2>
             <p className="text-slate-600 text-lg max-w-3xl mx-auto">
-              Real-time monitoring and analysis of Bolton Council operations, providing transparency and accountability for Stoneclough residents
+              Real-time insights into your local community, connecting residents, businesses, and civic opportunities
             </p>
           </motion.div>
           
@@ -320,10 +320,10 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h3 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent mb-4">
-              Civic Engagement Tools
+              Community Engagement Tools
             </h3>
             <p className="text-slate-600 text-lg max-w-3xl mx-auto">
-              Powerful tools to help you stay informed, participate in local governance, and hold your council accountable
+              Powerful tools to connect with your community, explore local businesses, and participate in neighborhood discussions
             </p>
           </motion.div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -390,10 +390,10 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h3 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent mb-4">
-              Latest Civic Intelligence
+              Latest Community Updates
             </h3>
             <p className="text-slate-600 text-lg max-w-3xl mx-auto">
-              Stay informed with real-time updates from our civic monitoring system
+              Stay connected with the latest happenings in your local community
             </p>
           </motion.div>
           <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
