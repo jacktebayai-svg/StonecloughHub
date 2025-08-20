@@ -260,7 +260,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               disabled={loading}
             >
               {loading ? (
@@ -276,6 +276,23 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
                 </>
               )}
             </Button>
+
+            {mode === 'login' && (
+              <div className="border-t pt-4">
+                <p className="text-xs text-gray-500 text-center mb-3">Quick Demo Access:</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full text-xs"
+                  onClick={() => {
+                    setFormData({ ...formData, email: 'demo@communityhub.com', password: 'demo123' });
+                  }}
+                  disabled={loading}
+                >
+                  Use Demo Account
+                </Button>
+              </div>
+            )}
           </form>
 
           <div className="px-6 pb-6 space-y-4">

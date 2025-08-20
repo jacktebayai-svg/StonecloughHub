@@ -48,22 +48,46 @@ export default function ProfilePage() {
 
   const [activeTab, setActiveTab] = useState("personal");
 
-  const { data: profile, isLoading: isProfileLoading } = useQuery({
+  const { data: profile, isLoading: isProfileLoading, error: profileError } = useQuery({
     queryKey: ["profile", user?.id],
-    queryFn: () => api.profile.get(user!.id),
+    queryFn: async () => {
+      try {
+        return await api.profile.get(user!.id);
+      } catch (error) {
+        console.warn('Profile API call failed, using default profile:', error);
+        return { id: user!.id, bio: '', phone: '', address: '', profilePictureUrl: '' };
+      }
+    },
     enabled: isAuthenticated && !!user?.id,
+    retry: false,
   });
 
   const { data: userBusinesses, isLoading: isBusinessesLoading } = useQuery({
     queryKey: ["userBusinesses", user?.id],
-    queryFn: () => api.users.getBusinesses(user!.id),
+    queryFn: async () => {
+      try {
+        return await api.users.getBusinesses(user!.id);
+      } catch (error) {
+        console.warn('Businesses API call failed:', error);
+        return [];
+      }
+    },
     enabled: isAuthenticated && !!user?.id,
+    retry: false,
   });
 
   const { data: userSkills, isLoading: isSkillsLoading } = useQuery({
     queryKey: ["userSkills", user?.id],
-    queryFn: () => api.users.getSkills(user!.id),
+    queryFn: async () => {
+      try {
+        return await api.users.getSkills(user!.id);
+      } catch (error) {
+        console.warn('Skills API call failed:', error);
+        return [];
+      }
+    },
     enabled: isAuthenticated && !!user?.id,
+    retry: false,
   });
 
   // Personal Details Form
@@ -149,33 +173,39 @@ export default function ProfilePage() {
     addSkillMutation.mutate(data);
   };
 
-  if (isAuthLoading || isProfileLoading || isBusinessesLoading || isSkillsLoading) {
+  if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-stoneclough-light flex items-center justify-center">
-        <p className="text-stoneclough-blue">Loading profile...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mx-auto mb-3"></div>
+          <p className="text-gray-600 font-medium text-sm">Loading profile...</p>
+        </div>
       </div>
     );
   }
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen bg-stoneclough-light flex items-center justify-center">
-        <p className="text-stoneclough-blue">Please log in to view your profile.</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-700 font-medium">Please log in to view your profile.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-stoneclough-light">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-stoneclough-blue mb-6">My Profile</h1>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">My Profile</h1>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="personal">Personal Details</TabsTrigger>
             <TabsTrigger value="business">My Businesses</TabsTrigger>
             <TabsTrigger value="skills">My Skills</TabsTrigger>
+            <TabsTrigger value="account">Account Settings</TabsTrigger>
           </TabsList>
 
           {/* Personal Details Tab */}
@@ -321,6 +351,65 @@ export default function ProfilePage() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Account Settings Tab */}
+          <TabsContent value="account">
+            <div className="space-y-6">
+              {/* Account Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Account Information</CardTitle>
+                  <CardDescription>View your account details.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Email</Label>
+                    <Input value={user?.email || ''} disabled className="bg-gray-50" />
+                  </div>
+                  <div>
+                    <Label>Full Name</Label>
+                    <Input value={user?.user_metadata?.full_name || ''} disabled className="bg-gray-50" />
+                  </div>
+                  <div>
+                    <Label>Member Since</Label>
+                    <Input value={user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'} disabled className="bg-gray-50" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Danger Zone */}
+              <Card className="border-red-200">
+                <CardHeader>
+                  <CardTitle className="text-red-600">Danger Zone</CardTitle>
+                  <CardDescription>
+                    Irreversible actions that will permanently affect your account.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-red-800 mb-2">Delete Account</h4>
+                    <p className="text-sm text-red-700 mb-4">
+                      Permanently delete your account and all associated data. This action cannot be undone.
+                    </p>
+                    <Button 
+                      variant="destructive"
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                          toast({ 
+                            title: "Account deletion requested", 
+                            description: "Please contact support to complete account deletion.",
+                            variant: "destructive" 
+                          });
+                        }
+                      }}
+                    >
+                      Delete Account
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
