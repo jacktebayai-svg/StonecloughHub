@@ -162,10 +162,10 @@ export default function Landing() {
   ];
   
   const stats = [
-    { label: 'Active Users', value: '2,500+', icon: Users },
-    { label: 'Local Businesses', value: '150+', icon: Building2 },
-    { label: 'Council Documents', value: '10,000+', icon: FileText },
-    { label: 'Community Posts', value: '5,000+', icon: MessageSquare }
+    { label: 'Active Users', value: '0', icon: Users },
+    { label: 'Local Businesses', value: '0', icon: Building2 },
+    { label: 'Council Documents', value: '0', icon: FileText },
+    { label: 'Community Posts', value: '0', icon: MessageSquare }
   ];
 
   const { data: promotedBusinesses, isLoading: isLoadingBusinesses } = useQuery({
@@ -190,11 +190,11 @@ export default function Landing() {
     },
   });
 
-  // Sample data for harvested insights
-  const sampleInsights = [
-    { label: 'Planning Apps', value: 25 },
-    { label: 'Council Spend', value: 1.2 },
-    { label: 'Meetings', value: 8 },
+  // Council data insights
+  const councilInsights = [
+    { label: 'Planning Apps', value: 0 },
+    { label: 'Council Spend', value: '£0' },
+    { label: 'Meetings', value: 0 },
   ];
 
   const containerVariants = {
@@ -214,36 +214,6 @@ export default function Landing() {
       initial="hidden"
       animate="visible"
     >
-      {/* Header with Logo and Login Button */}
-      <header className="container mx-auto px-4 py-8 flex justify-between items-center">
-        <motion.div
-          className="flex items-center space-x-4"
-          variants={itemVariants}
-        >
-          <motion.img
-            src="/Logo.svg"
-            alt="The Stoneclough Hub Logo"
-            className="h-24 w-24 drop-shadow-lg"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          />
-          <motion.span
-            className="text-2xl font-bold text-stoneclough-blue dark:text-stoneclough-light"
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
-          >
-            The Stoneclough Hub
-          </motion.span>
-        </motion.div>
-        <motion.div variants={itemVariants}>
-          <Button onClick={handleLogin} size="lg" className="shadow-lg">
-            Sign In
-          </Button>
-        </motion.div>
-      </header>
-
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-stoneclough-blue-50 via-white to-stoneclough-blue-100 py-20">
         <div className="container mx-auto px-4">
@@ -381,30 +351,6 @@ export default function Landing() {
                       )}
                     </Button>
                   </form>
-                  
-                  <div className="mt-6 text-center">
-                    <p className="text-sm text-slate-600 mb-4">Or try a demo account:</p>
-                    <div className="grid grid-cols-1 gap-2">
-                      <Button 
-                        onClick={() => handleDemoLogin('demo@stoneclough.local', 'demo123', 'User')}
-                        disabled={isLoggingIn}
-                        variant="outline"
-                        size="sm"
-                        className="text-xs"
-                      >
-                        Demo User (demo@stoneclough.local)
-                      </Button>
-                      <Button 
-                        onClick={() => handleDemoLogin('admin@stoneclough.local', 'admin123', 'Admin')}
-                        disabled={isLoggingIn}
-                        variant="outline"
-                        size="sm"
-                        className="text-xs"
-                      >
-                        Demo Admin (admin@stoneclough.local)
-                      </Button>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -478,7 +424,7 @@ export default function Landing() {
                   ))}
                 </div>
               ) : (
-                <p className="text-slate-600 text-center py-8">Loading local businesses...</p>
+                <p className="text-slate-600 text-center py-8">No businesses listed yet. Be the first to add your business!</p>
               )}
             </motion.div>
             
@@ -502,7 +448,7 @@ export default function Landing() {
                   ))}
                 </div>
               ) : (
-                <p className="text-slate-600 text-center py-8">Loading community articles...</p>
+                <p className="text-slate-600 text-center py-8">No articles published yet. Start the conversation!</p>
               )}
             </motion.div>
             
@@ -513,7 +459,7 @@ export default function Landing() {
                 Council Data
               </h3>
               <div className="space-y-4">
-                {sampleInsights.map((insight, index) => (
+                {councilInsights.map((insight, index) => (
                   <div key={insight.label} className="flex justify-between items-center">
                     <span className="text-slate-600">{insight.label}</span>
                     <span className="font-semibold text-slate-900">{insight.value}</span>
