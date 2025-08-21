@@ -1,0 +1,56 @@
+{
+  "title": "Data Quality Analysis Dashboard",
+  "overallMetrics": {
+    "completeness": 80,
+    "actionability": 0,
+    "publicValue": 100
+  },
+  "dataAnalysis": {
+    "councillorData": {
+      "total": 0,
+      "highQuality": 0,
+      "withContact": 0,
+      "contactPercentage": null
+    },
+    "financialData": {
+      "total": 2,
+      "fresh": 0,
+      "actionable": 0,
+      "freshnessPercentage": 0
+    }
+  },
+  "improvementPlan": {
+    "immediate": [
+      "Collect missing councillor contact information",
+      "Update outdated financial data",
+      "Map financial transactions to wards"
+    ],
+    "shortTerm": [
+      "Implement automated data freshness monitoring",
+      "Enhance ward profile completeness",
+      "Improve data categorization accuracy"
+    ],
+    "longTerm": [
+      "Build real-time data integration",
+      "Implement predictive data quality scoring",
+      "Create automated councillor profile updates"
+    ]
+  },
+  "qualityTrends": {
+    "type": "bar",
+    "data": [
+      {
+        "label": "Completeness",
+        "value": 80
+      },
+      {
+        "label": "Actionability",
+        "value": 0
+      },
+      {
+        "label": "Public Value",
+        "value": 100
+      }
+    ]
+  }
+}

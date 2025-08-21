@@ -1,0 +1,276 @@
+{
+  "title": "Actionable Insights & Recommendations",
+  "criticalActions": [
+    {
+      "issue": "Critical: Astley Bridge ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Breightmet ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Bromley Cross ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Burnden ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Chorley New Road ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Crompton ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Farnworth ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Great Lever ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Halliwell ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Harper Green ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Heaton and Lostock ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Horwich and Blackrod ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Horwich North East ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Hulton ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Kearsley ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Little Lever and Darcy Lever ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Rumworth ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Smithills ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Tonge with the Haulgh ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Westhoughton North and Chew Moor ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: Westhoughton South ward has no quality councillor data",
+      "priority": "Critical",
+      "category": "Councillor Data"
+    },
+    {
+      "issue": "Critical: No budget data available",
+      "priority": "Critical",
+      "category": "Budget Data"
+    },
+    {
+      "issue": "Critical: Very limited fresh financial data available",
+      "priority": "Critical",
+      "category": "Financial Data"
+    }
+  ],
+  "recommendations": [
+    {
+      "recommendation": "21 wards have incomplete data coverage - focus collection efforts",
+      "priority": "Medium",
+      "category": "Ward Coverage"
+    },
+    {
+      "recommendation": "Only 0 recent financial records - increase financial transparency data collection",
+      "priority": "Medium",
+      "category": "Financial Data"
+    }
+  ],
+  "quickWins": [
+    {
+      "action": "Update missing councillor contact information",
+      "impact": "High",
+      "effort": "Medium",
+      "timeline": "2-4 weeks"
+    },
+    {
+      "action": "Map financial transactions to wards",
+      "impact": "High",
+      "effort": "Low",
+      "timeline": "1-2 weeks"
+    },
+    {
+      "action": "Filter outdated financial records",
+      "impact": "Medium",
+      "effort": "Low",
+      "timeline": "1 week"
+    }
+  ],
+  "dataGaps": [
+    {
+      "ward": "Astley Bridge",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Breightmet",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Bromley Cross",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Burnden",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Chorley New Road",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Crompton",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Farnworth",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Great Lever",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Halliwell",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Harper Green",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Heaton and Lostock",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Horwich and Blackrod",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Horwich North East",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Hulton",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Kearsley",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Little Lever and Darcy Lever",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Rumworth",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Smithills",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Tonge with the Haulgh",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Westhoughton North and Chew Moor",
+      "completeness": 24,
+      "issues": []
+    },
+    {
+      "ward": "Westhoughton South",
+      "completeness": 24,
+      "issues": []
+    }
+  ],
+  "nextSteps": {
+    "immediate": [
+      "Focus data collection on wards with <50% completeness",
+      "Prioritize fresh financial data gathering",
+      "Update councillor contact directories"
+    ],
+    "shortTerm": [
+      "Implement automated data freshness monitoring",
+      "Enhance ward-specific data collection",
+      "Build real-time data quality dashboards"
+    ],
+    "longTerm": [
+      "Create automated data update pipelines",
+      "Implement AI-powered data quality scoring",
+      "Build predictive analytics for data trends"
+    ]
+  }
+}

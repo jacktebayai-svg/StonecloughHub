@@ -19,7 +19,10 @@ export const dataTypeEnum = pgEnum('data_type', [
   'department',
   'service',
   'document',
-  'chart_data'
+  'chart_data',
+  'financial_data',
+  'processed_councillor',
+  'processed_financial'
 ]);
 export const businessCategoryEnum = pgEnum('business_category', ['restaurant_cafe', 'retail_shopping', 'health_beauty', 'professional_services', 'home_garden', 'other']);
 export const forumCategoryEnum = pgEnum('forum_category', ['general', 'local_events', 'business_recommendations', 'council_planning', 'buy_sell', 'green_space']);

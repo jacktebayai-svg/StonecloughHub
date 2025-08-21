@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StonecloughHub Data Analysis - Executive Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #1f2937;
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .header p {
+            color: #6b7280;
+            margin: 10px 0 0 0;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            color: #1f2937;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .findings {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .findings ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .findings li {
+            margin-bottom: 8px;
+            color: #4b5563;
+        }
+        .actions {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .actions h3 {
+            color: #92400e;
+            margin-top: 0;
+        }
+        .actions ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .actions li {
+            margin-bottom: 8px;
+            color: #78350f;
+        }
+        .chart-placeholder {
+            background: #f9fafb;
+            border: 2px dashed #d1d5db;
+            padding: 40px;
+            text-align: center;
+            border-radius: 8px;
+            color: #6b7280;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>StonecloughHub Data Analysis - Executive Dashboard</h1>
+            <p>Generated: 21/08/2025, 13:08:20</p>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">3,715</div>
+                <div class="metric-label">Total Records</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">21</div>
+                <div class="metric-label">Wards Covered</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">80%</div>
+                <div class="metric-label">Data Quality</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">100%</div>
+                <div class="metric-label">Fresh Data</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">0</div>
+                <div class="metric-label">Contactable Councillors</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">2</div>
+                <div class="metric-label">High-Value Transactions</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Key Findings</h2>
+            <div class="findings">
+                <ul>
+                    <li>Processed 3715 total records</li><li>0 councillor profiles created</li><li>2 financial records analyzed</li><li>21 ward profiles built</li><li>0 outdated records filtered</li><li>Data completeness: 80%</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Priority Actions</h2>
+            <div class="actions">
+                <h3>Immediate Actions Required:</h3>
+                <ul>
+                    <li>Critical: Astley Bridge ward has no quality councillor data</li><li>Critical: Breightmet ward has no quality councillor data</li><li>Critical: Bromley Cross ward has no quality councillor data</li><li>Critical: Burnden ward has no quality councillor data</li><li>Critical: Chorley New Road ward has no quality councillor data</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📈 Data Quality Distribution</h2>
+            <div class="chart-placeholder">
+                Data Quality Chart - 3 categories
+                <br><small>Fresh: 3710 | 
+                Current: 5 | 
+                Outdated: 0</small>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🗺️ Ward Completeness</h2>
+            <div class="chart-placeholder">
+                Ward Completeness Chart - 21 wards
+                <br><small>Average Completeness: 24%</small>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>StonecloughHub Advanced Data Analysis System</p>
+            <p>This dashboard provides insights from comprehensive data reprocessing focused on fresh, actionable information.</p>
+        </div>
+    </div>
+</body>
+</html>

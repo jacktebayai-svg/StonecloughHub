@@ -415,44 +415,46 @@ router.get('/search', async (req: Request, res: Response) => {
     }
     
     const civicData = await loadCivicData();
-    const results = {};
+    const results: any = {};
+    const searchStr = (searchTerm as string || '').toLowerCase();
+    const maxResults = parseInt(limit as string) || 10;
     
     if (!type || type === 'councillors') {
       results.councillors = civicData.councillors
         .filter(c => 
-          c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          c.ward?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          c.party?.toLowerCase().includes(searchTerm.toLowerCase())
+          c.name?.toLowerCase().includes(searchStr) ||
+          c.ward?.toLowerCase().includes(searchStr) ||
+          c.party?.toLowerCase().includes(searchStr)
         )
-        .slice(0, limit);
+        .slice(0, maxResults);
     }
     
     if (!type || type === 'meetings') {
       results.meetings = civicData.meetings
         .filter(m =>
-          m.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          m.committee?.toLowerCase().includes(searchTerm.toLowerCase())
+          m.title?.toLowerCase().includes(searchStr) ||
+          m.committee?.toLowerCase().includes(searchStr)
         )
-        .slice(0, limit);
+        .slice(0, maxResults);
     }
     
     if (!type || type === 'services') {
       results.services = civicData.services
         .filter(s =>
-          s.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          s.description?.toLowerCase().includes(searchTerm.toLowerCase())
+          s.name?.toLowerCase().includes(searchStr) ||
+          s.description?.toLowerCase().includes(searchStr)
         )
-        .slice(0, limit);
+        .slice(0, maxResults);
     }
     
     if (!type || type === 'planning') {
       results.planningApplications = civicData.planningApplications
         .filter(p =>
-          p.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.applicationNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+          p.address?.toLowerCase().includes(searchStr) ||
+          p.description?.toLowerCase().includes(searchStr) ||
+          p.applicationNumber?.toLowerCase().includes(searchStr)
         )
-        .slice(0, limit);
+        .slice(0, maxResults);
     }
     
     res.json({ success: true, results });
@@ -472,7 +474,7 @@ router.get('/overview', async (req: Request, res: Response) => {
     const overview = {
       dataHealth: {
         lastUpdate: lastCacheUpdate ? new Date(lastCacheUpdate) : null,
-        totalRecords: Object.values(civicData).reduce((sum, arr) => sum + arr.length, 0)
+        totalRecords: Object.values(civicData).reduce((sum: number, arr: any) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
       },
       counts: {
         councillors: civicData.councillors.length,
@@ -696,7 +698,7 @@ router.get('/analytics/summary', async (req: Request, res: Response) => {
     
     // Generate comprehensive analytics
     const analytics = {
-      totalRecords: Object.values(civicData).reduce((sum, arr) => sum + arr.length, 0),
+      totalRecords: Object.values(civicData).reduce((sum: number, arr: any) => sum + (Array.isArray(arr) ? arr.length : 0), 0),
       dataTypes: {
         councillors: civicData.councillors.length,
         meetings: civicData.meetings.length,

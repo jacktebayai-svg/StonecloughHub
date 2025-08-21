@@ -1,0 +1,135 @@
+{
+  "title": "StonecloughHub Data Analysis - Executive Dashboard",
+  "generated": "2025-08-21T12:08:20.189Z",
+  "keyMetrics": {
+    "totalRecords": 3715,
+    "wardsCovered": 21,
+    "dataQuality": 80,
+    "freshDataPercentage": 100,
+    "councillorsWithContact": "0",
+    "highValueTransactions": 2
+  },
+  "summaryCharts": {
+    "dataQuality": {
+      "type": "pie",
+      "data": [
+        {
+          "label": "Fresh Data",
+          "value": 3710
+        },
+        {
+          "label": "Current Data",
+          "value": 5
+        },
+        {
+          "label": "Outdated Data",
+          "value": 0
+        }
+      ]
+    },
+    "wardCompleteness": {
+      "type": "bar",
+      "data": [
+        {
+          "label": "Astley Bridge",
+          "value": 24
+        },
+        {
+          "label": "Breightmet",
+          "value": 24
+        },
+        {
+          "label": "Bromley Cross",
+          "value": 24
+        },
+        {
+          "label": "Burnden",
+          "value": 24
+        },
+        {
+          "label": "Chorley New Road",
+          "value": 24
+        },
+        {
+          "label": "Crompton",
+          "value": 24
+        },
+        {
+          "label": "Farnworth",
+          "value": 24
+        },
+        {
+          "label": "Great Lever",
+          "value": 24
+        },
+        {
+          "label": "Halliwell",
+          "value": 24
+        },
+        {
+          "label": "Harper Green",
+          "value": 24
+        },
+        {
+          "label": "Heaton and Lostock",
+          "value": 24
+        },
+        {
+          "label": "Horwich and Blackrod",
+          "value": 24
+        },
+        {
+          "label": "Horwich North East",
+          "value": 24
+        },
+        {
+          "label": "Hulton",
+          "value": 24
+        },
+        {
+          "label": "Kearsley",
+          "value": 24
+        },
+        {
+          "label": "Little Lever and Darcy Lever",
+          "value": 24
+        },
+        {
+          "label": "Rumworth",
+          "value": 24
+        },
+        {
+          "label": "Smithills",
+          "value": 24
+        },
+        {
+          "label": "Tonge with the Haulgh",
+          "value": 24
+        },
+        {
+          "label": "Westhoughton North and Chew Moor",
+          "value": 24
+        },
+        {
+          "label": "Westhoughton South",
+          "value": 24
+        }
+      ]
+    }
+  },
+  "criticalFindings": [
+    "Processed 3715 total records",
+    "0 councillor profiles created",
+    "2 financial records analyzed",
+    "21 ward profiles built",
+    "0 outdated records filtered",
+    "Data completeness: 80%"
+  ],
+  "priorityActions": [
+    "Critical: Astley Bridge ward has no quality councillor data",
+    "Critical: Breightmet ward has no quality councillor data",
+    "Critical: Bromley Cross ward has no quality councillor data",
+    "Critical: Burnden ward has no quality councillor data",
+    "Critical: Chorley New Road ward has no quality councillor data"
+  ]
+}

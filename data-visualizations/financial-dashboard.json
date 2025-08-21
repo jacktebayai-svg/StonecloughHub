@@ -1,0 +1,74 @@
+{
+  "title": "Financial Data Analysis Dashboard",
+  "summary": {
+    "totalValue": 975000,
+    "totalRecords": 2,
+    "freshRecords": 2
+  },
+  "departmentBreakdown": [
+    {
+      "department": "Highways",
+      "count": 1,
+      "total": 850000,
+      "average": 850000
+    },
+    {
+      "department": "Community Services",
+      "count": 1,
+      "total": 125000,
+      "average": 125000
+    }
+  ],
+  "wardFinancialActivity": [
+    {
+      "ward": "Unspecified",
+      "count": 2,
+      "total": 975000,
+      "average": 487500
+    }
+  ],
+  "highValueTransactions": [
+    {
+      "title": "Council Spending: Highway Maintenance Contract",
+      "amount": 850000,
+      "department": "Highways",
+      "supplier": "Bolton Road Services Ltd",
+      "freshness": "stale",
+      "publicInterest": "high"
+    },
+    {
+      "title": "Council Spending: Community Center Renovation",
+      "amount": 125000,
+      "department": "Community Services",
+      "supplier": "Local Construction Co",
+      "freshness": "stale",
+      "publicInterest": "high"
+    }
+  ],
+  "freshnessAnalysis": {
+    "type": "pie",
+    "data": [
+      {
+        "label": "fresh",
+        "value": 0
+      },
+      {
+        "label": "current",
+        "value": 0
+      },
+      {
+        "label": "stale",
+        "value": 2
+      },
+      {
+        "label": "outdated",
+        "value": 0
+      }
+    ]
+  },
+  "recommendations": [
+    "Only 0 fresh financial records - increase collection frequency",
+    "2 high public interest transactions identified - ensure transparency",
+    "Less than 50% of financial data mapped to wards - improve location tagging"
+  ]
+}

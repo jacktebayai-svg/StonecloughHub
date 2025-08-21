@@ -968,5 +968,17 @@ export class DataVisualizationEngine {
   }
 }
 
-// Export for use
-export { DataVisualizationEngine };
+// Execute if run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const engine = new DataVisualizationEngine();
+  
+  engine.generateComprehensiveVisualizations()
+    .then(() => {
+      console.log('🎉 Data visualization generation completed successfully!');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('❌ Data visualization generation failed:', error);
+      process.exit(1);
+    });
+}

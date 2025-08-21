@@ -1,0 +1,32 @@
+{
+  "wardName": "Farnworth",
+  "summary": {
+    "councillors": 1,
+    "completeness": 24,
+    "services": 4,
+    "recentPlanning": 0
+  },
+  "councillors": [
+    {
+      "name": "Farnworth Representative",
+      "party": "To Be Determined",
+      "contact": {
+        "email": "Not available",
+        "phone": "Not available",
+        "surgeryTimes": "Not available"
+      },
+      "responsibilities": [],
+      "committees": [],
+      "qualityScore": 10
+    }
+  ],
+  "financialActivity": [],
+  "recommendations": [
+    "Low quality councillor data - improve contact information",
+    "No recent planning application data - verify ward activity"
+  ],
+  "criticalGaps": [
+    "No general contact information",
+    "Very low data completeness"
+  ]
+}

@@ -1,0 +1,179 @@
+{
+  "title": "Bolton Ward Profiles Overview",
+  "totalWards": 21,
+  "summaryTable": [
+    {
+      "ward": "Astley Bridge",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Breightmet",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Bromley Cross",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Burnden",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Chorley New Road",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Crompton",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Farnworth",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Great Lever",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Halliwell",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Harper Green",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Heaton and Lostock",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Horwich and Blackrod",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Horwich North East",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Hulton",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Kearsley",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Little Lever and Darcy Lever",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Rumworth",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Smithills",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Tonge with the Haulgh",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Westhoughton North and Chew Moor",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    },
+    {
+      "ward": "Westhoughton South",
+      "councillors": 1,
+      "dataCompleteness": 24,
+      "recentActivity": 0,
+      "financialRecords": 0,
+      "publicValue": 0
+    }
+  ],
+  "completenessDistribution": {
+    "high": 0,
+    "medium": 0,
+    "low": 21
+  }
+}

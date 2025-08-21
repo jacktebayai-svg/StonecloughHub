@@ -32,9 +32,9 @@ async function getApp() {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const app = await getApp();
-    return app(req, res);
-  } catch (error) {
+    return app(req as any, res as any);
+  } catch (error: any) {
     console.error('❌ Serverless function error:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
+    res.status(500).json({ error: 'Internal server error', details: error?.message || 'Unknown error' });
   }
 }

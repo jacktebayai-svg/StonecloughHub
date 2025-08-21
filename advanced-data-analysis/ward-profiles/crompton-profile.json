@@ -1,0 +1,63 @@
+{
+  "ward": "Crompton",
+  "profile": {
+    "wardName": "Crompton",
+    "councillors": [
+      {
+        "name": "Crompton Representative",
+        "title": "Councillor",
+        "ward": "Crompton",
+        "party": "To Be Determined",
+        "responsibilities": [],
+        "committees": [],
+        "lastUpdated": "2025-08-21T12:05:50.109Z",
+        "source": "placeholder",
+        "qualityScore": 0.1
+      }
+    ],
+    "contactInfo": {
+      "offices": []
+    },
+    "demographics": {},
+    "services": [
+      "Planning Applications",
+      "Council Tax",
+      "Housing Services",
+      "Environmental Services"
+    ],
+    "recentActivity": {
+      "planningApplications": 0,
+      "councilDecisions": 0,
+      "publicConsultations": 0,
+      "lastMeetingDate": "2025-08-21T12:05:50.280Z"
+    },
+    "dataCompleteness": 24,
+    "lastUpdated": "2025-08-21T12:05:50.062Z"
+  },
+  "councillorDetails": [
+    {
+      "name": "Crompton Representative",
+      "title": "Councillor",
+      "ward": "Crompton",
+      "party": "To Be Determined",
+      "responsibilities": [],
+      "committees": [],
+      "lastUpdated": "2025-08-21T12:05:50.109Z",
+      "source": "placeholder",
+      "qualityScore": 0.1
+    }
+  ],
+  "financialData": [],
+  "dataQuality": {
+    "completeness": 24,
+    "recommendations": [
+      "Low quality councillor data - improve contact information",
+      "No recent planning application data - verify ward activity"
+    ],
+    "criticalGaps": [
+      "No general contact information",
+      "Very low data completeness"
+    ]
+  },
+  "publicValue": 0
+}

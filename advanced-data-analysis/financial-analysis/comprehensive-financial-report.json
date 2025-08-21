@@ -1,0 +1,72 @@
+{
+  "summary": {
+    "totalRecords": 2,
+    "totalValue": 975000,
+    "byDepartment": {
+      "Highways": {
+        "count": 1,
+        "total": 850000
+      },
+      "Community Services": {
+        "count": 1,
+        "total": 125000
+      }
+    },
+    "byWard": {
+      "Unspecified": {
+        "count": 2,
+        "total": 975000
+      }
+    },
+    "byFreshness": {
+      "fresh": 0,
+      "current": 0,
+      "stale": 2,
+      "outdated": 0
+    }
+  },
+  "highValueTransactions": [
+    {
+      "id": "f6982583-e5c8-4e60-a208-89d059c724de",
+      "title": "Council Spending: Highway Maintenance Contract",
+      "amount": 850000,
+      "department": "Highways",
+      "category": "contract",
+      "subcategory": "procurement",
+      "date": "2024-01-10T00:00:00.000Z",
+      "description": "Annual highway maintenance and resurfacing contract",
+      "supplier": "Bolton Road Services Ltd",
+      "ward": null,
+      "freshness": "stale",
+      "freshnessScore": 0.4,
+      "actionability": "medium",
+      "publicInterest": "high",
+      "source": "https://www.bolton.gov.uk/council/transparency",
+      "lastVerified": "2025-08-21T12:05:50.166Z"
+    },
+    {
+      "id": "884a7bdb-82fe-4845-96c4-fc95dd1558d4",
+      "title": "Council Spending: Community Center Renovation",
+      "amount": 125000,
+      "department": "Community Services",
+      "category": "spending",
+      "subcategory": "operational",
+      "date": "2024-02-05T00:00:00.000Z",
+      "description": "Renovation works for Stoneclough Community Center",
+      "supplier": "Local Construction Co",
+      "ward": null,
+      "freshness": "stale",
+      "freshnessScore": 0.4,
+      "actionability": "medium",
+      "publicInterest": "high",
+      "source": "https://www.bolton.gov.uk/council/transparency",
+      "lastVerified": "2025-08-21T12:05:50.166Z"
+    }
+  ],
+  "recentActivity": [],
+  "recommendations": [
+    "Only 0 fresh financial records - increase collection frequency",
+    "2 high public interest transactions identified - ensure transparency",
+    "Less than 50% of financial data mapped to wards - improve location tagging"
+  ]
+}
