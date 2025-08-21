@@ -1,0 +1,57 @@
+{
+  "session": {
+    "sessionId": "9282f6d9-65ca-4690-acea-bc9ea195704c",
+    "startTime": "2025-08-21T11:32:49.367Z",
+    "totalUrls": 122,
+    "processedUrls": 3,
+    "failedUrls": 1,
+    "duplicatesSkipped": 0,
+    "bytesDownloaded": 206420,
+    "status": "running",
+    "qualityDistribution": {
+      "low": 0,
+      "medium": 3,
+      "high": 0,
+      "excellent": 0
+    },
+    "categoryBreakdown": {
+      "homepage": 1,
+      "democracy": 1,
+      "meetings": 1
+    },
+    "domainBreakdown": {},
+    "averageQuality": null,
+    "averageResponseTime": null,
+    "totalWords": 1585,
+    "entityCount": 69
+  },
+  "performance": {
+    "crawlEfficiency": 2,
+    "qualityRate": null,
+    "averageResponseTime": null,
+    "dataExtractionRate": 23,
+    "contentVolumeGB": 0
+  },
+  "insights": [
+    "Master Unified Crawler processed 3 pages with advanced AI analysis",
+    "Extracted 69 entities with confidence scoring",
+    "Achieved NaN% average quality score",
+    "Collected 2K words of government content",
+    "0% of pages achieved excellent quality (90%+)"
+  ],
+  "qualityDistribution": {
+    "low": 0,
+    "medium": 3,
+    "high": 0,
+    "excellent": 0
+  },
+  "categoryBreakdown": {
+    "homepage": 1,
+    "democracy": 1,
+    "meetings": 1
+  },
+  "domainBreakdown": {},
+  "recommendations": [
+    "Consider increasing stealth delays - failure rate above 10%"
+  ]
+}

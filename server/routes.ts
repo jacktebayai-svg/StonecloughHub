@@ -57,6 +57,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Export and public API routes
   app.use("/api/export", exportRoutes);
 
+  // Civic data routes (from Master Unified Crawler)
+  const civicRoutes = (await import('./civic-routes.js')).default;
+  app.use("/api/civic", civicRoutes);
+
   // Serve uploaded files
   app.use('/uploads', express.static(process.cwd() + '/uploads'));
 

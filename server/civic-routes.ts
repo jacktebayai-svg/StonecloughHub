@@ -633,4 +633,103 @@ router.get('/db/statistics', async (req: Request, res: Response) => {
   }
 });
 
+// 📁 RAW DATA ENDPOINTS (for CivicDataExplorer)
+router.get('/raw-data/:filename', async (req: Request, res: Response) => {
+  try {
+    const { filename } = req.params;
+    const allowedFiles = [
+      'comprehensive-dataset',
+      'financial-services', 
+      'council-meetings',
+      'high-quality-content',
+      'planning-development',
+      'business-licensing'
+    ];
+    
+    if (!allowedFiles.includes(filename)) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Data file not found' 
+      });
+    }
+    
+    // Try multiple data directories
+    const dataPaths = [
+      path.join(process.cwd(), 'stealth-bolton-data/raw-data', `${filename}.json`),
+      path.join(process.cwd(), 'comprehensive-bolton-data/raw-data', `${filename}.json`),
+      path.join(process.cwd(), 'master-crawler-data/datasets', `${filename}.json`)
+    ];
+    
+    for (const dataPath of dataPaths) {
+      try {
+        const content = await fs.readFile(dataPath, 'utf-8');
+        const data = JSON.parse(content);
+        
+        res.set({
+          'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600',
+          'X-Data-Source': dataPath,
+          'X-Data-Count': Array.isArray(data) ? data.length.toString() : '1'
+        });
+        
+        return res.json(data);
+      } catch (error) {
+        continue; // Try next path
+      }
+    }
+    
+    res.status(404).json({ 
+      success: false, 
+      error: 'Data file not found in any location' 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to load raw data' 
+    });
+  }
+});
+
+// 📊 DATA ANALYTICS ENDPOINT
+router.get('/analytics/summary', async (req: Request, res: Response) => {
+  try {
+    const civicData = await loadCivicData();
+    
+    // Generate comprehensive analytics
+    const analytics = {
+      totalRecords: Object.values(civicData).reduce((sum, arr) => sum + arr.length, 0),
+      dataTypes: {
+        councillors: civicData.councillors.length,
+        meetings: civicData.meetings.length,
+        services: civicData.services.length,
+        planningApplications: civicData.planningApplications.length,
+        statistics: civicData.statistics.length,
+        rawPages: civicData.rawPages.length
+      },
+      qualityDistribution: {
+        high: civicData.rawPages.filter(p => p.quality > 0.8).length,
+        medium: civicData.rawPages.filter(p => p.quality > 0.6 && p.quality <= 0.8).length,
+        low: civicData.rawPages.filter(p => p.quality <= 0.6).length
+      },
+      categoryBreakdown: civicData.rawPages.reduce((acc, page) => {
+        acc[page.category] = (acc[page.category] || 0) + 1;
+        return acc;
+      }, {}),
+      lastUpdate: lastCacheUpdate ? new Date(lastCacheUpdate) : new Date(),
+      averageQuality: civicData.rawPages.reduce((sum, p) => sum + p.quality, 0) / civicData.rawPages.length,
+      crawlCoverage: {
+        totalUrls: civicData.rawPages.length,
+        uniqueDomains: [...new Set(civicData.rawPages.map(p => new URL(p.url).hostname))].length,
+        totalWords: civicData.rawPages.reduce((sum, p) => sum + (p.contentLength || 0), 0)
+      }
+    };
+    
+    res.json({ success: true, analytics });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to generate analytics' 
+    });
+  }
+});
+
 export default router;

@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://www.bolton.gov.uk",
+    "title": "Home – Bolton Council",
+    "category": "homepage",
+    "subcategory": "general",
+    "quality": 0.61,
+    "entityCount": 8,
+    "wordCount": 458,
+    "extractedDataTypes": [
+      "tables",
+      "forms",
+      "contacts",
+      "documents",
+      "financialData",
+      "organizationalData",
+      "structuredData",
+      "navigationData",
+      "images",
+      "links",
+      "media",
+      "entities"
+    ],
+    "crawledAt": "2025-08-21T11:32:54.148Z"
+  },
+  {
+    "url": "https://bolton.moderngov.co.uk/mgMemberIndex.aspx?bcr=1",
+    "title": "Your Councillors - Bolton Council",
+    "category": "democracy",
+    "subcategory": "general",
+    "quality": 0.66,
+    "entityCount": 34,
+    "wordCount": 673,
+    "extractedDataTypes": [
+      "tables",
+      "forms",
+      "contacts",
+      "documents",
+      "financialData",
+      "organizationalData",
+      "structuredData",
+      "navigationData",
+      "images",
+      "links",
+      "media",
+      "entities"
+    ],
+    "crawledAt": "2025-08-21T11:32:54.631Z"
+  },
+  {
+    "url": "https://bolton.moderngov.co.uk/mgWhatsNew.aspx?bcr=1",
+    "title": "What's newly published - Bolton Council",
+    "category": "meetings",
+    "subcategory": "general",
+    "quality": 0.7,
+    "entityCount": 27,
+    "wordCount": 454,
+    "extractedDataTypes": [
+      "tables",
+      "forms",
+      "contacts",
+      "documents",
+      "financialData",
+      "organizationalData",
+      "structuredData",
+      "navigationData",
+      "images",
+      "links",
+      "media",
+      "entities"
+    ],
+    "crawledAt": "2025-08-21T11:32:55.905Z"
+  }
+]

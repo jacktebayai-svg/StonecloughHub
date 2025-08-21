@@ -1,9 +1,17 @@
 import * as pdf2pic from 'pdf2pic';
-import * as pdfParse from 'pdf-parse';
 import { z } from 'zod';
 import { createWorker } from 'tesseract.js';
 import fs from 'fs';
 import path from 'path';
+
+// Lazy-loaded pdf-parse to avoid startup issues
+let pdfParse: any = null;
+async function getPdfParse() {
+  if (!pdfParse) {
+    pdfParse = (await import('pdf-parse')).default;
+  }
+  return pdfParse;
+}
 
 // Schema for parsed PDF content
 const parsedPdfContentSchema = z.object({
@@ -86,7 +94,8 @@ export class PdfParserService {
       const buffer = await fs.promises.readFile(filePath);
       
       // Extract text using pdf-parse
-      const pdfData = await pdfParse(buffer, {
+      const pdfParseModule = await getPdfParse();
+      const pdfData = await pdfParseModule(buffer, {
         pagerender: async (pageData: any) => {
           return pageData.getTextContent();
         }
@@ -141,7 +150,8 @@ export class PdfParserService {
    */
   private async extractPageText(buffer: Buffer, pageNum: number): Promise<string> {
     try {
-      const pdfData = await pdfParse(buffer, {
+      const pdfParseModule = await getPdfParse();
+      const pdfData = await pdfParseModule(buffer, {
         first: pageNum,
         last: pageNum
       });
